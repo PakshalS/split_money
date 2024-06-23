@@ -1,1 +1,1 @@
-# spilt_money
+# split_money
