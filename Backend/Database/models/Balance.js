@@ -2,12 +2,12 @@ const mongoose = require ('mongoose');
 
 const BalanceSchema = new  mongoose.Schema ({
     user:{
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
-    },
+    }, 
     group:{
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Group',
         required: true
     },
