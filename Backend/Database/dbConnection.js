@@ -1,57 +1,15 @@
-// // mongodbClient.js
-// const { MongoClient, ServerApiVersion } = require('mongodb');
-// const uri = "mongodb+srv://3277pakshalshah:0m8C4qUQwotSSRE8@cluster0.wpiqcft.mongodb.net/?appName=Cluster0/Information";
+const mongoose = require('mongoose');
 
-// // Create a MongoClient with a MongoClientOptions object to set the Stable API version
-// const client = new MongoClient(uri, {
-//   serverApi: {
-//     version: ServerApiVersion.v1,
-//     strict: true,
-//     deprecationErrors: true,
-//   }
-// });
-
-// async function connectToDatabase() {
-//   try {
-//     // Connect the client to the server (optional starting in v4.7)
-//     await client.connect();
-//     // Send a ping to confirm a successful connection
-//     await client.db("Information").command({ ping: 1 });
-//     console.log("Pinged your deployment. You successfully connected to MongoDB!");
-//     return client;
-//   } catch (error) {
-//     console.error("Failed to connect to MongoDB", error);
-//     throw error;
-//   }
-// }
-
-// module.exports = { connectToDatabase, client };
-
-// mongodbClient.js
-const { MongoClient, ServerApiVersion } = require('mongodb');
-const uri = "mongodb+srv://3277pakshalshah:0m8C4qUQwotSSRE8@cluster0.wpiqcft.mongodb.net/?appName=Cluster0/Information";
-
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
-});
-
-async function connectToDatabase() {
+const dbConnect = async () => {
   try {
-    // Connect the client to the server
-    await client.connect();
-    // Send a ping to confirm a successful connection
-    await client.db("Information").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-    return client;
+    // Replace <username> and <password> with your actual MongoDB Atlas credentials
+    // const uri = "mongodb+srv://3277pakshalshah:0m8C4qUQwotSSRE8@cluster0.wpiqcft.mongodb.net/?appName=Cluster0/Information?retryWrites=true&w=majority";
+   const uri ="mongodb+srv://3277pakshalshah:0m8C4qUQwotSSRE8@cluster0.wpiqcft.mongodb.net/Information?retryWrites=true&w=majority&appName=Cluster0";
+    await mongoose.connect(uri);
+    console.log('Connected to MongoDB');
   } catch (error) {
-    console.error("Failed to connect to MongoDB", error);
-    throw error;
+    console.error('Error connecting to MongoDB:', error);
   }
-}
+};
 
-module.exports = { connectToDatabase, client };
+module.exports = dbConnect;
