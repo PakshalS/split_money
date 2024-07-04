@@ -53,5 +53,5 @@ const login = async (req, res) => {
       res.status(500).json({ error: 'Login Failed' });
     }
   };
-  
+
   module.exports = { register, login };
