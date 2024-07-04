@@ -6,6 +6,9 @@ const createGroup = async (req, res) => {
     const { name, members } = req.body;
     const adminId = req.user.userId;
 
+    // Get admin details
+    const admin = await User.findById(adminId);
+
     // Process members array
     const groupMembers = await Promise.all(members.map(async (member) => {
       if (member.email) {
@@ -16,6 +19,9 @@ const createGroup = async (req, res) => {
       }
       return { name: member.name, email: member.email };
     }));
+
+    // Add admin as the first member
+    groupMembers.unshift({ user: admin._id, name: admin.name, email: admin.email });
 
     const group = new Group({
       name,
@@ -60,8 +66,63 @@ const addMember = async (req, res) => {
 };
 
 const removeMember = async (req, res) => {
+    try {
+      const { groupId, memberId } = req.body;
+      const userId = req.user.userId;
+  
+      const group = await Group.findById(groupId);
+      if (!group) {
+        return res.status(404).json({ error: 'Group not found' });
+      }
+  
+      if (group.admin.toString() !== userId) {
+        return res.status(403).json({ error: 'Only the group admin can remove members' });
+      }
+  
+      group.members = group.members.filter(member => member._id.toString() !== memberId);
+      await group.save();
+  
+      res.status(200).json({ message: 'Member removed successfully', group });
+    } catch (error) {
+      console.error('Error removing member:', error);
+      res.status(500).json({ error: 'Failed to remove member' });
+    }
+  };
+
+const leaveGroup = async (req, res) => {
   try {
-    const { groupId, memberId } = req.body;
+    const { groupId } = req.body;
+    const userId = req.user.userId;
+
+    const group = await Group.findById(groupId);
+    if (!group) {
+      return res.status(404).json({ error: 'Group not found' });
+    }
+
+    // If the admin is leaving
+    if (group.admin.toString() === userId) {
+      // Transfer admin rights to the next member
+      const nextAdmin = group.members.find(member => member.user && member.user.toString() !== userId);
+      if (!nextAdmin) {
+        return res.status(400).json({ error: 'Cannot leave the group without transferring admin rights' });
+      }
+      group.admin = nextAdmin.user;
+    }
+
+    // Remove the member from the group
+    group.members = group.members.filter(member => member.user ? member.user.toString() !== userId : true);
+    await group.save();
+
+    res.status(200).json({ message: 'Left group successfully', group });
+  } catch (error) {
+    console.error('Error leaving group:', error);
+    res.status(500).json({ error: 'Failed to leave group' });
+  }
+};
+
+const editGroup = async (req, res) => {
+  try {
+    const { groupId, name } = req.body;
     const userId = req.user.userId;
 
     const group = await Group.findById(groupId);
@@ -70,17 +131,18 @@ const removeMember = async (req, res) => {
     }
 
     if (group.admin.toString() !== userId) {
-      return res.status(403).json({ error: 'Only the group admin can remove members' });
+      return res.status(403).json({ error: 'Only the group admin can edit group details' });
     }
 
-    group.members = group.members.filter(member => member._id.toString() !== memberId);
+    group.name = name;
     await group.save();
 
-    res.status(200).json({ message: 'Member removed successfully', group });
+    res.status(200).json({ message: 'Group details updated successfully', group });
   } catch (error) {
-    console.error('Error removing member:', error);
-    res.status(500).json({ error: 'Failed to remove member' });
+    console.error('Error editing group:', error);
+    res.status(500).json({ error: 'Failed to edit group' });
   }
 };
 
-module.exports = { createGroup, addMember, removeMember };
+
+module.exports = { createGroup, addMember, removeMember, leaveGroup, editGroup};
