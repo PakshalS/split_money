@@ -1,6 +1,6 @@
 // routes/groupRoutes.js
 const express = require('express');
-const { createGroup, addMember, removeMember } = require('../Controller/groupcontroller');
+const { createGroup, addMember, removeMember } = require('../Controller/group');
 const authenticateJWT = require('../middleware/authMiddleware');
 
 const router = express.Router();
