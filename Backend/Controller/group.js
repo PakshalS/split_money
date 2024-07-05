@@ -144,5 +144,40 @@ const editGroup = async (req, res) => {
   }
 };
 
+const addFriendstoGroup = async (req,res) =>{
+  try {
+    const {groupId , friendId} = req.body;
+    const userId = req.user.userId;
 
-module.exports = { createGroup, addMember, removeMember, leaveGroup, editGroup};
+    const group= await Group.findById(groupId);
+    if(!group)
+    {
+      return res.status(404).json({error:"Group not found"});
+    }
+
+    if(group.admin.toString()!== userId)
+    {
+      return res.status(403).json({error:"Only the group admin can add members"});
+    }
+    const friend = await User.findById(friendId);
+    if(!friend)
+    {
+      return res.status(404).json({error:"Friend not found"});
+    }
+
+    const isAlreadyMember = group.members.some(member => member.user && member.user.toString()==friendId);
+    if(isAlreadyMember)
+    {
+      res.status(404).json({error:"Friend is already a member of group"});
+    }
+
+    group.members.push({user:friend._id , name:friend.name , email:friend.email});
+    await group.save();
+    res.status(201).json({message:"Friend added to group successfully", group})
+  } catch (error) {
+    console.error('Error adding friend to group:', error);
+    res.status(500).json({ error: 'Failed to add friend to group' });
+  }
+}
+
+module.exports = { createGroup, addMember, removeMember, leaveGroup, editGroup , addFriendstoGroup};

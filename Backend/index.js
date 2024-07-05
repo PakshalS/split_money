@@ -1,6 +1,7 @@
 const express = require('express');
 const groupRoutes = require('./routes/groupRoutes');
 const authRoutes = require('./routes/authroutes');
+const friendrequestRoutes = require('./routes/friendrequestRoutes')
 const cors = require('cors');
 const dbConnect = require('./config/dbConnection');
 require('dotenv').config();
@@ -15,6 +16,7 @@ app.use(express.json());
 //Routes
 app.use('/auth', authRoutes);
 app.use('/groups', groupRoutes);
+app.use('/friends',friendrequestRoutes);
 
 
 // Default Route
