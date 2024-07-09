@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const groupSchema = new mongoose.Schema({
   name: {
@@ -7,14 +7,14 @@ const groupSchema = new mongoose.Schema({
   },
   admin: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: "User",
     required: true,
   },
   members: [
     {
       user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        ref: "User",
       },
       name: {
         type: String,
@@ -23,12 +23,22 @@ const groupSchema = new mongoose.Schema({
       email: {
         type: String,
       },
-    }
+    },
   ],
+  expenses: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Expense",
+    },
+  ],
+  balances: {
+    type: Map,
+    of: { type: Number, default: 0 }
+  },
   createdAt: {
     type: Date,
     default: Date.now,
   },
 });
 
-module.exports = mongoose.model('Group', groupSchema);
+module.exports = mongoose.model("Group", groupSchema);
