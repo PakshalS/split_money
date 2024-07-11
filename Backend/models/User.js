@@ -27,6 +27,23 @@ const userSchema = new mongoose.Schema({
       ref: "Group",
     },
   ],
+  requests: [
+    {
+      requester: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+      recipient: { 
+        type: mongoose.Schema.Types.ObjectId, ref: "User",
+         required: true 
+        },
+      status: {
+        type: String,
+        enum: ["pending", "accepted", "rejected"],
+        default: "pending",
+      },
+    },
+  ],
   createdAt: {
     type: Date,
     default: Date.now,
