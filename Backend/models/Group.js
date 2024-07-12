@@ -12,7 +12,7 @@ const groupSchema = new mongoose.Schema({
   },
   members: [
     {
-      user: {
+      userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
       },
@@ -31,10 +31,25 @@ const groupSchema = new mongoose.Schema({
       ref: "Expense",
     },
   ],
-  balances: {
-    type: Map,
-    of: { type: Number, default: 0 }
-  },
+  balances: [
+    {
+      userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+      balance: {
+        type: Number,
+        default: 0,
+      },
+      name: {
+        type: String,
+        required: true,
+      },
+      email: {
+        type: String,
+      },
+    },
+  ],
   createdAt: {
     type: Date,
     default: Date.now,

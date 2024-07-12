@@ -5,7 +5,7 @@ const ExpenseSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  originalAmount: {
+  amount: {
     type: Number,
     required: true,
   },
@@ -14,6 +14,13 @@ const ExpenseSchema = new mongoose.Schema({
       userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
+      },
+      name: {
+        type: String,
+        required: true,
+      },
+      email: {
+        type: String,
       },
       amount: {
         type: Number,
@@ -27,11 +34,24 @@ const ExpenseSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
       },
+      name: {
+        type: String,
+        required: true,
+      },
+      email: {
+        type: String,
+      },
     },
   ],
   groupId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Group",
+    required: true,
+  },
+
+  createdAt: {
+    type: Date,
+    default: Date.now,
   },
 });
 
