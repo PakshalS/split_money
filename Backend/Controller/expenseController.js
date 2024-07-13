@@ -71,7 +71,7 @@ const getBalances = async (req, res) => {
     }));
 
     const summary = generateSummary(balances);
-    res.status(200).json({ balances, summary });
+    res.status(200).json({ balances: group.balances, summary });
   } catch (error) {
     console.error('Error getting balances:', error);
     res.status(500).json({ error: 'Failed to get balances' });
