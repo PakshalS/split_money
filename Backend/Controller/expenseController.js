@@ -6,7 +6,7 @@ const addExpense = async (req, res) => {
     const {groupId, name , amount , paidBy , splitAmongst} =req.body;
     const adminId = req.user.userId;
 
-    const group = await Group.findById(groupid);
+    const group = await Group.findById(groupId);
     if(!group)
     {
       return res.status(404).json({error:"Group not found"});

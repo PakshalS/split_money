@@ -1,9 +1,11 @@
 const express = require('express');
-const Router = express.Router();
+const router = express.Router();
 const authenticateJWT = require('../middleware/authMiddleware');
 const {addExpense,settleUp,getBalances} = require('../Controller/expenseController')
 
-Router.post('/expense',authenticateJWT,addExpense);
-Router.post('/balances',authenticateJWT,getBalances);
-Router.post('/settleup',authenticateJWT,settleUp);
-    
+router.post('/expense',authenticateJWT,addExpense);
+router.get('/balances',authenticateJWT,getBalances);
+router.post('/settleup',authenticateJWT,settleUp);
+
+
+module.exports = router;
