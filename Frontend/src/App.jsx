@@ -1,8 +1,16 @@
-import React from 'react'
+import Home from "./pages/Homepage";
+import NoPage from "./pages/Error";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-const App = () => {
+function App() {
+
   return (
-    <div>App</div>
+    <BrowserRouter>
+    <Routes>
+        <Route path="/" element={<Home/>}/>
+        <Route path="*" element={<NoPage/>}/>
+    </Routes>
+  </BrowserRouter>
   )
 }
 
