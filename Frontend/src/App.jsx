@@ -1,6 +1,8 @@
 import Home from "./pages/Homepage";
 import NoPage from "./pages/Error";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Login from "./components/Login";
+import Register from "./components/Signup";
 
 function App() {
 
@@ -9,6 +11,8 @@ function App() {
     <Routes>
         <Route path="/" element={<Home/>}/>
         <Route path="*" element={<NoPage/>}/>
+        <Route path="/login" element={<Login/>}/>
+        <Route path="/register" element={<Register/>}/>
     </Routes>
   </BrowserRouter>
   )
