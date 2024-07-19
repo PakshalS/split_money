@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import { FaBars, FaTimes } from 'react-icons/fa';
 import { Link as RouterLink } from 'react-router-dom';
 import { Link as ScrollLink } from 'react-scroll';
 
-const Navigationbar = () => {
+const PageNavigationbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleMenu = () => {
@@ -14,9 +13,9 @@ const Navigationbar = () => {
   return (
     <nav className="bg-black h-16 lg:h-20 flex justify-between items-center px-4 md:px-8 z-50 fixed w-full top-0 left-0">
       <div className="text-white text-2xl font-bold hover:cursor-pointer hover:text-green-500 ">
-        <ScrollLink to="home" smooth={true} duration={500}>
+        <RouterLink to="/" smooth={true} duration={500}>
           Cash Splitter
-        </ScrollLink>
+        </RouterLink>
       </div>
       <div className="md:hidden">
         <button onClick={toggleMenu} className="text-white text-2xl focus:outline-none">
@@ -39,23 +38,13 @@ const Navigationbar = () => {
           </RouterLink>
         </li>
         <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
-          <ScrollLink to="home" smooth={true} duration={500} onClick={() => setIsOpen(false)}>
+          <RouterLink to="/" smooth={true} duration={500} onClick={() => setIsOpen(false)}>
             Home
-          </ScrollLink>
-        </li>
-        <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
-          <ScrollLink to="about" smooth={true} duration={500} onClick={() => setIsOpen(false)}>
-            About
-          </ScrollLink>
-        </li>
-        <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
-          <ScrollLink to="contact" smooth={true} duration={500} onClick={() => setIsOpen(false)}>
-            Contact
-          </ScrollLink>
+          </RouterLink>
         </li>
       </ul>
     </nav>
   );
 };
 
-export default Navigationbar;
+export default PageNavigationbar;
