@@ -1,11 +1,15 @@
-import React, { useState} from 'react';
+import React, { useState , useContext} from 'react';
 import { Link } from 'react-router-dom';
 import PageNavigationbar from '../pagenavbar';
 import axios from "axios";
+import {useNavigate} from 'react-router-dom'
+import { AuthContext } from '../../context/authcontext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
+  const { login } = useContext(AuthContext); // Use context for login
 
 
   const handleSubmit = async (e) => {
@@ -16,7 +20,7 @@ const Login = () => {
         password,
       });
       const { token } = response.data;
-      Login(token);
+      login(token);
       navigate('/dashboard');
     } catch (error) {
       console.error('Login failed:', error.response?.data?.message || error.message);

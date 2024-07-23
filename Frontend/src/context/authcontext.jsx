@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode'; 
+import  {jwtDecode} from 'jwt-decode'; 
+import Cookies from 'js-cookie';
 
 const AuthContext = createContext();
 
@@ -9,22 +10,25 @@ const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
+    const token = Cookies.get('authToken');
     if (token) {
+      console.log('Token found:', token);
       const decodedToken = jwtDecode(token);
       setAuthData(decodedToken);
     }
   }, []);
 
   const login = (token) => {
-    localStorage.setItem('authToken', token);
+    console.log('Logging in with token:', token);
+    Cookies.set('authToken', token, { expires: 1 }); // token expires in 1 day
     const decodedToken = jwtDecode(token);
     setAuthData(decodedToken);
     navigate('/dashboard');
   };
 
   const logout = () => {
-    localStorage.removeItem('authToken');
+    console.log('Logging out');
+    Cookies.remove('authToken');
     setAuthData(null);
     navigate('/login');
   };
