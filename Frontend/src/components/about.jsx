@@ -26,6 +26,17 @@ const About = () => {
           </div>
         ))}
       </div>
+      <div className='grid grid-cols-1  lg:grid-cols-3 ' > 
+        <div className=' bg-blue-100 h-52'>
+hi
+        </div>
+        <div className=' bg-yellow-600  h-52'>
+          hi
+          </div>
+          <div className='bg-red-600  h-52'>
+          hi
+          </div>
+      </div>
     </div>
   );
 };
