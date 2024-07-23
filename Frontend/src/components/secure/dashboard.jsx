@@ -1,9 +1,9 @@
 import React from 'react'
 
-const Balance = () => {
+const Dashboard = () => {
   return (
     <div>Balance</div>
   )
 }
 
-export default Balance
+export default Dashboard

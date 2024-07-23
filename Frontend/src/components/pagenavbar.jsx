@@ -13,7 +13,7 @@ const PageNavigationbar = () => {
   return (
     <nav className="bg-black h-16 lg:h-20 flex justify-between items-center px-4 md:px-8 z-50 fixed w-full top-0 left-0">
       <div className="text-white text-2xl font-bold hover:cursor-pointer hover:text-green-500 ">
-        <RouterLink to="/" smooth={true} duration={500}>
+        <RouterLink to="/">
           Cash Splitter
         </RouterLink>
       </div>
@@ -38,7 +38,7 @@ const PageNavigationbar = () => {
           </RouterLink>
         </li>
         <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
-          <RouterLink to="/" smooth={true} duration={500} onClick={() => setIsOpen(false)}>
+          <RouterLink to="/"   onClick={() => setIsOpen(false)}>
             Home
           </RouterLink>
         </li>

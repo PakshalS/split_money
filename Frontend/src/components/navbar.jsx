@@ -1,11 +1,18 @@
-
-import React, { useState } from 'react';
+import { AuthContext } from '../context/authcontext'
+import React, { useState , useContext } from 'react';
 import { FaBars, FaTimes } from 'react-icons/fa';
 import { Link as RouterLink } from 'react-router-dom';
 import { Link as ScrollLink } from 'react-scroll';
 
 const Navigationbar = () => {
+  const { authData, setAuthData } = useContext(AuthContext);
   const [isOpen, setIsOpen] = useState(false);
+  
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setAuthData(null);
+  };
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -28,7 +35,15 @@ const Navigationbar = () => {
           isOpen ? 'block' : 'hidden'
         } md:flex`}
       >
-        <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
+         {authData ? (
+          <>
+            <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
+              <button onClick={handleLogout}>Logout</button>
+            </li>
+          </>
+          ):(
+            <>
+             <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
           <RouterLink to="/login" onClick={() => setIsOpen(false)}>
             Login
           </RouterLink>
@@ -53,6 +68,8 @@ const Navigationbar = () => {
             Contact
           </ScrollLink>
         </li>
+
+          </>)} 
       </ul>
     </nav>
   );
