@@ -1,17 +1,18 @@
-import { AuthContext } from '../context/authcontext'
-import React, { useState , useContext } from 'react';
-import { FaBars, FaTimes } from 'react-icons/fa';
-import { Link as RouterLink } from 'react-router-dom';
-import { Link as ScrollLink } from 'react-scroll';
+import { AuthContext } from "../context/authcontext";
+import React, { useState, useContext } from "react";
+import { FaBars, FaTimes } from "react-icons/fa";
+import { Link as RouterLink } from "react-router-dom";
+import { Link as ScrollLink } from "react-scroll";
+import Cookies from "js-cookie";
 
 const Navigationbar = () => {
   const { authData, setAuthData } = useContext(AuthContext);
   const [isOpen, setIsOpen] = useState(false);
-  
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    Cookies.remove("authToken");
     setAuthData(null);
+    window.location.reload(true);
   };
 
   const toggleMenu = () => {
@@ -26,50 +27,83 @@ const Navigationbar = () => {
         </ScrollLink>
       </div>
       <div className="md:hidden">
-        <button onClick={toggleMenu} className="text-white text-2xl focus:outline-none">
+        <button
+          onClick={toggleMenu}
+          className="text-white text-2xl focus:outline-none"
+        >
           {isOpen ? <FaTimes /> : <FaBars />}
         </button>
       </div>
       <ul
         className={`fixed top-14 left-0 w-full bg-black text-center md:relative md:top-0 md:left-0 md:w-auto md:bg-transparent md:items-center md:gap-x-14 pt-5 md:pt-0 pr-4 text-lg md:text-2xl text-white ${
-          isOpen ? 'block' : 'hidden'
+          isOpen ? "block" : "hidden"
         } md:flex`}
       >
-         {authData ? (
+        {authData ? (
           <>
+            <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
+              <RouterLink to="/groups" onClick={() => setIsOpen(false)}>
+                Groups
+              </RouterLink>
+            </li>
+            <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
+              <RouterLink to="/settings" onClick={() => setIsOpen(false)}>
+                Settings
+              </RouterLink>
+            </li>
+            <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
+              <RouterLink to="/friends" onClick={() => setIsOpen(false)}>
+                Friends
+              </RouterLink>
+            </li>
             <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
               <button onClick={handleLogout}>Logout</button>
             </li>
           </>
-          ):(
-            <>
-             <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
-          <RouterLink to="/login" onClick={() => setIsOpen(false)}>
-            Login
-          </RouterLink>
-        </li>
-        <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
-          <RouterLink to="/register" onClick={() => setIsOpen(false)}>
-            SignUp
-          </RouterLink>
-        </li>
-        <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
-          <ScrollLink to="home" smooth={true} duration={500} onClick={() => setIsOpen(false)}>
-            Home
-          </ScrollLink>
-        </li>
-        <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
-          <ScrollLink to="about" smooth={true} duration={500} onClick={() => setIsOpen(false)}>
-            About
-          </ScrollLink>
-        </li>
-        <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
-          <ScrollLink to="contact" smooth={true} duration={500} onClick={() => setIsOpen(false)}>
-            Contact
-          </ScrollLink>
-        </li>
-
-          </>)} 
+        ) : (
+          <>
+            <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
+              <RouterLink to="/login" onClick={() => setIsOpen(false)}>
+                Login
+              </RouterLink>
+            </li>
+            <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
+              <RouterLink to="/register" onClick={() => setIsOpen(false)}>
+                SignUp
+              </RouterLink>
+            </li>
+            <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
+              <ScrollLink
+                to="home"
+                smooth={true}
+                duration={500}
+                onClick={() => setIsOpen(false)}
+              >
+                Home
+              </ScrollLink>
+            </li>
+            <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
+              <ScrollLink
+                to="about"
+                smooth={true}
+                duration={500}
+                onClick={() => setIsOpen(false)}
+              >
+                About
+              </ScrollLink>
+            </li>
+            <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
+              <ScrollLink
+                to="contact"
+                smooth={true}
+                duration={500}
+                onClick={() => setIsOpen(false)}
+              >
+                Contact
+              </ScrollLink>
+            </li>
+          </>
+        )}
       </ul>
     </nav>
   );
