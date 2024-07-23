@@ -4,8 +4,10 @@ import PageNavigationbar from '../pagenavbar';
 import axios from "axios";
 import {useNavigate} from 'react-router-dom'
 import { AuthContext } from '../../context/authcontext';
+import useAuthRedirect from '../../context/useauthredirect';
 
 const Login = () => {
+  useAuthRedirect();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();

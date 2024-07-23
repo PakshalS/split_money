@@ -3,7 +3,10 @@ import { Link } from "react-router-dom";
 import PageNavigationbar from "../pagenavbar";
 import {useNavigate} from 'react-router-dom'
 import axios from "axios";
+import useAuthRedirect from '../../context/useauthredirect';
+
 const Register = () => {
+  useAuthRedirect();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
