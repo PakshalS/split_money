@@ -10,9 +10,12 @@ const Navigationbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleLogout = () => {
-    Cookies.remove("authToken");
-    setAuthData(null);
-    window.location.reload(true);
+    if(confirm("Are you sure you want to logout !"))
+    {
+      Cookies.remove("authToken");
+      setAuthData(null);
+      window.location.reload(true);
+    }
   };
 
   const toggleMenu = () => {
