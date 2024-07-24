@@ -244,6 +244,26 @@ const addFriendstoGroup = async (req, res) => {
   }
 };
 
+const getUserGroups = async (req, res) => {
+  try {
+    // Assuming req.user contains the authenticated user's ID
+    const userId = req.user.userId;
+
+    // Populate the groups from the user's document
+    const user = await User.findById(userId).populate('groups', 'name');
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.status(200).json(user.groups);
+  } catch (error) {
+    console.error('Error fetching user groups:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+module.exports = { getUserGroups };
+
 module.exports = {
   createGroup,
   addMember,
@@ -251,4 +271,5 @@ module.exports = {
   leaveGroup,
   editGroup,
   addFriendstoGroup,
+  getUserGroups
 };
