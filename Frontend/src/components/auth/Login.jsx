@@ -23,7 +23,7 @@ const Login = () => {
       });
       const { token } = response.data;
       login(token);
-      navigate('/dashboard');
+      navigate('/home');
     } catch (error) {
       console.error('Login failed:', error.response?.data?.message || error.message);
     }

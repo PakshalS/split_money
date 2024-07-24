@@ -3,9 +3,8 @@ import NoPage from "./pages/Error";
 import { Routes, Route } from "react-router-dom";
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Signup";
-import Dashboard from "./components/secure/dashboard";
 import ProtectedRoute from "./components/protectedroute";
-
+import Homee from "./components/secure/main2";
 
 function App() {
   return (
@@ -14,7 +13,7 @@ function App() {
       <Route path="*" element={<NoPage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path="/home" element={<ProtectedRoute><Homee/></ProtectedRoute>} />
     </Routes>
   );
 }

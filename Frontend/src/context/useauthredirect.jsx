@@ -8,7 +8,7 @@ const useAuthRedirect = () => {
 
   useEffect(() => {
     if (authData) {
-      navigate('/dashboard', { replace: true }); // Replace history entry
+      navigate('/home', { replace: true }); // Replace history entry
     }
   }, [authData, navigate]);
 };

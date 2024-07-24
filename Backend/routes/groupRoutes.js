@@ -1,7 +1,7 @@
 // routes/groupRoutes.js
 const express = require('express');
 const authenticateJWT = require('../middleware/authMiddleware');
-const { createGroup, addMember, removeMember, leaveGroup, editGroup , addFriendstoGroup} = require('../Controller/group');
+const { createGroup, addMember, removeMember, leaveGroup, editGroup , addFriendstoGroup,getUserGroups} = require('../Controller/group');
 
 const router = express.Router();
 
@@ -11,6 +11,7 @@ router.delete('/remove-member', authenticateJWT, removeMember);
 router.post('/leave', authenticateJWT, leaveGroup);
 router.put('/edit', authenticateJWT, editGroup);
 router.post('/add-friend', authenticateJWT,addFriendstoGroup);
+router.get('/user-groups',authenticateJWT,getUserGroups);  
 
 
 module.exports = router;
