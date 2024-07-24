@@ -7,7 +7,8 @@ import ProtectedRoute from "./components/protectedroute";
 import Homee from "./pages/main2";
 import Friends from "./components/secure/friends";
 import Settings from "./components/secure/settings";
-import Creategroup from "./components/secure/creategroup";
+import GroupCreate from "./components/secure/creategroup";
+import GroupDetails from "./components/secure/groupdetails";
 
 function App() {
   return (
@@ -19,7 +20,9 @@ function App() {
       <Route path="/home" element={<ProtectedRoute><Homee/></ProtectedRoute>} />
       <Route path="/friends" element={<ProtectedRoute><Friends/></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><Settings/></ProtectedRoute>} />
-      <Route path="/create-group" element={<ProtectedRoute><Creategroup/></ProtectedRoute>} />
+      <Route path="/create-group" element={<ProtectedRoute><GroupCreate/></ProtectedRoute>} />
+      <Route path="/groups/:groupId" element={<ProtectedRoute><GroupDetails/></ProtectedRoute>} />
+
     </Routes>
   );
 }

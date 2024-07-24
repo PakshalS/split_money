@@ -128,6 +128,36 @@ const removeMember = async (req, res) => {
   }
 };
 
+const transferAdminRights = async (req, res) => {
+  try {
+    const { groupId, newAdminId } = req.body;
+    const userId = req.user.userId;
+
+    const group = await Group.findById(groupId);
+    if (!group) {
+      return res.status(404).json({ error: "Group not found" });
+    }
+
+    if (group.admin.toString() !== userId) {
+      return res.status(403).json({ error: "Only the current admin can transfer admin rights" });
+    }
+
+    const newAdmin = group.members.find(member => member.user && member.user.toString() === newAdminId);
+    if (!newAdmin) {
+      return res.status(400).json({ error: "New admin must be a member of the group" });
+    }
+
+    group.admin = newAdmin.user;
+    await group.save();
+
+    res.status(200).json({ message: "Admin rights transferred successfully", group });
+  } catch (error) {
+    console.error("Error transferring admin rights:", error);
+    res.status(500).json({ error: "Failed to transfer admin rights" });
+  }
+};
+
+
 const leaveGroup = async (req, res) => {
   try {
     const { groupId } = req.body;
@@ -262,7 +292,59 @@ const getUserGroups = async (req, res) => {
   }
 };
 
-module.exports = { getUserGroups };
+const getGroupDetails = async (req, res) => {
+  try {
+    const groupId = req.params.groupId;
+    const group = await Group.findById(groupId)
+      .populate('admin', 'name email')
+      .populate('members.userId', 'name email')
+      .populate('expenses')
+      .populate('balances.userId', 'name email');
+
+      const balances = group.balances.map(balance => ({
+        name: balance.name,
+        email: balance.email,
+        balance: balance.balance
+      }));
+      const summary = generateSummary(balances);
+
+
+    if (!group) {
+      return res.status(404).json({ error: 'Group not found' });
+    }
+
+    res.status(200).json({summary ,group});
+
+  } catch (error) {
+    console.error('Error fetching group details:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+
+const generateSummary = (balances) => {
+  const debtors = balances.filter(b => b.balance < 0);
+  const creditors = balances.filter(b => b.balance > 0);
+
+  let summary = [];
+
+  creditors.forEach(creditor => {
+    debtors.forEach(debtor => {
+      if (debtor.balance < 0 && creditor.balance > 0) {
+        const amount = Math.min(creditor.balance, -debtor.balance);
+        summary.push({
+          from: debtor.name,
+          to: creditor.name,
+          amount: amount
+        });
+        creditor.balance -= amount;
+        debtor.balance += amount;
+      }
+    });
+  });
+
+  return summary;
+};
 
 module.exports = {
   createGroup,
@@ -271,5 +353,7 @@ module.exports = {
   leaveGroup,
   editGroup,
   addFriendstoGroup,
-  getUserGroups
+  getUserGroups,
+  getGroupDetails,
+  transferAdminRights
 };
