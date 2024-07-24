@@ -1,6 +1,6 @@
 import React from "react";
-import Dashboard from "./dashboard";
-import Navigationbar from "../navbar";
+import Dashboard from "../components/secure/dashboard";
+import Navigationbar from "../components/navbar";
 
 const Homee = () => {
   return (
