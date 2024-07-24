@@ -1,8 +1,6 @@
-// src/pages/Dashboard.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import Navigationbar from '../navbar';
 import GroupSidebar from './groupsidebar';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 
@@ -31,17 +29,33 @@ const Dashboard = () => {
     };
 
     fetchUserGroups();
+
+    // Automatically open or close the sidebar based on screen size
+    const handleResize = () => {
+      setIsSidebarOpen(window.innerWidth >= 1024); // lg breakpoint in Tailwind CSS is 1024px
+    };
+
+    handleResize(); // Set initial state
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
-      <Navigationbar />
+    <div className="flex flex-col h-screen overflow-hidden bg-auth-back">
       <div className="flex flex-1 overflow-hidden">
-        <div className={`transition-transform duration-300 ${isSidebarOpen ? 'w-64' : 'w-16'} bg-gray-800 text-white relative`}>
-          <div className="flex items-center justify-between px-4 py-2 bg-gray-900">
+        <div
+          className={`transition-transform duration-300 transform ${
+            isSidebarOpen ? 'w-64' : 'w-12'
+          } bg-black text-white relative`}
+          style={{ transitionProperty: 'width, transform' }}
+        >
+          <div className="flex items-center justify-between px-4 mt-16 lg:mt-20 py-2 bg-black">
             <h2 className={`text-lg font-semibold ${isSidebarOpen ? 'block' : 'hidden'}`}>My Groups</h2>
             <div
-              className="cursor-pointer"
+              className="cursor-pointer transition-transform duration-300 transform hover:scale-110"
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             >
               {isSidebarOpen ? <FiChevronLeft size={24} /> : <FiChevronRight size={24} />}
@@ -49,14 +63,22 @@ const Dashboard = () => {
           </div>
           {isSidebarOpen && <GroupSidebar groups={userGroups} />}
         </div>
-        <div className="flex-1 p-8 overflow-auto">
-          <div className="flex flex-col space-y-4 items-center">
-            <button className="w-full max-w-xs py-4 bg-blue-500 text-white font-semibold rounded-md">
-              CREATE A NEW GROUP
-            </button>
-            <button className="w-full max-w-xs py-4 bg-green-500 text-white font-semibold rounded-md">
-              ADD A NEW FRIEND
-            </button>
+        <div className="flex-1 p-8 mt-28 overflow-auto">
+          <div className="flex flex-col gap-6 items-center lg:flex-row">
+            <div className="sm:h-64 sm:w-96 sm:rounded-3xl sm:text-xl lg:h-96 lg:w-1/2 flex items-center justify-center bg-black rounded-full lg:rounded-3xl lg:text-3xl">
+              <button
+                className="h-max w-max p-4 overflow-auto bg-black hover:text-green-500 text-white font-semibold rounded-xl transition-transform duration-300 transform hover:scale-110"
+              >
+                CREATE A NEW GROUP
+              </button>
+            </div>
+            <div className="sm:h-64 sm:w-96 sm:rounded-3xl sm:text-xl lg:h-96 lg:w-1/2 flex items-center justify-center bg-black rounded-full lg:rounded-3xl lg:text-3xl">
+              <button
+                className="h-max w-max p-4 bg-black hover:text-green-500 text-white font-semibold rounded-xl transition-transform duration-300 transform hover:scale-110"
+              >
+                ADD A NEW FRIEND
+              </button>
+            </div>
           </div>
         </div>
       </div>
