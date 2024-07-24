@@ -42,11 +42,6 @@ const Navigationbar = () => {
         {authData ? (
           <>
             <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
-              <RouterLink to="/groups" onClick={() => setIsOpen(false)}>
-                Groups
-              </RouterLink>
-            </li>
-            <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
               <RouterLink to="/settings" onClick={() => setIsOpen(false)}>
                 Settings
               </RouterLink>
