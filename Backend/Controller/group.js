@@ -1,5 +1,7 @@
 const Group = require("../models/Group");
 const User = require("../models/User");
+const Expense = require('../models/expense');
+
 
 const createGroup = async (req, res) => {
   try {
@@ -346,6 +348,63 @@ const generateSummary = (balances) => {
   return summary;
 };
 
+const addExpense = async (req, res) => {
+  try {
+    const groupId = req.params.groupId;
+    const {name , amount , paidBy , splitAmongst} =req.body;
+    const adminId = req.user.userId;
+
+    const group = await Group.findById(groupId);
+    if(!group)
+    {
+      return res.status(404).json({error:"Group not found"});
+    }
+    if(group.admin.toString()!=adminId)
+    {
+      return res.status(404).json({error:'Only the admin can add expense'});
+    }
+
+    const expense = new Expense({groupId,name,amount,paidBy,splitAmongst});
+    await expense.save();
+    group.expenses.push(expense._id);
+
+    const splitAmount = amount/splitAmongst.length;
+    
+    
+    splitAmongst.forEach(user => {
+      let userBalance = group.balances.find(b => b.name === user.name && b.email === user.email);
+      if (userBalance) {
+        userBalance.balance -= splitAmount;
+      } else {
+        group.balances.push({
+          userId: user.userId,
+          name: user.name,
+          email: user.email,
+          balance: -splitAmount
+        });
+      }
+    });
+    paidBy.forEach(payer => {
+      let payerBalance = group.balances.find(b => b.name === payer.name && b.email === payer.email);
+      if (payerBalance) {
+        payerBalance.balance += payer.amount;
+      } else {
+        group.balances.push({
+          userId: payer.userId,
+          name: payer.name,
+          email: payer.email,
+          balance: payer.amount
+        });
+      }
+    });
+    await group.save();
+    res.status(201).json({message:'Expense added successfully', expense});
+  } catch (error) {
+    console.error('Error adding expense:', error);
+    res.status(500).json({ error: 'Failed to add expense' });
+  }
+}
+
 module.exports = {
   createGroup,
   addMember,
@@ -355,5 +414,6 @@ module.exports = {
   addFriendstoGroup,
   getUserGroups,
   getGroupDetails,
-  transferAdminRights
+  transferAdminRights,
+  addExpense,
 };
