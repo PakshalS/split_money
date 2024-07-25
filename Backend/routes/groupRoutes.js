@@ -1,7 +1,7 @@
 // routes/groupRoutes.js
 const express = require('express');
 const authenticateJWT = require('../middleware/authMiddleware');
-const { createGroup,addMember, removeMember, leaveGroup, editGroup , addFriendstoGroup,getUserGroups ,getGroupDetails, transferAdminRights} = require('../Controller/group');
+const { createGroup,addMember, removeMember, leaveGroup, editGroup , addFriendstoGroup,getUserGroups ,getGroupDetails, transferAdminRights, addExpense} = require('../Controller/group');
 
 const router = express.Router();
 
@@ -13,6 +13,8 @@ router.put('/edit', authenticateJWT, editGroup);
 router.post('/add-friend', authenticateJWT,addFriendstoGroup);
 router.get('/user-groups',authenticateJWT,getUserGroups);  
 router.get('/:groupId',authenticateJWT,getGroupDetails);
+router.post('/:groupId',authenticateJWT,addExpense);
+
 router.post('/transfer-admin-rights', authenticateJWT,transferAdminRights);
 
 
