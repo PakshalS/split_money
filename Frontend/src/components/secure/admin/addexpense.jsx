@@ -1,38 +1,202 @@
+// import React, { useState, useEffect } from 'react';
+// import axios from 'axios';
+// import Cookies from 'js-cookie';
+
+// const AddExpenseForm = ({ groupId, onClose }) => {
+//   const [expenseName, setExpenseName] = useState('');
+//   const [amount, setAmount] = useState('');
+//   const [members, setMembers] = useState([]);
+//   const [paidBy, setPaidBy] = useState([]);
+//   const [splitAmongst, setSplitAmongst] = useState([]);
+
+//   useEffect(() => {
+//     const fetchMembers = async () => {
+//       try {
+//         const token = Cookies.get('authToken');
+//         if (!token) {
+//           console.error('No auth token found');
+//           return;
+//         }
+
+//         const response = await axios.get(`http://localhost:3000/groups/${groupId}`, {
+//           headers: {
+//             Authorization: `Bearer ${token}`,
+//           },
+//         });
+
+//         setMembers(response.data.group.members);
+//       } catch (error) {
+//         console.error('Error fetching members:', error);
+//       }
+//     };
+
+//     fetchMembers();
+//   }, [groupId]);
+
+//   const handleAddExpense = async () => {
+//     const totalPaid = paidBy.reduce((sum, member) => sum + parseFloat(member.amount || 0), 0);
+//     if (totalPaid !== parseFloat(amount)) {
+//       alert('Total amount paid by members must equal the specified amount.');
+//       return;
+//     }
+
+//     if (splitAmongst.length === 0) {
+//       alert('Please select at least one person to split the expense.');
+//       return;
+//     }
+
+//     try {
+//       const token = Cookies.get('authToken');
+//       if (!token) {
+//         console.error('No auth token found');
+//         return;
+//       }
+
+//       await axios.post(`http://localhost:3000/groups/${groupId}/expenses`, {
+//         name: expenseName,
+//         amount,
+//         paidBy,
+//         splitAmongst,
+//       }, {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//         },
+//       });
+
+//       alert('Expense added successfully!');
+//       onClose();
+//     } catch (error) {
+//       console.error('Error adding expense:', error);
+//     }
+//   };
+
+//   return (
+//     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+//       <div className="bg-gray-800 p-6 rounded-md shadow-md w-96 relative">
+//         <button onClick={onClose} className="absolute top-2 right-2 text-white">&times;</button>
+//         <h2 className="text-xl font-bold mb-4 text-white">Add Expense</h2>
+//         <input
+//           type="text"
+//           placeholder="Expense Name"
+//           value={expenseName}
+//           onChange={(e) => setExpenseName(e.target.value)}
+//           className="w-full mb-4 p-2 border border-gray-600 rounded bg-gray-700 text-white"
+//         />
+//         <input
+//           type="number"
+//           placeholder="Total Amount"
+//           value={amount}
+//           onChange={(e) => setAmount(e.target.value)}
+//           className="w-full mb-4 p-2 border border-gray-600 rounded bg-gray-700 text-white"
+//         />
+//         <div className="mb-4">
+//           <h3 className="font-semibold mb-2 text-white">Paid By</h3>
+//           {members.map((member, index) => (
+//             <div key={index} className="flex items-center mb-2">
+//               <input
+//                 type="checkbox"
+//                 checked={!!paidBy.find(p => p.email === member.email)}
+//                 onChange={(e) => {
+//                   if (e.target.checked) {
+//                     setPaidBy([...paidBy, { ...member, amount: 0 }]);
+//                   } else {
+//                     setPaidBy(paidBy.filter(p => p.email !== member.email));
+//                   }
+//                 }}
+//               />
+//               <span className="ml-2 text-white">{member.name}</span>
+//               {paidBy.find(p => p.email === member.email) && (
+//                 <input
+//                   type="number"
+//                   placeholder="Amount"
+//                   value={paidBy.find(p => p.email === member.email)?.amount || ''}
+//                   onChange={(e) => {
+//                     const newPaidBy = paidBy.map(p =>
+//                       p.email === member.email ? { ...p, amount: parseFloat(e.target.value) } : p
+//                     );
+//                     setPaidBy(newPaidBy);
+//                   }}
+//                   className="ml-4 p-1 border border-gray-600 rounded bg-gray-700 text-white w-20"
+//                 />
+//               )}
+//             </div>
+//           ))}
+//         </div>
+//         <div className="mb-4">
+//           <h3 className="font-semibold mb-2 text-white">Split Amongst</h3>
+//           {members.map((member, index) => (
+//             <div key={index} className="flex items-center mb-2">
+//               <input
+//                 type="checkbox"
+//                 checked={!!splitAmongst.find(p => p.email === member.email)}
+//                 onChange={(e) => {
+//                   if (e.target.checked) {
+//                     setSplitAmongst([...splitAmongst, member]);
+//                   } else {
+//                     setSplitAmongst(splitAmongst.filter(p => p.email !== member.email));
+//                   }
+//                 }}
+//               />
+//               <span className="ml-2 text-white">{member.name}</span>
+//             </div>
+//           ))}
+//         </div>
+//         <button onClick={handleAddExpense} className="bg-gray-900 text-white px-4 py-2 rounded hover:bg-gray-700">Add Expense</button>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default AddExpenseForm;
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const AddExpenseForm = ({ groupId, members, onClose }) => {
-  const [name, setName] = useState('');
+const AddExpenseForm = ({ groupId, onClose }) => {
+  const [expenseName, setExpenseName] = useState('');
   const [amount, setAmount] = useState('');
+  const [members, setMembers] = useState([]);
   const [paidBy, setPaidBy] = useState([]);
   const [splitAmongst, setSplitAmongst] = useState([]);
-  const [selectedPaidBy, setSelectedPaidBy] = useState([]);
-  const [selectedSplitAmongst, setSelectedSplitAmongst] = useState([]);
 
-  const handlePaidByChange = (member, amount) => {
-    setSelectedPaidBy((prev) => {
-      const updated = prev.filter((item) => item.name !== member.name);
-      if (amount > 0) {
-        updated.push({ ...member, amount });
+  useEffect(() => {
+    const fetchMembers = async () => {
+      try {
+        const token = Cookies.get('authToken');
+        if (!token) {
+          console.error('No auth token found');
+          return;
+        }
+
+        const response = await axios.get(`http://localhost:3000/groups/${groupId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setMembers(response.data.group.members);
+      } catch (error) {
+        console.error('Error fetching members:', error);
       }
-      return updated;
-    });
-  };
+    };
 
-  const handleSplitAmongstChange = (member) => {
-    setSelectedSplitAmongst((prev) => {
-      if (prev.includes(member)) {
-        return prev.filter((item) => item.name !== member.name);
-      }
-      return [...prev, member];
-    });
-  };
+    fetchMembers();
+  }, [groupId]);
 
-  const validateAndSubmit = async () => {
-    const totalPaid = selectedPaidBy.reduce((sum, item) => sum + parseFloat(item.amount || 0), 0);
+  const handleAddExpense = async () => {
+    const totalPaid = paidBy.reduce((sum, member) => sum + parseFloat(member.amount || 0), 0);
     if (totalPaid !== parseFloat(amount)) {
-      alert('The total amount paid by members must equal the expense amount.');
+      alert('Total amount paid by members must equal the specified amount.');
+      return;
+    }
+
+    if (splitAmongst.length === 0) {
+      alert('Please select at least one person to split the expense.');
+      return;
+    }
+
+    if (parseFloat(amount) <= 0) {
+      alert('The total amount must be greater than zero.');
       return;
     }
 
@@ -43,108 +207,107 @@ const AddExpenseForm = ({ groupId, members, onClose }) => {
         return;
       }
 
-      const response = await axios.post(
-        `http://localhost:3000/groups/${groupId}/expenses`,
-        {
-          groupId,
-          name,
-          amount: parseFloat(amount),
-          paidBy: selectedPaidBy,
-          splitAmongst: selectedSplitAmongst,
+      await axios.post(`http://localhost:3000/groups/${groupId}/expenses`, {
+        name: expenseName,
+        amount,
+        paidBy,
+        splitAmongst,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      });
 
-      console.log('Expense added:', response.data);
+      alert('Expense added successfully!');
       onClose();
     } catch (error) {
       console.error('Error adding expense:', error);
     }
   };
 
+  const handleAmountChange = (e, member, type) => {
+    const value = parseFloat(e.target.value);
+    if (value < 0) {
+      alert('Amount cannot be negative.');
+      return;
+    }
+
+    if (type === 'paidBy') {
+      const newPaidBy = paidBy.map(p =>
+        p.name === member.name ? { ...p, amount: value } : p
+      );
+      setPaidBy(newPaidBy);
+    }
+    // Add similar logic for splitAmongst if necessary
+  };
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-gray-900 text-white p-6 rounded-lg w-full max-w-lg">
-        <h2 className="text-2xl font-semibold mb-4">Add Expense</h2>
+    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+      <div className="bg-gray-800 p-6 rounded-md shadow-md w-96 relative">
+        <button onClick={onClose} className="absolute top-2 right-2 text-white">&times;</button>
+        <h2 className="text-xl font-bold mb-4 text-white">Add Expense</h2>
+        <input
+          type="text"
+          placeholder="Expense Name"
+          value={expenseName}
+          onChange={(e) => setExpenseName(e.target.value)}
+          className="w-full mb-4 p-2 border border-gray-600 rounded bg-gray-700 text-white"
+        />
+        <input
+          type="number"
+          placeholder="Total Amount"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value >= 0 ? e.target.value : '')}
+          className="w-full mb-4 p-2 border border-gray-600 rounded bg-gray-700 text-white"
+        />
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-2">Expense Name</label>
-          <input
-            type="text"
-            className="w-full px-3 py-2 rounded-md bg-gray-800 text-white"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-2">Total Amount</label>
-          <input
-            type="number"
-            className="w-full px-3 py-2 rounded-md bg-gray-800 text-white"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-2">Paid By</label>
-          {members.map((member) => (
-            <div key={member._id} className="flex items-center mb-2">
+          <h3 className="font-semibold mb-2 text-white">Paid By</h3>
+          {members.map((member, index) => (
+            <div key={index} className="flex items-center mb-2">
               <input
                 type="checkbox"
-                className="mr-2"
-                checked={selectedPaidBy.some((item) => item.name === member.name)}
-                onChange={(e) =>
-                  handlePaidByChange(member, e.target.checked ? member.amount : 0)
-                }
+                checked={!!paidBy.find(p => p.name === member.name)}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setPaidBy([...paidBy, { ...member, amount: 0 }]);
+                  } else {
+                    setPaidBy(paidBy.filter(p => p.name !== member.name));
+                  }
+                }}
               />
-              <span>{member.name}</span>
-              {selectedPaidBy.some((item) => item.name === member.name) && (
+              <span className="ml-2 text-white">{member.name}</span>
+              {paidBy.find(p => p.name === member.name) && (
                 <input
                   type="number"
-                  className="ml-2 px-2 py-1 rounded-md bg-gray-800 text-white w-24"
                   placeholder="Amount"
-                  value={
-                    selectedPaidBy.find((item) => item.name === member.name)?.amount || ''
-                  }
-                  onChange={(e) =>
-                    handlePaidByChange(member, parseFloat(e.target.value) || 0)
-                  }
+                  value={paidBy.find(p => p.name === member.name)?.amount || ''}
+                  onChange={(e) => handleAmountChange(e, member, 'paidBy')}
+                  className="ml-4 p-1 border border-gray-600 rounded bg-gray-700 text-white w-20"
                 />
               )}
             </div>
           ))}
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-2">Split Amongst</label>
-          {members.map((member) => (
-            <div key={member._id} className="flex items-center mb-2">
+          <h3 className="font-semibold mb-2 text-white">Split Amongst</h3>
+          {members.map((member, index) => (
+            <div key={index} className="flex items-center mb-2">
               <input
                 type="checkbox"
-                className="mr-2"
-                checked={selectedSplitAmongst.some((item) => item.name === member.name)}
-                onChange={() => handleSplitAmongstChange(member)}
+                checked={!!splitAmongst.find(p => p.name === member.name)}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setSplitAmongst([...splitAmongst, member]);
+                  } else {
+                    setSplitAmongst(splitAmongst.filter(p => p.name !== member.name));
+                  }
+                }}
               />
-              <span>{member.name}</span>
+              <span className="ml-2 text-white">{member.name}</span>
             </div>
           ))}
         </div>
-        <div className="flex justify-end mt-6">
-          <button
-            onClick={onClose}
-            className="bg-red-500 text-white px-4 py-2 rounded-md mr-4 hover:bg-red-600 transition duration-300"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={validateAndSubmit}
-            className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-300"
-          >
-            Add Expense
-          </button>
-        </div>
+        <button onClick={handleAddExpense} className="bg-gray-900 text-white px-4 py-2 rounded hover:bg-gray-700">Add Expense</button>
       </div>
     </div>
   );

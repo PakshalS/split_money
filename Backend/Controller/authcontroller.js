@@ -4,23 +4,50 @@ const User = require('../models/User');
 SECRET_KEY= '9J#4@^h$dG7%KsP&!l*2zNqJ^e@8XsT5'
 
 
+// const register = async (req, res) => {
+//   try {
+//     const { name, email, password } = req.body;
+//     console.log(req.body);
+
+//     // Check if user already exists
+//     const existingUser = await User.findOne({ email });
+//     if (existingUser) {
+//       return res.status(400).json({ error: 'User already exists' });
+//     }
+
+//     const user = new User({ name, email, password });
+//     await user.save();
+//     res.status(201).json({ message: 'Registration Successful' });
+//   } catch (error) {
+//     console.error('Error during registration:', error);
+//     res.status(500).json({ error: 'Registration Failed' });
+//   }
+// };
+
 const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
-    console.log(req.body);
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ error: 'User already exists' });
+    // Check if user with the given email already exists
+    const existingUserByEmail = await User.findOne({ email });
+    if (existingUserByEmail) {
+      return res.status(400).json({ error: 'User with this email already exists' });
     }
 
+    // Check if user with the given name already exists
+    const existingUserByName = await User.findOne({ name });
+    if (existingUserByName) {
+      return res.status(400).json({ error: 'User with this name already exists' });
+    }
+
+    // Create a new user
     const user = new User({ name, email, password });
     await user.save();
-    res.status(201).json({ message: 'Registration Successful' });
+
+    res.status(201).json({ message: 'Registration successful' });
   } catch (error) {
     console.error('Error during registration:', error);
-    res.status(500).json({ error: 'Registration Failed' });
+    res.status(500).json({ error: 'Registration failed' });
   }
 };
 

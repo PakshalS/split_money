@@ -2,7 +2,6 @@ const Group = require("../models/Group");
 const User = require("../models/User");
 const Expense = require('../models/expense');
 
-
 const createGroup = async (req, res) => {
   try {
     const { name, members } = req.body;
@@ -11,9 +10,17 @@ const createGroup = async (req, res) => {
     // Get admin details
     const admin = await User.findById(adminId);
 
-    // Process members array
+    // Track names to ensure uniqueness
+    const namesSet = new Set();
+
+    // Process members array and check for duplicate names
     const groupMembers = await Promise.all(
       members.map(async (member) => {
+        if (namesSet.has(member.name.toLowerCase())) {
+          throw new Error(`Duplicate name detected: ${member.name}`);
+        }
+        namesSet.add(member.name.toLowerCase());
+
         if (member.email) {
           const user = await User.findOne({ email: member.email });
           if (user) {
@@ -24,13 +31,19 @@ const createGroup = async (req, res) => {
       })
     );
 
-    // Add admin as the first member
+    // Add admin as the first member, ensuring no duplicate
+    if (namesSet.has(admin.name.toLowerCase())) {
+      throw new Error(`Duplicate name detected: ${admin.name}`);
+    }
+    namesSet.add(admin.name.toLowerCase());
+
     groupMembers.unshift({
       user: admin._id,
       name: admin.name,
       email: admin.email,
     });
 
+    // Create the group
     const group = new Group({
       name,
       admin: adminId,
@@ -38,9 +51,8 @@ const createGroup = async (req, res) => {
     });
 
     await group.save();
-   
 
-    // **Update each member's groups array**
+    // Update each member's groups array
     for (const member of groupMembers) {
       if (member.user) {
         const user = await User.findById(member.user);
@@ -48,16 +60,53 @@ const createGroup = async (req, res) => {
         await user.save();
       }
     }
+
     res.status(201).json({ message: "Group created successfully", group });
   } catch (error) {
     console.error("Error creating group:", error);
-    res.status(500).json({ error: "Failed to create group" });
+    res.status(500).json({ error: error.message || "Failed to create group" });
+  }
+};
+
+const deleteGroup = async (req, res) => {
+  try {
+    const groupId = req.params.groupId;
+    const adminId = req.user.userId;
+
+    // Find the group
+    const group = await Group.findById(groupId);
+    if (!group) {
+      return res.status(404).json({ error: 'Group not found' });
+    }
+
+    // Check if the requesting user is the admin
+    if (group.admin.toString() !== adminId) {
+      return res.status(403).json({ error: 'Only the group admin can delete the group' });
+    }
+
+    // Delete associated expenses
+    await Expense.deleteMany({ groupId: groupId });
+
+    // Remove group references from users' groups array
+    const userUpdates = group.members.map(member =>
+      User.findByIdAndUpdate(member.userId, { $pull: { groups: groupId } })
+    );
+    await Promise.all(userUpdates);
+
+    // Delete the group
+    await group.deleteOne();
+
+    res.status(200).json({ message: 'Group and associated expenses deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting group:', error);
+    res.status(500).json({ error: 'Failed to delete group' });
   }
 };
 
 const addMember = async (req, res) => {
   try {
-    const { groupId, member } = req.body;
+    const groupId = req.params.groupId;
+    const { members } = req.body;
     const userId = req.user.userId;
 
     const group = await Group.findById(groupId);
@@ -71,14 +120,14 @@ const addMember = async (req, res) => {
         .json({ error: "Only the group admin can add members" });
     }
 
-    const newMember = member.email
-      ? await User.findOne({ email: member.email })
+    const newMember = members.email
+      ? await User.findOne({ email: members.email })
       : null;
 
     group.members.push(
       newMember
         ? { user: newMember._id, name: newMember.name, email: newMember.email }
-        : { name: member.name, email: member.email }
+        : { name: members.name, email: members.email }
     );
     // **Update the new member's groups array**
     await group.save();
@@ -159,7 +208,6 @@ const transferAdminRights = async (req, res) => {
   }
 };
 
-
 const leaveGroup = async (req, res) => {
   try {
     const { groupId } = req.body;
@@ -205,7 +253,8 @@ const leaveGroup = async (req, res) => {
 
 const editGroup = async (req, res) => {
   try {
-    const { groupId, name } = req.body;
+    const groupId = req.params.groupId;
+    const { name } = req.body;
     const userId = req.user.userId;
 
     const group = await Group.findById(groupId);
@@ -323,6 +372,141 @@ const getGroupDetails = async (req, res) => {
   }
 };
 
+const addExpense = async (req, res) => {
+  try {
+    const groupId = req.params.groupId;
+    const { name, amount, paidBy, splitAmongst } = req.body;
+    const adminId = req.user.userId;
+
+    if (amount <= 0) {
+      return res.status(400).json({ error: "Amount must be greater than zero" });
+    }
+
+    paidBy.forEach(payer => {
+      if (payer.amount <= 0) {
+        return res.status(400).json({ error: "Paid amount must be greater than zero" });
+      }
+    });
+
+    const group = await Group.findById(groupId);
+    if (!group) {
+      return res.status(404).json({ error: "Group not found" });
+    }
+    if (group.admin.toString() !== adminId) {
+      return res.status(403).json({ error: 'Only the admin can add expense' });
+    }
+
+    const expense = new Expense({ groupId, name, amount, paidBy, splitAmongst });
+    await expense.save();
+    group.expenses.push(expense._id);
+
+    const splitAmount = amount / splitAmongst.length;
+
+    splitAmongst.forEach(user => {
+      let userBalance = group.balances.find(b => b.name === user.name);
+      if (userBalance) {
+        userBalance.balance -= splitAmount;
+      } else {
+        group.balances.push({
+          name: user.name,
+          balance: -splitAmount
+        });
+      }
+    });
+
+    paidBy.forEach(payer => {
+      let payerBalance = group.balances.find(b => b.name === payer.name);
+      if (payerBalance) {
+        payerBalance.balance += payer.amount;
+      } else {
+        group.balances.push({
+          name: payer.name,
+          balance: payer.amount
+        });
+      }
+    });
+
+    await group.save();
+    res.status(201).json({ message: 'Expense added successfully', expense });
+  } catch (error) {
+    console.error('Error adding expense:', error);
+    res.status(500).json({ error: 'Failed to add expense' });
+  }
+};
+
+const settleUp = async (req, res) => {
+  try {
+    const groupId = req.params.groupId;
+    const { payer, receiver, amount } = req.body;
+    const adminId = req.user.userId;
+
+    // Find the group
+    const group = await Group.findById(groupId);
+    if (!group) {
+      return res.status(404).json({ error: 'Group not found' });
+    }
+    if (group.admin.toString() !== adminId) {
+      return res.status(403).json({ error: 'Only the group admin can settle balances' });
+    }
+
+    // Recalculate summary
+    const balances = group.balances.map(b => ({
+      name: b.name,
+      email: b.email,
+      balance: b.balance
+    }));
+    const summary = generateSummary(balances);
+
+    // Find the relevant summary entry
+    const summaryEntry = summary.find(s => s.from === payer.name && s.to === receiver.name);
+    if (!summaryEntry) {
+      return res.status(400).json({ error: 'No outstanding debt found between these members' });
+    }
+
+    // Ensure the amount does not exceed the summary amount
+    if (amount > summaryEntry.amount) {
+      return res.status(400).json({ error: 'Settle amount exceeds outstanding debt' });
+    }
+
+    // Update balances
+    const payerBalance = group.balances.find(b => b.name === payer.name && (!payer.email || b.email === payer.email));
+    const receiverBalance = group.balances.find(b => b.name === receiver.name && (!receiver.email || b.email === receiver.email));
+
+    if (!payerBalance || !receiverBalance) {
+      return res.status(400).json({ error: 'Payer or receiver not found in group balances' });
+    }
+
+    // Ensure valid bounds before updating
+    if (Number(payerBalance.balance) + amount > 0) {
+      return res.status(400).json({ error: 'Invalid balance for payer after settlement' });
+    }
+    if (Number(receiverBalance.balance) - amount < 0) {
+      return res.status(400).json({ error: 'Invalid balance for receiver after settlement' });
+    }
+
+    // Update balances
+    payerBalance.balance = Number(payerBalance.balance) + Number(amount); // Ensure balance is a number
+    receiverBalance.balance = Number(receiverBalance.balance) - Number(amount); // Ensure balance is a number
+
+
+
+    // Save the updated group with new balances
+    await group.save();
+
+    // Recalculate summary after settlement
+    const updatedBalances = group.balances.map(b => ({
+      name: b.name,
+      email: b.email,
+      balance: b.balance
+    }));
+    const updatedSummary = generateSummary(updatedBalances);
+
+    res.status(200).json({ message: 'Balance settled successfully', summary: updatedSummary });
+  } catch (error) {
+    console.error('Error settling balance:', error);
+    res.status(500).json({ error: 'Failed to settle balance' });
+  }
+};
 
 const generateSummary = (balances) => {
   const debtors = balances.filter(b => b.balance < 0);
@@ -348,62 +532,6 @@ const generateSummary = (balances) => {
   return summary;
 };
 
-const addExpense = async (req, res) => {
-  try {
-    const groupId = req.params.groupId;
-    const {name , amount , paidBy , splitAmongst} =req.body;
-    const adminId = req.user.userId;
-
-    const group = await Group.findById(groupId);
-    if(!group)
-    {
-      return res.status(404).json({error:"Group not found"});
-    }
-    if(group.admin.toString()!=adminId)
-    {
-      return res.status(404).json({error:'Only the admin can add expense'});
-    }
-
-    const expense = new Expense({groupId,name,amount,paidBy,splitAmongst});
-    await expense.save();
-    group.expenses.push(expense._id);
-
-    const splitAmount = amount/splitAmongst.length;
-    
-    
-    splitAmongst.forEach(user => {
-      let userBalance = group.balances.find(b => b.name === user.name && b.email === user.email);
-      if (userBalance) {
-        userBalance.balance -= splitAmount;
-      } else {
-        group.balances.push({
-          userId: user.userId,
-          name: user.name,
-          email: user.email,
-          balance: -splitAmount
-        });
-      }
-    });
-    paidBy.forEach(payer => {
-      let payerBalance = group.balances.find(b => b.name === payer.name && b.email === payer.email);
-      if (payerBalance) {
-        payerBalance.balance += payer.amount;
-      } else {
-        group.balances.push({
-          userId: payer.userId,
-          name: payer.name,
-          email: payer.email,
-          balance: payer.amount
-        });
-      }
-    });
-    await group.save();
-    res.status(201).json({message:'Expense added successfully', expense});
-  } catch (error) {
-    console.error('Error adding expense:', error);
-    res.status(500).json({ error: 'Failed to add expense' });
-  }
-}
 
 module.exports = {
   createGroup,
@@ -416,4 +544,6 @@ module.exports = {
   getGroupDetails,
   transferAdminRights,
   addExpense,
+  settleUp,
+  deleteGroup
 };
