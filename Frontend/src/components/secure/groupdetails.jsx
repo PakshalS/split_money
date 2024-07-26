@@ -1,8 +1,10 @@
-
+import AddExpenseForm from './admin/addexpense';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import SettleUpForm from './admin/settleup';
+import GroupEditForm from './admin/editgroup';
 
 const GroupDetails = () => {
   const { groupId } = useParams();
@@ -13,6 +15,16 @@ const GroupDetails = () => {
   const [expandedMembers, setExpandedMembers] = useState(false);
   const [expandedBalances, setExpandedBalances] = useState(false);
   const [expandedAdminActions, setExpandedAdminActions] = useState(false);
+  const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
+  const [isSettleUpOpen, setIsSettleUpOpen] = useState(false);
+  const [isGroupEditOpen, setIsGroupEditOpen] = useState(false);
+
+
+
+  const toggleAddExpenseForm = () => setIsAddExpenseOpen(!isAddExpenseOpen);
+  const toggleSettleUpForm = () => setIsSettleUpOpen(!isSettleUpOpen);
+  const toggleGroupEditForm = () => setIsGroupEditOpen(!isGroupEditOpen);
+
 
   useEffect(() => {
     const fetchGroupDetails = async () => {
@@ -79,13 +91,13 @@ const GroupDetails = () => {
             </button>
             {expandedAdminActions && (
               <div className="flex flex-wrap space-y-2 justify-center mb-6">
-                <button className="bg-black text-white px-4 py-2 rounded-md hover:text-green-500 transition duration-300">
+                <button onClick={toggleSettleUpForm} className="bg-black text-white px-4 py-2 rounded-md hover:text-green-500 transition duration-300">
                   Settle Up
                 </button>
-                <button className="bg-black text-white px-4 py-2 rounded-md hover:text-green-500 transition duration-300">
+                <button onClick={toggleAddExpenseForm} className="bg-black text-white px-4 py-2 rounded-md hover:text-green-500 transition duration-300">
                   Add Expense
                 </button>
-                <button className="bg-black text-white px-4 py-2 rounded-md hover:text-green-500 transition duration-300">
+                <button  onClick={toggleGroupEditForm} className="bg-black text-white px-4 py-2 rounded-md hover:text-green-500 transition duration-300">
                   Edit Group
                 </button>
                 <button className="bg-black text-white px-4 py-2 rounded-md hover:text-green-500 transition duration-300">
@@ -99,6 +111,10 @@ const GroupDetails = () => {
                 </button>
               </div>
             )}
+                  {isAddExpenseOpen && <AddExpenseForm groupId={groupId} onClose={toggleAddExpenseForm} />}
+                  {isSettleUpOpen && <SettleUpForm groupId={groupId} onClose={toggleSettleUpForm} />}
+                  {isGroupEditOpen && <GroupEditForm groupId={groupId} onClose={toggleGroupEditForm} />}
+
           </div>
         )}
       </div>

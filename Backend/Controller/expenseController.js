@@ -2,99 +2,6 @@ const Group = require('../models/Group');
 const Expense = require('../models/expense');
 
 
-const generateSummary = (balances) => {
-  const debtors = balances.filter(b => b.balance < 0);
-  const creditors = balances.filter(b => b.balance > 0);
-
-  let summary = [];
-
-  creditors.forEach(creditor => {
-    debtors.forEach(debtor => {
-      if (debtor.balance < 0 && creditor.balance > 0) {
-        const amount = Math.min(creditor.balance, -debtor.balance);
-        summary.push({
-          from: debtor.name,
-          to: creditor.name,
-          amount: amount
-        });
-        creditor.balance -= amount;
-        debtor.balance += amount;
-      }
-    });
-  });
-
-  return summary;
-};
-
-const settleUp = async (req, res) => {
-  try {
-    const { groupId, payer, receiver, amount } = req.body;
-    const adminId = req.user.userId;
-
-    // Find the group
-    const group = await Group.findById(groupId);
-    if (!group) {
-      return res.status(404).json({ error: 'Group not found' });
-    }
-    if (group.admin.toString() !== adminId) {
-      return res.status(403).json({ error: 'Only the group admin can settle balances' });
-    }
-
-    // Recalculate summary
-    const balances = group.balances.map(b => ({
-      name: b.name,
-      email: b.email,
-      balance: b.balance
-    }));
-    const summary = generateSummary(balances);
-
-    // Find the relevant summary entry
-    const summaryEntry = summary.find(s => s.from === payer.name && s.to === receiver.name);
-    if (!summaryEntry) {
-      return res.status(400).json({ error: 'No outstanding debt found between these members' });
-    }
-
-    // Ensure the amount does not exceed the summary amount
-    if (amount > summaryEntry.amount) {
-      return res.status(400).json({ error: 'Settle amount exceeds outstanding debt' });
-    }
-
-    // Update balances
-    const payerBalance = group.balances.find(b => b.name === payer.name && (!payer.email || b.email === payer.email));
-    const receiverBalance = group.balances.find(b => b.name === receiver.name && (!receiver.email || b.email === receiver.email));
-
-    if (payerBalance) {
-      payerBalance.balance += amount; // payer's balance should increase as they pay off their debt
-    } else {
-      return res.status(400).json({ error: 'Payer not found in group balances' });
-    }
-
-    if (receiverBalance) {
-      receiverBalance.balance -= amount; // receiver's balance should decrease as they receive the payment
-    } else {
-      return res.status(400).json({ error: 'Receiver not found in group balances' });
-    }
-
-    // Save the updated group with new balances
-    await group.save();
-
-    // Recalculate summary after settlement
-    const updatedBalances = group.balances.map(b => ({
-      name: b.name,
-      email: b.email,
-      balance: b.balance
-    }));
-    const updatedSummary = generateSummary(updatedBalances);
-
-    res.status(200).json({ message: 'Balance settled successfully', summary: updatedSummary });
-  } catch (error) {
-    console.error('Error settling balance:', error);
-    res.status(500).json({ error: 'Failed to settle balance' });
-  }
-};
-
-
-
 
 const editExpense = async (req, res) => {
   try {
@@ -220,7 +127,6 @@ const deleteExpense = async (req, res) => {
 };
 
 module.exports = {
-settleUp,
 editExpense,
 deleteExpense
 };
