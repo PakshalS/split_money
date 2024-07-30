@@ -4,8 +4,8 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 
 const AddMemberForm = ({ groupId, onClose }) => {
-    const [memberr, setMembers] = useState([{ name: '', email: '' }]);
-    const [friends, setFriends] = useState([]);
+  const [members, setMembers] = useState([{ name: '', email: '' }]);
+  const [friends, setFriends] = useState([]);
 
     useEffect(() => {
         const fetchFriends = async () => {
@@ -73,7 +73,7 @@ const AddMemberForm = ({ groupId, onClose }) => {
     
           await axios.put('http://localhost:3000/groups/${groupId}/add-friend', {
             groupId,
-            memberr,
+            members,
           }, {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -93,41 +93,56 @@ const AddMemberForm = ({ groupId, onClose }) => {
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
       <div className="bg-gray-800 p-6 rounded-md shadow-md w-96 relative">
         <button onClick={onClose} className="absolute top-2 right-2 text-white">&times;</button>
-        <h2 className="text-xl font-bold mb-4 text-white">Settle Up</h2>
-        <div className="mb-4">
-          <h3 className="font-semibold mb-2 text-white">Payer</h3>
-          <select
-            value={payer}
-            onChange={(e) => setPayer(e.target.value)}
-            className="w-full mb-4 p-2 border border-gray-600 rounded bg-gray-700 text-white"
+        <h2 className="text-xl font-bold mb-4 text-white">Add Member</h2>
+        {members.map((member, index) => (
+            <div
+              key={index}
+              className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-4 w-full"
+            >
+              <input
+                type="text"
+                placeholder="Member Name"
+                value={member.name}
+                onChange={(e) => handleMemberChange(index, 'name', e.target.value)}
+                className="flex-1 p-3 rounded-md border-2 border-gray-600 bg-black text-white focus:outline-none focus:border-green-500"
+              />
+              <input
+                type="email"
+                placeholder="Email (Optional)"
+                value={member.email}
+                onChange={(e) => handleMemberChange(index, 'email', e.target.value)}
+                className="flex-1 p-3 rounded-md border-2 border-gray-600 bg-black text-white focus:outline-none focus:border-green-500"
+              />
+              <button
+                onClick={() => removeMember(index)}
+                className="mt-2 sm:mt-0 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-300"
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+          <button
+            onClick={addMember}
+            className="w-full h-14 mb-4 px-4 py-2 bg-black text-white rounded-md hover:text-green-500 transition duration-300"
           >
-            <option value="">Select Payer</option>
-            {members.map((member, index) => (
-              <option key={index} value={member.name}>{member.name}</option>
-            ))}
-          </select>
-        </div>
-        <div className="mb-4">
-          <h3 className="font-semibold mb-2 text-white">Receiver</h3>
-          <select
-            value={receiver}
-            onChange={(e) => setReceiver(e.target.value)}
-            className="w-full mb-4 p-2 border border-gray-600 rounded bg-gray-700 text-white"
-          >
-            <option value="">Select Receiver</option>
-            {members.map((member, index) => (
-              <option key={index} value={member.name}>{member.name}</option>
-            ))}
-          </select>
-        </div>
-        <input
-          type="number"
-          placeholder="Amount"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value >= 0 ? e.target.value : '')}
-          className="w-full mb-4 p-2 border border-gray-600 rounded bg-gray-700 text-white"
-        />
-        <button onClick={handleSettleUp} className="bg-gray-900 text-white px-4 py-2 rounded hover:bg-gray-700">Settle Up</button>
+            Add Member
+          </button>
+          <div className="w-full mt-6">
+            <h3 className="text-xl font-semibold mb-4">Friends</h3>
+            <div className="flex flex-wrap gap-4">
+              {friends.map((friend) => (
+                <div key={friend._id} className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    onChange={() => handleFriendSelect(friend)}
+                    className="form-checkbox h-5 w-5 text-green-500"
+                  />
+                  <label>{friend.name}</label>
+                </div>
+              ))}
+            </div>
+          </div>
+        <button onClick={handleSubmit} className="bg-gray-900 text-white px-4 py-2 rounded hover:bg-gray-700">Settle Up</button>
       </div>
     </div>
   );
