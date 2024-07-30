@@ -1,4 +1,3 @@
-// routes/groupRoutes.js
 const express = require('express');
 const authenticateJWT = require('../middleware/authMiddleware');
 const { createGroup,addMember, removeMember, leaveGroup, editGroup , addFriendstoGroup,getUserGroups ,getGroupDetails, transferAdminRights, addExpense, settleUp, deleteGroup, editExpense, deleteExpense} = require('../Controller/group');
