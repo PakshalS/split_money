@@ -5,10 +5,10 @@ import { useParams } from "react-router-dom";
 import Cookies from "js-cookie";
 import SettleUpForm from "./admin/settleup";
 import GroupEditForm from "./admin/editgroup";
-import AddMemberForm from "./admin/addmember";
 import EditExpenseForm from "./admin/editexpense";
 import DeleteExpenseForm from "./admin/deleteexpense";
 import RemoveMemberForm from "./admin/removemember";
+import AddMemberForm from "./admin/addmember";
 
 const GroupDetails = () => {
   const { groupId } = useParams();
@@ -18,13 +18,12 @@ const GroupDetails = () => {
   const [expandedExpense, setExpandedExpense] = useState(null);
   const [expandedMembers, setExpandedMembers] = useState(false);
   const [expandedBalances, setExpandedBalances] = useState(false);
-  const [expandedTransactionHistory, setExpandedTransactionHistory] =
-    useState(false);
+  const [expandedTransactionHistory, setExpandedTransactionHistory] = useState(false);
   const [expandedAdminActions, setExpandedAdminActions] = useState(false);
   const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
   const [isSettleUpOpen, setIsSettleUpOpen] = useState(false);
   const [isGroupEditOpen, setIsGroupEditOpen] = useState(false);
-  const [isOpenAddMember, setIsAddMemberOpen] = useState(false);
+  const [isOpenAddMember, setIsOpenAddMember] = useState(false);
   const [isEditExpenseOpen, setIsEditExpenseOpen] = useState(false);
   const [isDeleteExpenseOpen, setIsDeleteExpenseOpen] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState(null);
@@ -46,7 +45,7 @@ const GroupDetails = () => {
   const toggleAddExpenseForm = () => setIsAddExpenseOpen(!isAddExpenseOpen);
   const toggleSettleUpForm = () => setIsSettleUpOpen(!isSettleUpOpen);
   const toggleGroupEditForm = () => setIsGroupEditOpen(!isGroupEditOpen);
-  const toggleAddMemberForm = () => setIsAddMemberOpen(!isOpenAddMember);
+  const toggleAddMemberForm = () => setIsOpenAddMember(!isOpenAddMember);
 
   useEffect(() => {
     const fetchGroupDetails = async () => {
@@ -134,7 +133,7 @@ const GroupDetails = () => {
                 : "Show Admin Actions"}
             </button>
             {expandedAdminActions && (
-              <div className="flex flex-wrap space-y-2 justify-center mb-6">
+              <div className="flex flex-wrap space-y-2 md:space-x-4 justify-center mb-6">
                 <button
                   onClick={toggleSettleUpForm}
                   className="bg-black text-white px-4 py-2 rounded-md hover:text-green-500 transition duration-300"
@@ -153,11 +152,11 @@ const GroupDetails = () => {
                 >
                   Edit Group
                 </button>
-                <button className="bg-black text-white px-4 py-2 rounded-md hover:text-green-500 transition duration-300">
+                <button
+                  onClick={toggleAddMemberForm}
+                  className="bg-black text-white px-4 py-2 rounded-md hover:text-green-500 transition duration-300"
+                >
                   Add Member
-                </button>
-                <button className="bg-black text-white px-4 py-2 rounded-md hover:text-green-500 transition duration-300">
-                  Add Friend
                 </button>
                 <button className="bg-black text-white px-4 py-2 rounded-md hover:text-green-500 transition duration-300">
                   Change Admin
@@ -169,6 +168,9 @@ const GroupDetails = () => {
                 groupId={groupId}
                 onClose={toggleAddExpenseForm}
               />
+            )}
+            {isOpenAddMember && (
+              <AddMemberForm groupId={groupId} onClose={toggleAddMemberForm} />
             )}
             {isSettleUpOpen && (
               <SettleUpForm groupId={groupId} onClose={toggleSettleUpForm} />

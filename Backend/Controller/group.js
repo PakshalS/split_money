@@ -10,10 +10,11 @@ const createGroup = async (req, res) => {
     // Get admin details
     const admin = await User.findById(adminId);
 
-    // Track names to ensure uniqueness
+    // Track names and emails to ensure uniqueness
     const namesSet = new Set();
+    const emailsSet = new Set();
 
-    // Process members array and check for duplicate names
+    // Process members array and check for duplicate names and emails
     const groupMembers = await Promise.all(
       members.map(async (member) => {
         if (namesSet.has(member.name.toLowerCase())) {
@@ -21,13 +22,25 @@ const createGroup = async (req, res) => {
         }
         namesSet.add(member.name.toLowerCase());
 
+        let user = null;
+
         if (member.email) {
-          const user = await User.findOne({ email: member.email });
-          if (user) {
-            return { user: user._id, name: user.name, email: user.email };
+          user = await User.findOne({ email: member.email });
+          if (user && emailsSet.has(user.email)) {
+            throw new Error(`Duplicate email detected: ${member.email}`);
           }
+          emailsSet.add(member.email);
+        } else if (member.name) {
+          user = await User.findOne({ name: member.name });
+          if (user && emailsSet.has(user.email)) {
+            throw new Error(`Duplicate email detected: ${user.email}`);
+          }
+          emailsSet.add(user ? user.email : '');
         }
-        return { name: member.name, email: member.email };
+
+        return user
+          ? { user: user._id, name: user.name, email: user.email }
+          : { name: member.name, email: member.email };
       })
     );
 
@@ -35,7 +48,9 @@ const createGroup = async (req, res) => {
     if (namesSet.has(admin.name.toLowerCase())) {
       throw new Error(`Duplicate name detected: ${admin.name}`);
     }
-    namesSet.add(admin.name.toLowerCase());
+    if (emailsSet.has(admin.email)) {
+      throw new Error(`Duplicate email detected: ${admin.email}`);
+    }
 
     groupMembers.unshift({
       user: admin._id,
@@ -67,6 +82,7 @@ const createGroup = async (req, res) => {
     res.status(500).json({ error: error.message || "Failed to create group" });
   }
 };
+
 
 const deleteGroup = async (req, res) => {
   try {
@@ -109,76 +125,68 @@ const addMember = async (req, res) => {
     const { members } = req.body;
     const userId = req.user.userId;
 
+    // Fetch the group by ID
     const group = await Group.findById(groupId);
     if (!group) {
       return res.status(404).json({ error: "Group not found" });
     }
 
+    // Ensure only the admin can add members
     if (group.admin.toString() !== userId) {
-      return res
-        .status(403)
-        .json({ error: "Only the group admin can add members" });
+      return res.status(403).json({ error: "Only the group admin can add members" });
     }
 
-    const newMember = members.email
-      ? await User.findOne({ email: members.email })
-      : null;
+    for (const member of members) {
+      // Check if the name is provided
+      if (!member.name) {
+        return res.status(400).json({ error: "Name is required for each member" });
+      }
 
-    group.members.push(
-      newMember
-        ? { user: newMember._id, name: newMember.name, email: newMember.email }
-        : { name: members.name, email: members.email }
-    );
-    // **Update the new member's groups array**
+      // Check for unique name within the group
+      if (group.members.some(existingMember => existingMember.name.toLowerCase() === member.name.toLowerCase())) {
+        return res.status(400).json({ error: `The name "${member.name}" is already used in the group` });
+      }
+
+      // If the email is not provided, try to fetch it from the registered user by name
+      let registeredUser = null;
+      if (member.name && !member.email) {
+        registeredUser = await User.findOne({ name: member.name });
+        if (registeredUser) {
+          member.email = registeredUser.email;
+        }
+      } else if (member.email) {
+        registeredUser = await User.findOne({ email: member.email });
+      }
+
+      // Check for unique email within the group, if email is provided
+      if (member.email && group.members.some(existingMember => existingMember.email === member.email)) {
+        return res.status(400).json({ error: `The email "${member.email}" is already used in the group` });
+      }
+
+      // Add the member to the group
+      group.members.push(
+        registeredUser
+          ? { user: registeredUser._id, name: registeredUser.name, email: registeredUser.email }
+          : { name: member.name, email: member.email }
+      );
+
+      // Update the new member's groups array if they are registered
+      if (registeredUser) {
+        registeredUser.groups.push(group._id);
+        await registeredUser.save();
+      }
+    }
+
     await group.save();
-    if (newMember) {
-      newMember.groups.push(group._id);
-      await newMember.save();
-    }
-
-    res.status(200).json({ message: "Member added successfully", group });
+    res.status(200).json({ message: "Members added successfully", group });
   } catch (error) {
-    console.error("Error adding member:", error);
-    res.status(500).json({ error: "Failed to add member" });
+    console.error("Error adding members:", error);
+    res.status(500).json({ error: "Failed to add members" });
   }
 };
 
-// const removeMember = async (req, res) => {
-//   try {
-//     const groupId = req.params.groupId;
-//     const memberId = req.params.memberId;
-//     const userId = req.user.userId;
 
-//     const group = await Group.findById(groupId);
-//     if (!group) {
-//       return res.status(404).json({ error: "Group not found" });
-//     }
 
-//     if (group.admin.toString() !== userId) {
-//       return res
-//         .status(403)
-//         .json({ error: "Only the group admin can remove members" });
-//     }
-
-//     group.members = group.members.filter(
-//       (member) => member._id.toString() !== memberId
-//     );
-//     await group.save();
-//     // **Update the member's groups array**
-//     const member = await User.findById(memberId);
-//     if (member) {
-//       member.groups = member.groups.filter(
-//         (group) => group.toString() !== groupId
-//       );
-//       await member.save();
-//     }
-
-//     res.status(200).json({ message: "Member removed successfully", group });
-//   } catch (error) {
-//     console.error("Error removing member:", error);
-//     res.status(500).json({ error: "Failed to remove member" });
-//   }
-// };
 const removeMember = async (req, res) => {
   try {
     const { groupId, memberId } = req.params;
@@ -229,27 +237,36 @@ const removeMember = async (req, res) => {
   }
 };
 
-
 const transferAdminRights = async (req, res) => {
   try {
-    const { groupId, newAdminId } = req.body;
+    const groupId = req.params.groupId;
+    const  newAdminName = req.body;
     const userId = req.user.userId;
 
+    // Find the group by ID
     const group = await Group.findById(groupId);
     if (!group) {
       return res.status(404).json({ error: "Group not found" });
     }
 
+    // Check if the current user is the admin
     if (group.admin.toString() !== userId) {
       return res.status(403).json({ error: "Only the current admin can transfer admin rights" });
     }
 
-    const newAdmin = group.members.find(member => member.user && member.user.toString() === newAdminId);
+    // Find the member by their name
+    const newAdmin = group.members.find(member => member.name === newAdminName);
     if (!newAdmin) {
-      return res.status(400).json({ error: "New admin must be a member of the group" });
+      return res.status(400).json({ error: "The new admin must be a member of the group" });
     }
 
-    group.admin = newAdmin.user;
+    // Check if the member has a valid userId (i.e., is a registered member)
+    if (!newAdmin.userId) {
+      return res.status(400).json({ error: "Selected member is not a registered user" });
+    }
+
+    // Transfer admin rights
+    group.admin = newAdmin.userId;
     await group.save();
 
     res.status(200).json({ message: "Admin rights transferred successfully", group });
@@ -258,6 +275,36 @@ const transferAdminRights = async (req, res) => {
     res.status(500).json({ error: "Failed to transfer admin rights" });
   }
 };
+
+
+// const transferAdminRights = async (req, res) => {
+//   try {
+//     const { groupId, newAdminId } = req.body;
+//     const userId = req.user.userId;
+
+//     const group = await Group.findById(groupId);
+//     if (!group) {
+//       return res.status(404).json({ error: "Group not found" });
+//     }
+
+//     if (group.admin.toString() !== userId) {
+//       return res.status(403).json({ error: "Only the current admin can transfer admin rights" });
+//     }
+
+//     const newAdmin = group.members.find(member => member.user && member.user.toString() === newAdminId);
+//     if (!newAdmin) {
+//       return res.status(400).json({ error: "New admin must be a member of the group" });
+//     }
+
+//     group.admin = newAdmin.user;
+//     await group.save();
+
+//     res.status(200).json({ message: "Admin rights transferred successfully", group });
+//   } catch (error) {
+//     console.error("Error transferring admin rights:", error);
+//     res.status(500).json({ error: "Failed to transfer admin rights" });
+//   }
+// };
 
 const leaveGroup = async (req, res) => {
   try {
