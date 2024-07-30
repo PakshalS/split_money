@@ -50,6 +50,29 @@ const groupSchema = new mongoose.Schema({
       },
     },
   ],
+  transactionHistory: [
+    {
+      type: {
+        type: String,
+        enum: ['settlement'], // You can add more types as needed
+        required: true,
+      },
+      payer: {
+        name: { type: String, required: true },
+      },
+      receiver: {
+        name: { type: String, required: true },
+      },
+      amount: {
+        type: Number,
+        required: true,
+      },
+      date: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
   createdAt: {
     type: Date,
     default: Date.now,
