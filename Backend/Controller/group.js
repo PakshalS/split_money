@@ -143,14 +143,56 @@ const addMember = async (req, res) => {
   }
 };
 
+// const removeMember = async (req, res) => {
+//   try {
+//     const groupId = req.params.groupId;
+//     const memberId = req.params.memberId;
+//     const userId = req.user.userId;
+
+//     const group = await Group.findById(groupId);
+//     if (!group) {
+//       return res.status(404).json({ error: "Group not found" });
+//     }
+
+//     if (group.admin.toString() !== userId) {
+//       return res
+//         .status(403)
+//         .json({ error: "Only the group admin can remove members" });
+//     }
+
+//     group.members = group.members.filter(
+//       (member) => member._id.toString() !== memberId
+//     );
+//     await group.save();
+//     // **Update the member's groups array**
+//     const member = await User.findById(memberId);
+//     if (member) {
+//       member.groups = member.groups.filter(
+//         (group) => group.toString() !== groupId
+//       );
+//       await member.save();
+//     }
+
+//     res.status(200).json({ message: "Member removed successfully", group });
+//   } catch (error) {
+//     console.error("Error removing member:", error);
+//     res.status(500).json({ error: "Failed to remove member" });
+//   }
+// };
 const removeMember = async (req, res) => {
   try {
-    const { groupId, memberId } = req.body;
+    const { groupId, memberId } = req.params;
     const userId = req.user.userId;
 
+    // Fetch the group
     const group = await Group.findById(groupId);
     if (!group) {
       return res.status(404).json({ error: "Group not found" });
+    }
+
+    // Check if the request is made by the admin and prevent self-removal
+    if (group.admin.toString() === memberId) {
+      return res.status(400).json({ error: "Admin cannot remove themselves" });
     }
 
     if (group.admin.toString() !== userId) {
@@ -159,11 +201,19 @@ const removeMember = async (req, res) => {
         .json({ error: "Only the group admin can remove members" });
     }
 
+    // Remove the member from the group's members list
     group.members = group.members.filter(
-      (member) => member._id.toString() !== memberId
+      (member) => member.userId.toString() !== memberId
     );
+
+    // Remove the member's balances entry from the group
+    group.balances = group.balances.filter(
+      (balance) => balance.userId.toString() !== memberId
+    );
+
     await group.save();
-    // **Update the member's groups array**
+
+    // Remove the group from the member's groups list
     const member = await User.findById(memberId);
     if (member) {
       member.groups = member.groups.filter(
@@ -178,6 +228,7 @@ const removeMember = async (req, res) => {
     res.status(500).json({ error: "Failed to remove member" });
   }
 };
+
 
 const transferAdminRights = async (req, res) => {
   try {
@@ -350,7 +401,8 @@ const getGroupDetails = async (req, res) => {
       .populate('admin', 'name email')
       .populate('members.userId', 'name email')
       .populate('expenses')
-      .populate('balances.userId', 'name email');
+      .populate('balances.userId', 'name email')
+      .populate('transactionHistory.type', 'payer receiver amount');
 
       const balances = group.balances.map(balance => ({
         name: balance.name,
@@ -358,7 +410,6 @@ const getGroupDetails = async (req, res) => {
         balance: balance.balance
       }));
       const summary = generateSummary(balances);
-
 
     if (!group) {
       return res.status(404).json({ error: 'Group not found' });
@@ -476,19 +527,25 @@ const settleUp = async (req, res) => {
       return res.status(400).json({ error: 'Payer or receiver not found in group balances' });
     }
 
-    // Ensure valid bounds before updating
+        // Ensure valid bounds before updating
     if (Number(payerBalance.balance) + amount > 0) {
       return res.status(400).json({ error: 'Invalid balance for payer after settlement' });
     }
     if (Number(receiverBalance.balance) - amount < 0) {
       return res.status(400).json({ error: 'Invalid balance for receiver after settlement' });
     }
-
-    // Update balances
+    // Update balances with the settled amount
     payerBalance.balance = Number(payerBalance.balance) + Number(amount); // Ensure balance is a number
     receiverBalance.balance = Number(receiverBalance.balance) - Number(amount); // Ensure balance is a number
 
-
+    // Record the transaction history for transparency
+    group.transactionHistory.push({
+      type: 'settlement',
+      payer: { name: payer.name},
+      receiver: { name: receiver.name},
+      amount,
+      date: new Date(),
+    });
 
     // Save the updated group with new balances
     await group.save();
@@ -532,6 +589,140 @@ const generateSummary = (balances) => {
   return summary;
 };
 
+const editExpense = async (req, res) => {
+  try {
+    const groupId = req.params.groupId;
+    const expenseId = req.params.expenseId;
+    const { name, amount, paidBy, splitAmongst } = req.body;
+    const adminId = req.user.userId;
+
+    if (amount <= 0) {
+      return res.status(400).json({ error: "Amount must be greater than zero" });
+    }
+
+    paidBy.forEach(payer => {
+      if (payer.amount <= 0) {
+        return res.status(400).json({ error: "Paid amount must be greater than zero" });
+      }
+    });
+
+    const group = await Group.findById(groupId);
+    if (!group) {
+      return res.status(404).json({ error: 'Group not found' });
+    }
+    if (group.admin.toString() !== adminId) {
+      return res.status(403).json({ error: 'Only the admin can edit expense' });
+    }
+
+    const expense = await Expense.findById(expenseId);
+    if (!expense) {
+      return res.status(404).json({ error: 'Expense not found' });
+    }
+
+    // Revert the original balances
+    const originalSplitAmount = expense.amount / expense.splitAmongst.length;
+    expense.splitAmongst.forEach(user => {
+      const userBalance = group.balances.find(b => b.name === user.name);
+      if (userBalance) {
+        userBalance.balance += originalSplitAmount;
+      }
+    });
+
+    expense.paidBy.forEach(payer => {
+      const payerBalance = group.balances.find(b => b.name === payer.name);
+      if (payerBalance) {
+        payerBalance.balance -= payer.amount;
+      }
+    });
+
+    // Update expense details
+    expense.name = name;
+    expense.amount = amount;
+    expense.paidBy = paidBy;
+    expense.splitAmongst = splitAmongst;
+    await expense.save();
+
+    // Apply the new balances
+    const newSplitAmount = amount / splitAmongst.length;
+    splitAmongst.forEach(user => {
+      let userBalance = group.balances.find(b => b.name === user.name);
+      if (userBalance) {
+        userBalance.balance -= newSplitAmount;
+      } else {
+        group.balances.push({
+          name: user.name,
+          balance: -newSplitAmount
+        });
+      }
+    });
+
+    paidBy.forEach(payer => {
+      let payerBalance = group.balances.find(b => b.name === payer.name);
+      if (payerBalance) {
+        payerBalance.balance += payer.amount;
+      } else {
+        group.balances.push({
+          name: payer.name,
+          balance: payer.amount
+        });
+      }
+    });
+
+    // Save the updated group with new balances
+    await group.save();
+
+    res.status(200).json({ message: 'Expense edited successfully', expense });
+  } catch (error) {
+    console.error('Error editing expense:', error);
+    res.status(500).json({ error: 'Failed to edit expense' });
+  }
+};
+
+const deleteExpense = async (req, res) => {
+  try {
+    const groupId = req.params.groupId;
+    const expenseId = req.params.expenseId;
+    const adminId = req.user.userId;
+
+    const group = await Group.findById(groupId);
+    if (!group) {
+      return res.status(404).json({ error: 'Group not found' });
+    }
+    if (group.admin.toString() !== adminId) {
+      return res.status(403).json({ error: 'Only the admin can delete expense' });
+    }
+
+    const expense = await Expense.findById(expenseId);
+    if (!expense) {
+      return res.status(404).json({ error: 'Expense not found' });
+    }
+
+    // Revert the balances
+    const splitAmount = expense.amount / expense.splitAmongst.length;
+    expense.splitAmongst.forEach(user => {
+      const userBalance = group.balances.find(b => b.name === user.name);
+      if (userBalance) {
+        userBalance.balance += splitAmount;
+      }
+    });
+
+    expense.paidBy.forEach(payer => {
+      const payerBalance = group.balances.find(b => b.name === payer.name);
+      if (payerBalance) {
+        payerBalance.balance -= payer.amount;
+      }
+    });
+
+    await Expense.findByIdAndDelete(expenseId);
+    group.expenses = group.expenses.filter(expId => expId.toString() !== expenseId);
+    await group.save();
+
+    res.status(200).json({ message: 'Expense deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting expense:', error);
+    res.status(500).json({ error: 'Failed to delete expense' });
+  }
+};
 
 module.exports = {
   createGroup,
@@ -545,5 +736,7 @@ module.exports = {
   transferAdminRights,
   addExpense,
   settleUp,
-  deleteGroup
+  deleteGroup,
+  editExpense,
+  deleteExpense
 };
