@@ -33,7 +33,7 @@ const GroupEditForm = ({ groupId, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-      <div className="bg-gray-800 p-6 rounded-md shadow-md w-96 relative">
+      <div className="bg-gray-950 p-6 rounded-md shadow-md w-96 relative">
         <button onClick={onClose} className="absolute top-2 right-2 text-white">&times;</button>
         <h2 className="text-xl font-bold mb-4 text-white">Edit Group</h2>
         <input
@@ -43,7 +43,7 @@ const GroupEditForm = ({ groupId, onClose }) => {
           onChange={(e) => setName(e.target.value)}
           className="w-full mb-4 p-2 border border-gray-600 rounded bg-gray-700 text-white"
         />
-        <button onClick={handleEdit} className="bg-gray-900 text-white px-4 py-2 rounded hover:bg-gray-700">Done</button>
+        <button onClick={handleEdit} className="bg-gray-900 text-white px-4 py-2 rounded hover:text-green-500">Done</button>
       </div>
     </div>
   );
