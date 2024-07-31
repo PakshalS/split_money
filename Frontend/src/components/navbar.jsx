@@ -55,6 +55,11 @@ const Navigationbar = () => {
               </RouterLink>
             </li>
             <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
+              <RouterLink to="/home" onClick={() => setIsOpen(false)}>
+              Home              
+              </RouterLink>
+            </li>
+            <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
               <button onClick={handleLogout}>Logout</button>
             </li>
           </>

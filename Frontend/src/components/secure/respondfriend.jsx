@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
@@ -40,32 +41,32 @@ const PendingFriendRequests = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      fetchRequests();
+      fetchRequests(); // Refresh requests after response
     } catch (error) {
       setError('Failed to respond to friend request');
     }
   };
 
   return (
-    <div className="p-4 bg-gray-950 shadow-md rounded-md">
-      <h2 className="text-lg font-semibold mb-2 text-white">Pending Friend Requests</h2>
-      {error && <p className="text-red-500">{error}</p>}
+    <div className="w-full max-w-md bg-gray-950 shadow-md rounded-lg p-6">
+      <h2 className="text-lg font-semibold mb-4 text-white">Pending Friend Requests</h2>
+      {error && <p className="text-red-500 mb-4">{error}</p>}
       <ul className="space-y-4">
         {requests.map((request) => (
-          <li key={request._id} className="bg-gray-100 p-4 rounded-md flex justify-between items-center">
+          <li key={request._id} className="bg-gray-700 p-4 rounded-md flex justify-between items-center">
             <div>
-              <p className="font-bold">{request.requester.name}</p>
-              <p>{request.requester.email}</p>
+              <p className="font-bold text-white">{request.requester.name}</p>
+              <p className="text-gray-300">{request.requester.email}</p>
             </div>
             <div className="flex space-x-2">
               <button
-                className="bg-black hover:text-green-500  text-white px-4 py-2 rounded"
+                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
                 onClick={() => respondToRequest(request.requester._id, 'accepted')}
               >
                 Accept
               </button>
               <button
-                className="bg-black hover:text-green-500 text-white px-4 py-2 rounded"
+                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
                 onClick={() => respondToRequest(request.requester._id, 'rejected')}
               >
                 Reject
