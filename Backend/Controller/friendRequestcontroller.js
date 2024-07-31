@@ -88,33 +88,83 @@ const sendFriendRequest = async (req, res) => {
   }
 };
 
+// const respondFriendRequest = async (req, res) => {
+//   try {
+//     const { requesterId, action } = req.body;
+//     const recipientId = req.user.userId;
+
+//     const recipient = await User.findById(recipientId);
+//     const friendRequest = recipient.requests.find(
+//       request => request.requester.toString() === requesterId && request.recipient.toString() === recipientId
+//     );
+
+//     if (!friendRequest) {
+//       return res.status(404).json({ error: "Friend Request Not found" });
+//     }
+
+//     friendRequest.status = action;
+//     await recipient.save();
+
+//     const requester = await User.findById(requesterId);
+//     const sentRequest = requester.requests.find(
+//       request => request.requester.toString() === requesterId && request.recipient.toString() === recipientId
+//     );
+
+//     if (sentRequest) {
+//       sentRequest.status = action;
+//       await requester.save();
+//     }
+
+//     if (action === 'accepted') {
+//       recipient.friends.push(requesterId);
+//       requester.friends.push(recipientId);
+//       await recipient.save();
+//       await requester.save();
+//     }
+
+//     res.status(200).json({ message: `Friend request ${action}` });
+//   } catch (error) {
+//     console.error('Error responding to friend request:', error);
+//     res.status(500).json({ error: 'Failed to respond to friend request' });
+//   }
+// };
 const respondFriendRequest = async (req, res) => {
   try {
     const { requesterId, action } = req.body;
     const recipientId = req.user.userId;
 
+    // Find the recipient and requester users
     const recipient = await User.findById(recipientId);
-    const friendRequest = recipient.requests.find(
-      request => request.requester.toString() === requesterId && request.recipient.toString() === recipientId
-    );
+    const requester = await User.findById(requesterId);
 
-    if (!friendRequest) {
-      return res.status(404).json({ error: "Friend Request Not found" });
+    if (!recipient || !requester) {
+      return res.status(404).json({ error: "User not found" });
     }
 
-    friendRequest.status = action;
-    await recipient.save();
-
-    const requester = await User.findById(requesterId);
-    const sentRequest = requester.requests.find(
+    // Find the friend request in the recipient's requests
+    const friendRequestIndex = recipient.requests.findIndex(
       request => request.requester.toString() === requesterId && request.recipient.toString() === recipientId
     );
 
-    if (sentRequest) {
-      sentRequest.status = action;
+    if (friendRequestIndex === -1) {
+      return res.status(404).json({ error: "Friend request not found" });
+    }
+
+    // Update the status of the request
+    recipient.requests[friendRequestIndex].status = action;
+    await recipient.save();
+
+    // Find and update the corresponding request in the requester's requests
+    const sentRequestIndex = requester.requests.findIndex(
+      request => request.requester.toString() === requesterId && request.recipient.toString() === recipientId
+    );
+
+    if (sentRequestIndex !== -1) {
+      requester.requests[sentRequestIndex].status = action;
       await requester.save();
     }
 
+    // If the action is 'accepted', add users to each other's friends lists
     if (action === 'accepted') {
       recipient.friends.push(requesterId);
       requester.friends.push(recipientId);
@@ -122,12 +172,25 @@ const respondFriendRequest = async (req, res) => {
       await requester.save();
     }
 
+    // Remove the request from both users' requests arrays
+    recipient.requests = recipient.requests.filter(
+      request => request.requester.toString() !== requesterId || request.recipient.toString() !== recipientId
+    );
+
+    requester.requests = requester.requests.filter(
+      request => request.requester.toString() !== requesterId || request.recipient.toString() !== recipientId
+    );
+
+    await recipient.save();
+    await requester.save();
+
     res.status(200).json({ message: `Friend request ${action}` });
   } catch (error) {
     console.error('Error responding to friend request:', error);
     res.status(500).json({ error: 'Failed to respond to friend request' });
   }
 };
+
 
 const getFriendsofUser = async (req, res) => {
   try {
@@ -167,7 +230,32 @@ const getFriendRequests = async (req, res) => {
   }
 };
 
-module.exports = { getFriendRequests };
+const removeFriend = async (req, res) => {
+  try {
+    const { friendId } = req.params; // Get friendId from URL parameters
+    const userId = req.user.userId;  // Authenticated user's ID
 
+    // Find the current user and the friend to be removed
+    const user = await User.findById(userId);
+    const friend = await User.findById(friendId);
 
-module.exports = {getFriendRequests,sendFriendRequest , respondFriendRequest,getFriendsofUser};
+    if (!user || !friend) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Remove the friend from the user's friends list
+    user.friends = user.friends.filter(id => id.toString() !== friendId);
+    // Remove the user from the friend's friends list
+    friend.friends = friend.friends.filter(id => id.toString() !== userId);
+
+    await user.save();
+    await friend.save();
+
+    res.status(200).json({ message: "Friend removed successfully" });
+  } catch (error) {
+    console.error('Error removing friend:', error);
+    res.status(500).json({ error: "Failed to remove friend" });
+  }
+};
+
+module.exports = {getFriendRequests,sendFriendRequest , respondFriendRequest,getFriendsofUser, removeFriend};

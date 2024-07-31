@@ -1,26 +1,28 @@
-import React from 'react'
-import FriendList from './showfriends'
-import SendFriendRequest from './sendfriend'
-import PendingFriendRequests from './respondfriend'
+import React from 'react';
+import FriendList from './showfriends';
+import SendFriendRequest from './sendfriend';
+import PendingFriendRequests from './respondfriend';
+import Navigationbar from '../navbar';
 
 const Friends = () => {
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-auth-back">
-        <div className="flex-1 p-8 mt-28 overflow-auto">
-          <div className="flex flex-col gap-6 items-center lg:flex-row">
-            <div className="sm:h-64 sm:w-96 sm:rounded-3xl sm:text-xl lg:h-96 lg:w-1/2 flex items-center justify-center bg-gray-950 rounded-full lg:rounded-3xl lg:text-3xl">
-<SendFriendRequest/>
-            </div>
-            <div className="sm:h-64 sm:w-96 sm:rounded-3xl sm:text-xl lg:h-96 lg:w-1/2 flex items-center justify-center bg-gray-950 rounded-full lg:rounded-3xl lg:text-3xl">
-<PendingFriendRequests/>
-            </div>
-            <div className="sm:h-64 sm:w-96 sm:rounded-3xl sm:text-xl lg:h-96 lg:w-1/2 flex items-center justify-center bg-gray-950 rounded-full lg:rounded-3xl lg:text-3xl">
-           <FriendList/>
-            </div>
-          </div>
+    <div className='bg-auth-back h-screen'>
+  <Navigationbar/>
+  <div className="flex flex-col mt-8  p-4 lg:p-8">
+      <div className="mt-12 lg:mt-24 flex flex-col lg:flex-row gap-8 justify-center items-center">
+        <div className="w-full lg:w-1/3 bg-gray-950 rounded-lg shadow-lg p-6 flex items-center justify-center">
+          <SendFriendRequest />
         </div>
-  </div>
-  )
-}
+        <div className="w-full lg:w-1/3 bg-gray-950 rounded-lg shadow-lg p-6 flex items-center justify-center">
+          <PendingFriendRequests />
+        </div>
+        <div className="w-full lg:w-1/3 bg-gray-950 rounded-lg shadow-lg p-6 flex items-center justify-center">
+          <FriendList />
+        </div>
+      </div>
+    </div>
+    </div>
+  );
+};
 
-export default Friends
+export default Friends;
