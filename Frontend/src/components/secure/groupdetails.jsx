@@ -161,6 +161,7 @@ const GroupDetails = () => {
                 <button className="bg-black text-white px-4 py-2 rounded-md hover:text-green-500 transition duration-300">
                   Change Admin
                 </button>
+
               </div>
             )}
             {isAddExpenseOpen && (
@@ -358,7 +359,7 @@ const GroupDetails = () => {
           <ul className="space-y-2 transition-all duration-300 ease-in-out">
             {groupDetails.group.members.map((member, index) => (
               <li
-                key={member.userId ? member.userId._id : member.name}
+                key={member.name}
                 className="bg-gray-800 p-4 rounded-md shadow-sm overflow-hidden"
               >
                 <span className="font-semibold">
