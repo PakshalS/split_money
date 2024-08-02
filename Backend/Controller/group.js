@@ -237,12 +237,10 @@ const removeMember = async (req, res) => {
     res.status(500).json({ error: "Failed to remove member" });
   }
 };
-
-
 const transferAdminRights = async (req, res) => {
   try {
-    const groupId = req.params.groupId;
-    const { newAdminName } = req.body; // Correctly extract newAdminName from the body
+    const { groupId } = req.params;
+    const { newAdminName } = req.body;
     const userId = req.user.userId;
 
     // Find the group by ID
@@ -256,25 +254,29 @@ const transferAdminRights = async (req, res) => {
       return res.status(403).json({ error: "Only the current admin can transfer admin rights" });
     }
 
-    // Log the group details for debugging
-    console.log("Group details:", group);
-
     // Find the member by their name
-    const newAdmin = group.members.find(member => member.name === newAdminName);
-    if (!newAdmin) {
+    const member = group.members.find((member) => member.name === newAdminName);
+    if (!member) {
       return res.status(400).json({ error: "The new admin must be a member of the group" });
     }
 
-    // Log the new admin details for debugging
-    console.log("New Admin details:", newAdmin);
+    // Log newAdmin details for debugging
+    console.log("New Admin:", member);
 
     // Check if the member has a valid userId (i.e., is a registered member)
-    if (!newAdmin.userId) {
+    if (!member.userId) {
       return res.status(400).json({ error: "Selected member is not a registered user" });
     }
 
+    // Verify if the userId is valid and corresponds to a registered user
+    const registeredUser = await User.findById(member.userId);
+    if (!registeredUser) {
+      console.log("User not found:", member.userId); // Log the userId that is not found
+      return res.status(400).json({ error: "Selected member does not correspond to a valid registered user" });
+    }
+
     // Transfer admin rights
-    group.admin = newAdmin.userId;
+    group.admin = member.userId;
     await group.save();
 
     res.status(200).json({ message: "Admin rights transferred successfully", group });
@@ -283,6 +285,7 @@ const transferAdminRights = async (req, res) => {
     res.status(500).json({ error: "Failed to transfer admin rights" });
   }
 };
+
 
 const leaveGroup = async (req, res) => {
   try {
