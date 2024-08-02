@@ -42,20 +42,19 @@ const GroupEditForm = ({ groupId, onClose }) => {
       if(confirm("Are you sure you want to delete ?"))
       {
         await axios.delete(`http://localhost:3000/groups/${groupId}`, {
-          groupId,
-        }, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
   
-        alert('Edited successfully!');
+        alert('Deleted successfully!');
         onClose();
       }
     } catch (error) {
       console.error('Error editing group', error);
     }
   };
+  
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
       <div className="bg-gray-950 p-6 rounded-md shadow-md w-96 relative">

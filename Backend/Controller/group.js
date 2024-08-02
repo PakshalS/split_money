@@ -284,42 +284,41 @@ const transferAdminRights = async (req, res) => {
   }
 };
 
-
 const leaveGroup = async (req, res) => {
   try {
-    const { groupId } = req.body;
+    const { groupId } = req.params; // Get groupId from URL parameters
     const userId = req.user.userId;
+    const userName = req.user.name;
 
     const group = await Group.findById(groupId);
     if (!group) {
       return res.status(404).json({ error: "Group not found" });
     }
 
-    // If the admin is leaving
+    // If the admin is trying to leave, prevent them from doing so
     if (group.admin.toString() === userId) {
-      // Transfer admin rights to the next member
-      const nextAdmin = group.members.find(
-        (member) => member.user && member.user.toString() !== userId
-      );
-      if (!nextAdmin) {
-        return res
-          .status(400)
-          .json({
-            error: "Cannot leave the group without transferring admin rights",
-          });
-      }
-      group.admin = nextAdmin.user;
+      return res.status(400).json({ error: "Admin cannot leave the group. Please transfer admin rights first." });
     }
 
     // Remove the member from the group
-    group.members = group.members.filter((member) =>
-      member.user ? member.user.toString() !== userId : true
-    );
+    const initialMembersCount = group.members.length;
+    group.members = group.members.filter((member) => {
+      return member.userId ? member.userId.toString() !== userId : member.name !== userName;
+    });
+
+    // Check if member was actually removed
+    if (group.members.length === initialMembersCount) {
+      return res.status(404).json({ error: "Member not found in the group" });
+    }
+
     await group.save();
-    // **Update the user's groups array**
+
+    // Update the user's groups array if the user is registered
     const user = await User.findById(userId);
-    user.groups = user.groups.filter((group) => group.toString() !== groupId);
-    await user.save();
+    if (user) {
+      user.groups = user.groups.filter((group) => group.toString() !== groupId);
+      await user.save();
+    }
 
     res.status(200).json({ message: "Left group successfully", group });
   } catch (error) {

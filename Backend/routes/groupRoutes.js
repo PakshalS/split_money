@@ -7,7 +7,7 @@ const router = express.Router();
 router.post('/create', authenticateJWT, createGroup);
 router.post('/:groupId/add-member', authenticateJWT, addMember);
 router.delete('/:groupId/:memberName/remove-member', authenticateJWT, removeMember);
-router.post('/leave', authenticateJWT, leaveGroup);
+router.delete('/:groupId/leave', authenticateJWT, leaveGroup);
 router.put('/:groupId/edit', authenticateJWT, editGroup);
 router.post('/add-friend', authenticateJWT,addFriendstoGroup);
 router.get('/user-groups',authenticateJWT,getUserGroups);  
