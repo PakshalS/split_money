@@ -1,25 +1,30 @@
-import AddExpenseForm from "./admin/addexpense";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, lazy, Suspense } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-import SettleUpForm from "./admin/settleup";
-import GroupEditForm from "./admin/editgroup";
-import EditExpenseForm from "./admin/editexpense";
-import DeleteExpenseForm from "./admin/deleteexpense";
-import RemoveMemberForm from "./admin/removemember";
-import AddMemberForm from "./admin/addmember";
-import ChangeAdminForm from "./admin/changeadmin";
+import { debounce } from "lodash";
+
+// Lazy load the components
+const AddExpenseForm = lazy(() => import("./admin/addexpense"));
+const SettleUpForm = lazy(() => import("./admin/settleup"));
+const GroupEditForm = lazy(() => import("./admin/editgroup"));
+const EditExpenseForm = lazy(() => import("./admin/editexpense"));
+const DeleteExpenseForm = lazy(() => import("./admin/deleteexpense"));
+const RemoveMemberForm = lazy(() => import("./admin/removemember"));
+const AddMemberForm = lazy(() => import("./admin/addmember"));
+const ChangeAdminForm = lazy(() => import("./admin/changeadmin"));
 
 const GroupDetails = () => {
   const { groupId } = useParams();
+  const navigate = useNavigate();
   const [groupDetails, setGroupDetails] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [expandedExpense, setExpandedExpense] = useState(null);
   const [expandedMembers, setExpandedMembers] = useState(false);
   const [expandedBalances, setExpandedBalances] = useState(false);
-  const [expandedTransactionHistory, setExpandedTransactionHistory] = useState(false);
+  const [expandedTransactionHistory, setExpandedTransactionHistory] =
+    useState(false);
   const [expandedAdminActions, setExpandedAdminActions] = useState(false);
   const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
   const [isSettleUpOpen, setIsSettleUpOpen] = useState(false);
@@ -32,6 +37,39 @@ const GroupDetails = () => {
   const [selectedMember, setSelectedMember] = useState(null);
   const [isChangeAdminOpen, setIsChangeAdminOpen] = useState(false);
 
+  const fetchGroupDetails = async () => {
+    try {
+      const token = Cookies.get("authToken");
+      if (!token) {
+        console.error("No auth token found");
+        return;
+      }
+
+      const response = await axios.get(
+        `http://localhost:3000/groups/${groupId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setGroupDetails(response.data);
+      const userId = JSON.parse(atob(token.split(".")[1])).userId;
+      setIsAdmin(response.data.group.admin._id === userId);
+
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error fetching group details:", error);
+      setIsLoading(false);
+    }
+  };
+
+  const debouncedFetchGroupDetails = debounce(fetchGroupDetails, 300);
+
+  useEffect(() => {
+    fetchGroupDetails();
+  }, [groupId]);
 
   const toggleEditExpenseForm = (expense) => {
     setSelectedExpense(expense);
@@ -49,59 +87,49 @@ const GroupDetails = () => {
   const toggleSettleUpForm = () => setIsSettleUpOpen(!isSettleUpOpen);
   const toggleGroupEditForm = () => setIsGroupEditOpen(!isGroupEditOpen);
   const toggleChangeAdminForm = () => setIsChangeAdminOpen(!isChangeAdminOpen);
-
   const toggleAddMemberForm = () => setIsOpenAddMember(!isOpenAddMember);
-
-  useEffect(() => {
-    const fetchGroupDetails = async () => {
-      try {
-        const token = Cookies.get("authToken");
-        if (!token) {
-          console.error("No auth token found");
-          return;
-        }
-
-        const response = await axios.get(
-          `http://localhost:3000/groups/${groupId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        setGroupDetails(response.data);
-        const userId = JSON.parse(atob(token.split(".")[1])).userId;
-        setIsAdmin(response.data.group.admin._id === userId);
-
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error fetching group details:", error);
-        setIsLoading(false);
-      }
-    };
-
-    fetchGroupDetails();
-  }, [groupId]);
 
   const toggleExpense = (expenseId) => {
     setExpandedExpense(expenseId === expandedExpense ? null : expenseId);
   };
 
-  const toggleMembers = () => {
-    setExpandedMembers(!expandedMembers);
-  };
-
-  const toggleBalances = () => {
-    setExpandedBalances(!expandedBalances);
-  };
-
-  const toggleTransactionHistory = () => {
+  const toggleMembers = () => setExpandedMembers(!expandedMembers);
+  const toggleBalances = () => setExpandedBalances(!expandedBalances);
+  const toggleTransactionHistory = () =>
     setExpandedTransactionHistory(!expandedTransactionHistory);
-  };
-  const toggleAdminActions = () => {
+  const toggleAdminActions = () =>
     setExpandedAdminActions(!expandedAdminActions);
+
+  const handleLeave = async () => {
+    try {
+      const token = Cookies.get("authToken");
+      if (!token) {
+        console.error("No auth token found");
+        return;
+      }
+      if (confirm("Are you sure you want to leave ?")) {
+        await axios.delete(`http://localhost:3000/groups/${groupId}/leave`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        alert("Left Group successfully!");
+        debouncedFetchGroupDetails();
+      }
+    } catch (error) {
+      console.error("Error removing member:", error);
+    }
   };
+
+  useEffect(() => {
+    const unblock = navigate.apply((tx) => {
+      if (tx.location.pathname !== window.location.pathname) {
+        tx.retry();
+      }
+    });
+    return unblock;
+  }, [navigate]);
 
   if (isLoading) {
     return (
@@ -119,28 +147,9 @@ const GroupDetails = () => {
     );
   }
 
-  
-  const handleLeave = async () => {
-    try {
-      const token = Cookies.get('authToken');
-      if (!token) {
-        console.error('No auth token found');
-        return;
-      }
-      if(confirm("Are you sure you want to delete ?")){
-        await axios.delete(`http://localhost:3000/groups/${groupId}/leave`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-  
-        alert('Left Group successfully!');
-        onClose();
-      }
-    } catch (error) {
-      console.error('Error removing member:', error);
-    }
-  };
+  const handleback =()=>{
+  navigate('/home');
+  }
 
   return (
     <div className="min-h-screen p-4 bg-auth-back text-white flex flex-col items-center">
@@ -150,6 +159,10 @@ const GroupDetails = () => {
           <span className="font-semibold">Admin:</span>{" "}
           {groupDetails.group.admin.name}
         </p>
+        <button 
+        onClick={handleback}
+        className="bg-black text-white px-4 py-2 rounded-md hover:text-green-500 transition duration-300 w-full mb-4"
+        >Go back</button>
         {isAdmin && (
           <div className="mb-6">
             <button
@@ -187,33 +200,67 @@ const GroupDetails = () => {
                   Add Member
                 </button>
                 <button
-                onClick={toggleChangeAdminForm}
-                className="bg-black text-white px-4 py-2 rounded-md hover:text-green-500 transition duration-300">
+                  onClick={toggleChangeAdminForm}
+                  className="bg-black text-white px-4 py-2 rounded-md hover:text-green-500 transition duration-300"
+                >
                   Change Admin
                 </button>
-
               </div>
             )}
             {isAddExpenseOpen && (
-              <AddExpenseForm
-                groupId={groupId}
-                onClose={toggleAddExpenseForm}
-              />
+              <Suspense fallback={<div>Loading...</div>}>
+                <AddExpenseForm
+                  groupId={groupId}
+                  onClose={() => {
+                    toggleAddExpenseForm();
+                    debouncedFetchGroupDetails();
+                  }}
+                />
+              </Suspense>
             )}
             {isOpenAddMember && (
-              <AddMemberForm groupId={groupId} onClose={toggleAddMemberForm} />
+              <Suspense fallback={<div>Loading...</div>}>
+                <AddMemberForm
+                  groupId={groupId}
+                  onClose={() => {
+                    toggleAddMemberForm();
+                    debouncedFetchGroupDetails();
+                  }}
+                />
+              </Suspense>
             )}
             {isSettleUpOpen && (
-              <SettleUpForm groupId={groupId} onClose={toggleSettleUpForm} />
+              <Suspense fallback={<div>Loading...</div>}>
+                <SettleUpForm
+                  groupId={groupId}
+                  onClose={() => {
+                    toggleSettleUpForm();
+                    debouncedFetchGroupDetails();
+                  }}
+                />
+              </Suspense>
             )}
             {isGroupEditOpen && (
-              <GroupEditForm groupId={groupId} onClose={toggleGroupEditForm} />
+              <Suspense fallback={<div>Loading...</div>}>
+                <GroupEditForm
+                  groupId={groupId}
+                  onClose={() => {
+                    toggleGroupEditForm();
+                    debouncedFetchGroupDetails();
+                  }}
+                />
+              </Suspense>
             )}
-             {isChangeAdminOpen && (
-              <ChangeAdminForm groupId={groupId} onClose={toggleChangeAdminForm} />
-            )}
-            {isOpenAddMember && (
-              <AddMemberForm groupId={groupId} onClose={toggleAddMemberForm} />
+            {isChangeAdminOpen && (
+              <Suspense fallback={<div>Loading...</div>}>
+                <ChangeAdminForm
+                  groupId={groupId}
+                  onClose={() => {
+                    toggleChangeAdminForm();
+                    debouncedFetchGroupDetails();
+                  }}
+                />
+              </Suspense>
             )}
           </div>
         )}
@@ -295,18 +342,28 @@ const GroupDetails = () => {
                                 Delete Expense
                               </button>
                               {isEditExpenseOpen && (
-                                <EditExpenseForm
-                                  groupId={groupId}
-                                  expense={selectedExpense}
-                                  onClose={toggleEditExpenseForm}
-                                />
+                                <Suspense fallback={<div>Loading...</div>}>
+                                  <EditExpenseForm
+                                    groupId={groupId}
+                                    expense={selectedExpense}
+                                    onClose={() => {
+                                      toggleEditExpenseForm();
+                                      debouncedFetchGroupDetails();
+                                    }}
+                                  />
+                                </Suspense>
                               )}
                               {isDeleteExpenseOpen && (
-                                <DeleteExpenseForm
-                                  groupId={groupId}
-                                  expense={selectedExpense}
-                                  onClose={toggleDeleteExpenseForm}
-                                />
+                                <Suspense fallback={<div>Loading...</div>}>
+                                  <DeleteExpenseForm
+                                    groupId={groupId}
+                                    expense={selectedExpense}
+                                    onClose={() => {
+                                      toggleDeleteExpenseForm();
+                                      debouncedFetchGroupDetails();
+                                    }}
+                                  />
+                                </Suspense>
                               )}
                             </div>
                           )}
@@ -374,9 +431,6 @@ const GroupDetails = () => {
                     <span className="font-semibold">${transaction.amount}</span>
                     .
                   </p>
-                  <p className="text-sm">
-                    Date: {new Date(transaction.date).toLocaleDateString()}
-                  </p>
                 </li>
               ))}
             </ul>
@@ -401,34 +455,42 @@ const GroupDetails = () => {
                 <span className="block truncate">
                   {member.email || "No email"}
                 </span>
-                {isAdmin && member.userId !== groupDetails.group.admin._id && (
+                {isAdmin && (
                   <div className="flex space-x-2 mt-4">
                     <button
                       onClick={() => toggleRemoveMemberForm(member)}
-                      className="bg-red-500 text-white px-3 py-1 rounded-md mt-2 hover:bg-red-600 transition duration-300"
+                      className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition duration-300 "
                     >
-                      Remove Member
+                      Remove
                     </button>
-                    {isRemoveMemberOpen && (
-                      <RemoveMemberForm
-                        groupId={groupId}
-                        member={selectedMember}
-                        onClose={() => setIsRemoveMemberOpen(false)}
-                      />
-                    )}
+                    {isRemoveMemberOpen &&
+                      selectedMember._id === member._id && (
+                        <Suspense fallback={<div>Loading...</div>}>
+                          <RemoveMemberForm
+                            groupId={groupId}
+                            member={selectedMember}
+                            onClose={() => {
+                              toggleRemoveMemberForm();
+                              debouncedFetchGroupDetails();
+                            }}
+                          />
+                        </Suspense>
+                      )}
                   </div>
                 )}
               </li>
             ))}
           </ul>
         )}
-        <div className="mt-6">
-          <button
+      </div>
+
+      <div className="mt-6">
+        <button
           onClick={handleLeave}
-           className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-300">
-            Leave Group
-          </button>
-        </div>
+          className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-300"
+        >
+          Leave Group
+        </button>
       </div>
     </div>
   );
