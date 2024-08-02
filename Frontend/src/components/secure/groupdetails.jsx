@@ -114,6 +114,29 @@ const GroupDetails = () => {
     );
   }
 
+  
+  const handleLeave = async () => {
+    try {
+      const token = Cookies.get('authToken');
+      if (!token) {
+        console.error('No auth token found');
+        return;
+      }
+      if(confirm("Are you sure you want to delete ?")){
+        await axios.delete(`http://localhost:3000/groups/${groupId}/leave`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+  
+        alert('Left Group successfully!');
+        onClose();
+      }
+    } catch (error) {
+      console.error('Error removing member:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen p-4 bg-auth-back text-white flex flex-col items-center">
       <div className="w-full max-w-3xl bg-gray-950 p-6 rounded-lg shadow-lg mb-8">
@@ -390,7 +413,9 @@ const GroupDetails = () => {
           </ul>
         )}
         <div className="mt-6">
-          <button className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-300">
+          <button
+          onClick={handleLeave}
+           className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-300">
             Leave Group
           </button>
         </div>
