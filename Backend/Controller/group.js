@@ -241,48 +241,39 @@ const transferAdminRights = async (req, res) => {
   try {
     const { groupId } = req.params;
     const { newAdminName } = req.body;
-    const userId = req.user.userId;
+    const userId = req.user.userId; // Assuming req.user.userId is set from authentication middleware
 
     // Find the group by ID
     const group = await Group.findById(groupId);
     if (!group) {
-      return res.status(404).json({ error: "Group not found" });
+      return res.status(404).json({ error: 'Group not found' });
     }
 
     // Check if the current user is the admin
     if (group.admin.toString() !== userId) {
-      return res.status(403).json({ error: "Only the current admin can transfer admin rights" });
+      return res.status(403).json({ error: 'Only the current admin can transfer admin rights' });
     }
 
     // Find the member by their name
-    const member = group.members.find((member) => member.name === newAdminName);
-    if (!member) {
-      return res.status(400).json({ error: "The new admin must be a member of the group" });
+    const newAdmin = group.members.find(member => member.name === newAdminName);
+    if (!newAdmin) {
+      return res.status(400).json({ error: 'The new admin must be a member of the group' });
     }
 
-    // Log newAdmin details for debugging
-    console.log("New Admin:", member);
-
-    // Check if the member has a valid userId (i.e., is a registered member)
-    if (!member.userId) {
-      return res.status(400).json({ error: "Selected member is not a registered user" });
-    }
-
-    // Verify if the userId is valid and corresponds to a registered user
-    const registeredUser = await User.findById(member.userId);
+    // Check if the member is a registered user
+    const registeredUser = await User.findOne({ name: newAdminName, _id: newAdmin.userId });
     if (!registeredUser) {
-      console.log("User not found:", member.userId); // Log the userId that is not found
-      return res.status(400).json({ error: "Selected member does not correspond to a valid registered user" });
+      return res.status(400).json({ error: 'Selected member is not a registered user' });
     }
 
     // Transfer admin rights
-    group.admin = member.userId;
+    group.admin = newAdmin.userId;
     await group.save();
 
-    res.status(200).json({ message: "Admin rights transferred successfully", group });
+    res.status(200).json({ message: 'Admin rights transferred successfully', group });
   } catch (error) {
-    console.error("Error transferring admin rights:", error);
-    res.status(500).json({ error: "Failed to transfer admin rights" });
+    console.error('Error transferring admin rights:', error);
+    res.status(500).json({ error: 'Failed to transfer admin rights' });
   }
 };
 

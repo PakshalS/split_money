@@ -15,7 +15,7 @@ router.get('/:groupId',authenticateJWT,getGroupDetails);
 router.post('/:groupId/add-expense',authenticateJWT,addExpense);
 router.delete('/:groupId',authenticateJWT,deleteGroup);
 router.post('/:groupId/settleup',authenticateJWT,settleUp);
-router.post('/:groupId/transfer-admin', authenticateJWT,transferAdminRights);
+router.put('/:groupId/transfer-admin', authenticateJWT,transferAdminRights);
 router.put('/:groupId/expenses/:expenseId', authenticateJWT, editExpense);
 router.delete('/:groupId/expenses/:expenseId', authenticateJWT, deleteExpense);
 

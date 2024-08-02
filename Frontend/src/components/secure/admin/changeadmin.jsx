@@ -16,7 +16,7 @@ const ChangeAdminForm = ({ groupId, onClose }) => {
         return;
       }
 
-      await axios.post(`http://localhost:3000/groups/${groupId}/transfer-admin`, {
+      await axios.put(`http://localhost:3000/groups/${groupId}/transfer-admin`, {
         groupId,
         newAdminName,
       }, {
