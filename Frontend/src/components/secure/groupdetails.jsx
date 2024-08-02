@@ -9,6 +9,7 @@ import EditExpenseForm from "./admin/editexpense";
 import DeleteExpenseForm from "./admin/deleteexpense";
 import RemoveMemberForm from "./admin/removemember";
 import AddMemberForm from "./admin/addmember";
+import ChangeAdminForm from "./admin/changeadmin";
 
 const GroupDetails = () => {
   const { groupId } = useParams();
@@ -29,6 +30,8 @@ const GroupDetails = () => {
   const [selectedExpense, setSelectedExpense] = useState(null);
   const [isRemoveMemberOpen, setIsRemoveMemberOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
+  const [isChangeAdminOpen, setIsChangeAdminOpen] = useState(false);
+
 
   const toggleEditExpenseForm = (expense) => {
     setSelectedExpense(expense);
@@ -45,6 +48,8 @@ const GroupDetails = () => {
   const toggleAddExpenseForm = () => setIsAddExpenseOpen(!isAddExpenseOpen);
   const toggleSettleUpForm = () => setIsSettleUpOpen(!isSettleUpOpen);
   const toggleGroupEditForm = () => setIsGroupEditOpen(!isGroupEditOpen);
+  const toggleChangeAdminForm = () => setIsChangeAdminOpen(!isChangeAdminOpen);
+
   const toggleAddMemberForm = () => setIsOpenAddMember(!isOpenAddMember);
 
   useEffect(() => {
@@ -181,7 +186,9 @@ const GroupDetails = () => {
                 >
                   Add Member
                 </button>
-                <button className="bg-black text-white px-4 py-2 rounded-md hover:text-green-500 transition duration-300">
+                <button
+                onClick={toggleChangeAdminForm}
+                className="bg-black text-white px-4 py-2 rounded-md hover:text-green-500 transition duration-300">
                   Change Admin
                 </button>
 
@@ -201,6 +208,9 @@ const GroupDetails = () => {
             )}
             {isGroupEditOpen && (
               <GroupEditForm groupId={groupId} onClose={toggleGroupEditForm} />
+            )}
+             {isChangeAdminOpen && (
+              <ChangeAdminForm groupId={groupId} onClose={toggleChangeAdminForm} />
             )}
             {isOpenAddMember && (
               <AddMemberForm groupId={groupId} onClose={toggleAddMemberForm} />
