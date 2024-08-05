@@ -15,6 +15,10 @@ const AddMemberForm = lazy(() => import("./admin/addmember"));
 const ChangeAdminForm = lazy(() => import("./admin/changeadmin"));
 
 const GroupDetails = () => {
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [message1, setMessage1] = useState("");
+  const [error1, setError1] = useState("");
   const { groupId } = useParams();
   const navigate = useNavigate();
   const [groupDetails, setGroupDetails] = useState(null);
@@ -53,13 +57,16 @@ const GroupDetails = () => {
           },
         }
       );
-
+      setMessage(response.data.message);
+      setError("");
       setGroupDetails(response.data);
       const userId = JSON.parse(atob(token.split(".")[1])).userId;
       setIsAdmin(response.data.group.admin._id === userId);
 
       setIsLoading(false);
     } catch (error) {
+      setMessage("");
+      setError(error.response.data.error || "Error fetching group details:");
       console.error("Error fetching group details:", error);
       setIsLoading(false);
     }
@@ -113,12 +120,15 @@ const GroupDetails = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-
+        setMessage1(response.data.message);
+        setError1("");
         alert("Left Group successfully!");
         debouncedFetchGroupDetails();
       }
     } catch (error) {
-      console.error("Error removing member:", error);
+      console.error("Error leaving:", error);
+      setMessage1("");
+      setError1(error.response?.data?.error || 'Error leaving');
     }
   };
 
@@ -491,7 +501,11 @@ const GroupDetails = () => {
         >
           Leave Group
         </button>
+        {message1 && <p className="text-green-500 mt-4">{message1}</p>}
+        {error1 && <p className="text-red-500 mt-4">{error1}</p>}
       </div>
+      {message && <p className="text-green-500 mt-4">{message}</p>}
+      {error && <p className="text-red-500 mt-4">{error}</p>}
     </div>
   );
 };

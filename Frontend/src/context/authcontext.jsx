@@ -12,7 +12,7 @@ const AuthProvider = ({ children }) => {
   useEffect(() => {
     const token = Cookies.get('authToken');
     if (token) {
-      console.log('Token found:', token);
+      console.log('Token found');
       const decodedToken = jwtDecode(token);
       setAuthData(decodedToken);
     }
@@ -20,7 +20,7 @@ const AuthProvider = ({ children }) => {
 
   const login = (token) => {
     console.log('Logging in with token:', token);
-    Cookies.set('authToken', token, { expires: 1 }); // token expires in 1 day
+    Cookies.set('authToken', token, { expires: 2 }); // token expires in 1 day
     const decodedToken = jwtDecode(token);
     setAuthData(decodedToken);
     navigate('/dashboard');
@@ -29,8 +29,7 @@ const AuthProvider = ({ children }) => {
   const logout = () => {
     console.log('Logging out');
     Cookies.remove('authToken');
-    setAuthData(null);
-    navigate('/login');
+    navigate('/');
   };
 
   return (

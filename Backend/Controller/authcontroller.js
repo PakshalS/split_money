@@ -1,6 +1,8 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 SECRET_KEY= '9J#4@^h$dG7%KsP&!l*2zNqJ^e@8XsT5'
 
 const register = async (req, res) => {
@@ -60,4 +62,78 @@ const login = async (req, res) => {
     }
   };
 
-  module.exports = { register, login };
+  
+  const transporter = nodemailer.createTransport({
+    service: 'Gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+  
+  const requestPasswordReset = async (req, res) => {
+    try {
+      const { emailOrUsername } = req.body;
+      const user = await User.findOne({
+        $or: [{ email: emailOrUsername }, { name: emailOrUsername }],
+      });
+  
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+  
+      const temporaryPassword = crypto.randomBytes(4).toString('hex');
+      const hashedPassword = await bcrypt.hash(temporaryPassword, 10);
+  
+      user.password = hashedPassword;
+      await user.save();
+  
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: user.email,
+        subject: 'Password Reset Request',
+        text: `Your temporary password is ${temporaryPassword}`,
+      };
+  
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          return res.status(500).json({ error: 'Error sending email' });
+        }
+        res.status(200).json({ message: 'Temporary password sent to your email' });
+      });
+    } catch (error) {
+      res.status(500).json({ error: 'Error processing request' });
+    }
+  };
+
+  
+  const changePassword = async (req, res) => {
+    try {
+      const { oldPassword, newPassword } = req.body;
+      const userId = req.user.userId;
+  
+      const user = await User.findById(userId);
+  
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+  
+      const isMatch = await bcrypt.compare(oldPassword, user.password);
+  
+      if (!isMatch) {
+        return res.status(400).json({ error: 'Incorrect old password' });
+      }
+  
+      const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+      user.password = hashedNewPassword;
+      await user.save();
+  
+      res.status(200).json({ message: 'Password changed successfully' });
+    } catch (error) {
+      res.status(500).json({ error: 'Error changing password' });
+    }
+  };
+  
+
+
+  module.exports = { register, login ,requestPasswordReset ,changePassword };

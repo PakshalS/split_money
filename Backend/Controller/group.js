@@ -25,22 +25,20 @@ const createGroup = async (req, res) => {
         let user = null;
 
         if (member.email) {
-          user = await User.findOne({ email: member.email });
+          user = await User.findOne({ email: member.email, name: member.name });
           if (user && emailsSet.has(user.email)) {
             throw new Error(`Duplicate email detected: ${member.email}`);
           }
           emailsSet.add(member.email);
-        } else if (member.name) {
-          user = await User.findOne({ name: member.name });
-          if (user && emailsSet.has(user.email)) {
-            throw new Error(`Duplicate email detected: ${user.email}`);
-          }
-          emailsSet.add(user ? user.email : '');
-        }
 
-        return user
-          ? { userId: user._id, name: user.name, email: user.email }
-          : { name: member.name, email: member.email };
+          // Only add the user if both email and name match
+          return user
+            ? { userId: user._id, name: user.name, email: user.email }
+            : { name: member.name, email: member.email };
+        } else {
+          // If email is not provided, treat the user as non-registered
+          return { name: member.name, email: member.email };
+        }
       })
     );
 
@@ -136,6 +134,9 @@ const addMember = async (req, res) => {
       return res.status(403).json({ error: "Only the group admin can add members" });
     }
 
+    const namesSet = new Set(group.members.map(member => member.name.toLowerCase()));
+    const emailsSet = new Set(group.members.map(member => member.email));
+
     for (const member of members) {
       // Check if the name is provided
       if (!member.name) {
@@ -143,37 +144,31 @@ const addMember = async (req, res) => {
       }
 
       // Check for unique name within the group
-      if (group.members.some(existingMember => existingMember.name.toLowerCase() === member.name.toLowerCase())) {
+      if (namesSet.has(member.name.toLowerCase())) {
         return res.status(400).json({ error: `The name "${member.name}" is already used in the group` });
       }
+      namesSet.add(member.name.toLowerCase());
 
-      // If the email is not provided, try to fetch it from the registered user by name
-      let registeredUser = null;
-      if (member.name && !member.email) {
-        registeredUser = await User.findOne({ name: member.name });
-        if (registeredUser) {
-          member.email = registeredUser.email;
+      let user = null;
+
+      if (member.email) {
+        user = await User.findOne({ email: member.email, name: member.name });
+        if (user && emailsSet.has(user.email)) {
+          return res.status(400).json({ error: `The email "${member.email}" is already used in the group` });
         }
-      } else if (member.email) {
-        registeredUser = await User.findOne({ email: member.email });
-      }
+        emailsSet.add(member.email);
 
-      // Check for unique email within the group, if email is provided
-      if (member.email && group.members.some(existingMember => existingMember.email === member.email)) {
-        return res.status(400).json({ error: `The email "${member.email}" is already used in the group` });
-      }
-
-      // Add the member to the group
-      group.members.push(
-        registeredUser
-          ? { user: registeredUser._id, name: registeredUser.name, email: registeredUser.email }
-          : { name: member.name, email: member.email }
-      );
-
-      // Update the new member's groups array if they are registered
-      if (registeredUser) {
-        registeredUser.groups.push(group._id);
-        await registeredUser.save();
+        // Only add the user if both email and name match
+        if (user) {
+          group.members.push({ userId: user._id, name: user.name, email: user.email });
+          user.groups.push(group._id);
+          await user.save();
+        } else {
+          group.members.push({ name: member.name, email: member.email });
+        }
+      } else {
+        // If email is not provided, treat the user as non-registered
+        group.members.push({ name: member.name, email: member.email });
       }
     }
 
@@ -184,6 +179,9 @@ const addMember = async (req, res) => {
     res.status(500).json({ error: "Failed to add members" });
   }
 };
+
+
+
 
 const removeMember = async (req, res) => {
   try {
@@ -320,6 +318,7 @@ const leaveGroup = async (req, res) => {
     res.status(500).json({ error: "Failed to leave group" });
   }
 };
+
 
 const editGroup = async (req, res) => {
   try {
