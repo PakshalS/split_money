@@ -8,11 +8,9 @@ const LandingPage = () => {
         <h1 className="text-4xl md:text-6xl pt-6 font-bold mb-4">Split your <span className="text-green-500">money</span></h1>
       
         <p className="text-xl md:text-2xl mb-6">
-          Setting up automatic transfers from your checking to your savings account can get you started saving money without thinking.
-        </p>
+        Managing group expenses has never been easier! Our expense splitting website helps you effortlessly divide costs among friends and family. Whether it's a trip, dinner, or a shared gift, simply create a group, add expenses, and let our tool handle the rest.        </p>
         <p className="text-xl md:text-2xl mb-6  ">
-Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor consequatur, illum vero distinctio iste repellendus in esse aut vel doloribus facere blanditiis labore fugiat ipsam reprehenderit ad impedit molestiae unde!
-        </p>
+        Track who owes whom, settle balances, and keep everyone on the same page. With user-friendly features and seamless calculations, splitting expenses is now hassle-free.         </p>
         <div className='flex gap-5'>
           <Link to="/login">
           <button className="bg-transparent border-2 border-green-500 text-green-500 px-4 py-2 rounded-md hover:bg-green-500 hover:text-black">Login</button>
