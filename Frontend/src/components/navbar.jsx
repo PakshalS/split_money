@@ -5,15 +5,15 @@ import { Link as RouterLink } from "react-router-dom";
 import { Link as ScrollLink } from "react-scroll";
 import Cookies from "js-cookie";
 
+
 const Navigationbar = () => {
-  const { authData, setAuthData } = useContext(AuthContext);
+  const { authData } = useContext(AuthContext);
   const [isOpen, setIsOpen] = useState(false);
 
   const handleLogout = () => {
     if(confirm("Are you sure you want to logout !"))
     {
       Cookies.remove("authToken");
-      setAuthData(null);
       window.location.reload(true);
     }
   };
