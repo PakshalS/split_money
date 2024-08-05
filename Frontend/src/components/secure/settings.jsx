@@ -72,7 +72,7 @@ const RequestPasswordReset = () => {
           />
           <button
             type="submit"
-            className="w-full bg-green-500 hover:bg-green-600 text-white p-2 rounded transition duration-300"
+            className="w-full bg-black hover:text-green-500 text-white p-2 rounded transition duration-300"
           >
             Request Password Reset
           </button>
@@ -101,7 +101,7 @@ const RequestPasswordReset = () => {
           />
           <button
             type="submit"
-            className="w-full bg-green-500 hover:bg-green-600 text-white p-2 rounded transition duration-300"
+            className="w-full bg-black hover:text-green-500 text-white p-2 rounded transition duration-300"
           >
             Change Password
           </button>

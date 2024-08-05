@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
-SECRET_KEY= '9J#4@^h$dG7%KsP&!l*2zNqJ^e@8XsT5'
 
 const register = async (req, res) => {
   try {
@@ -32,7 +31,6 @@ const register = async (req, res) => {
   }
 };
 
-
 const login = async (req, res) => {
     try {
       const { email, password } = req.body;
@@ -53,7 +51,7 @@ const login = async (req, res) => {
       }
   
       // Generate JWT token
-      const token = jwt.sign({ userId: user._id, email: user.email }, SECRET_KEY, { expiresIn: '1h' });
+      const token = jwt.sign({ userId: user._id, email: user.email }, process.env.SECRET_KEY , { expiresIn: '24h' });
       console.log('Password match, token generated');
       res.status(200).json({ message: 'Login Successful', token });
     } catch (error) {
@@ -134,6 +132,5 @@ const login = async (req, res) => {
     }
   };
   
-
 
   module.exports = { register, login ,requestPasswordReset ,changePassword };

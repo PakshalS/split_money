@@ -9,7 +9,9 @@ const LandingPage = () => {
       
         <p className="text-xl md:text-2xl mb-6">
           Setting up automatic transfers from your checking to your savings account can get you started saving money without thinking.
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Corporis maiores facere voluptate impedit? Officiis, magni dicta esse laudantium totam, repellendus amet animi deleniti aliquam sunt modi in iure porro impedit?
+        </p>
+        <p className="text-xl md:text-2xl mb-6  ">
+Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor consequatur, illum vero distinctio iste repellendus in esse aut vel doloribus facere blanditiis labore fugiat ipsam reprehenderit ad impedit molestiae unde!
         </p>
         <div className='flex gap-5'>
           <Link to="/login">
@@ -23,7 +25,7 @@ const LandingPage = () => {
         </div>
       </div>
       <div className="md:w-1/2 lg:p-32 flex justify-center">
-        <img src="src/assets/logo.jpeg" alt="Application Logo" className="max-w-full h-auto"/>
+        <img src="src/assets/cropped_image.jpeg" alt="Application Logo" className="max-w-full h-auto"/>
       </div>
     </div>
   );

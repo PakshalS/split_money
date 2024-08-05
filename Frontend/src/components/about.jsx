@@ -1,18 +1,18 @@
 import React from 'react';
 
 const features = [
-  "Add groups and friends",
+  "Create expense groups ",
+  "Add friends",
   "Split expenses, record debts",
   "Equal or unequal splits",
-  "Split by % or shares",
+  "Get Summary of Debts",
   "Calculate total balances",
   "Simplify debts",
   "Recurring expenses",
-  "Offline mode",
-  "Cloud sync",
+  "Settle up made easy",
+  "Cloud Sync",
   "Spending totals",
-  "Categorize expenses",
-  "7+ languages",
+  "Admin controls",
 ];
 
 const About = () => {
@@ -26,17 +26,7 @@ const About = () => {
           </div>
         ))}
       </div>
-      <div className='grid grid-cols-1  lg:grid-cols-3 ' > 
-        <div className=' bg-blue-100 h-52'>
-hi
-        </div>
-        <div className=' bg-yellow-600  h-52'>
-          hi
-          </div>
-          <div className='bg-red-600  h-52'>
-          hi
-          </div>
-      </div>
+
     </div>
   );
 };

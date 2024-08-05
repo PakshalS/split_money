@@ -26,7 +26,7 @@ const Navigationbar = () => {
     <nav className="bg-black h-16 lg:h-20 flex justify-between items-center px-4 md:px-8 z-50 fixed w-full top-0 left-0">
       <div className="text-white text-2xl font-bold hover:cursor-pointer hover:text-green-500 ">
         <ScrollLink to="home" smooth={true} duration={500}>
-          Cash Splitter
+          Split Money
         </ScrollLink>
       </div>
       <div className="md:hidden">

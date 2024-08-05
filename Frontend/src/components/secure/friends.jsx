@@ -12,8 +12,11 @@ const FriendManagement = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [selectedFriend, setSelectedFriend] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-
+  const [message1, setMessage1] = useState("");
+  const [error1, setError1] = useState("");
+  
   const token = Cookies.get("authToken");
 
   const fetchRequests = async () => {
@@ -24,8 +27,11 @@ const FriendManagement = () => {
         },
       });
       setRequests(response.data);
+      setMessage1(response.data.message);
+      setError1("");
     } catch (error) {
-      setError("No friend request found");
+      setMessage1("");
+      setError1(error.response?.data?.error || 'No friend request found');
     }
   };
 
@@ -36,8 +42,12 @@ const FriendManagement = () => {
           Authorization: `Bearer ${token}`,
         },
       });
+      setMessage(response.data.message);
+      setError("");
       setFriends(response.data);
     } catch (error) {
+      setMessage("");
+      setError(error.response?.data?.error || 'Error fetching friends');
       console.error("Error fetching friends:", error);
     }
   };
@@ -68,13 +78,16 @@ const FriendManagement = () => {
           },
         }
       );
-
+      setMessage2(response.data.message);
+      setError2("");
       alert("Friend request sent successfully!");
       setEmail(""); // Clear the input field after sending
       debouncedFetchRequests(); // Refresh requests after sending
     } catch (error) {
       console.error("Error sending request", error);
       alert("Failed to send request.");
+      setMessage2("");
+      setError2(error.response.data.error);
     }
   };
 
@@ -89,10 +102,14 @@ const FriendManagement = () => {
           },
         }
       );
+      setMessage1(response.data.message);
+      setError1("");
       fetchRequests(); // Refresh requests after response
       fetchFriends(); // Refresh friends list after response
     } catch (error) {
       setError("Failed to respond to friend request");
+      setMessage1("");
+      setError1(error.response.data.error);
     }
   };
 
@@ -104,11 +121,14 @@ const FriendManagement = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-
+      setMessage(response.data.message);
+      setError("");
       setFriends(friends.filter((friend) => friend._id !== friendId));
       setSelectedFriend(null); // Reset selected friend
       setLoading(false);
     } catch (error) {
+      setMessage("");
+      setError(error.response.data.error);
       console.error("Error removing friend:", error);
       setLoading(false);
     }
@@ -132,7 +152,7 @@ const FriendManagement = () => {
           />
           <button
             type="submit"
-            className="w-full bg-green-500 hover:bg-green-600 text-white p-2 rounded transition duration-300"
+            className="w-full bg-black hover:text-green-500 text-white p-2 rounded transition duration-300"
           >
             Send Request
           </button>
@@ -171,6 +191,8 @@ const FriendManagement = () => {
             </li>
           ))}
         </ul>
+        {message1 && <p className="text-green-500 mt-4">{message1}</p>}
+        {error1 && <p className="text-red-500 mt-4">{error1}</p>}
       </div>
 
       <div className="w-full max-w-3xl bg-gray-950 shadow-md rounded-lg p-6 mb-8">
@@ -199,6 +221,8 @@ const FriendManagement = () => {
             </li>
           ))}
         </ul>
+        {message && <p className="text-green-500 mt-4">{message}</p>}
+        {error && <p className="text-red-500 mt-4">{error}</p>}
       </div>
     </div>
   );
