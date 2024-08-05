@@ -13,7 +13,6 @@ import GroupDetails from "./components/secure/groupdetails";
 function App() {
   return (
     <Routes>
-
       <Route path="/" element={<Home />} />
       <Route path="*" element={<NoPage />} />
       <Route path="/login" element={<Login />} />
@@ -23,7 +22,6 @@ function App() {
       <Route path="/settings" element={<ProtectedRoute><Settings/></ProtectedRoute>} />
       <Route path="/create-group" element={<ProtectedRoute><GroupCreate/></ProtectedRoute>} />
       <Route path="/groups/:groupId" element={<ProtectedRoute><GroupDetails/></ProtectedRoute>} />
-
     </Routes>
   );
 }
