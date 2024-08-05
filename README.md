@@ -1,1 +1,1 @@
-# split_money
+Managing group expenses has never been easier! Our expense splitting website helps you effortlessly divide costs among friends and family. Whether it's a trip, dinner, or a shared gift, simply create a group, add expenses, and let our tool handle the rest. Track who owes whom, settle balances, and keep everyone on the same page. With user-friendly features and seamless calculations, splitting expenses is now hassle-free.
