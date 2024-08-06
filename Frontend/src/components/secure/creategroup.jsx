@@ -23,7 +23,7 @@ const GroupCreate = () => {
           return;
         }
 
-        const response = await axios.get('http://localhost:3000/friends/get-friends', {
+        const response = await axios.get('https://split-money-api.onrender.com/friends/get-friends', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -81,7 +81,7 @@ const GroupCreate = () => {
         return;
       }
 
-      const response = await axios.post('http://localhost:3000/groups/create', {
+      const response = await axios.post('https://split-money-api.onrender.com/groups/create', {
         name: groupName,
         members,
       }, {

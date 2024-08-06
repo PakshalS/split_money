@@ -20,7 +20,7 @@ const Dashboard = () => {
           return;
         }
 
-        const response = await axios.get('http://localhost:3000/groups/user-groups', {
+        const response = await axios.get('https://split-money-api.onrender.com/groups/user-groups', {
           headers: {
             Authorization: `Bearer ${token}`,
           },

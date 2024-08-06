@@ -17,7 +17,7 @@ const SettleUpForm = ({ groupId, onClose }) => {
           return;
         }
 
-        const response = await axios.get(`http://localhost:3000/groups/${groupId}`, {
+        const response = await axios.get(`https://split-money-api.onrender.com/groups/${groupId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -50,7 +50,7 @@ const SettleUpForm = ({ groupId, onClose }) => {
         return;
       }
 
-      await axios.post(`http://localhost:3000/groups/${groupId}/settleup`, {
+      await axios.post(`https://split-money-api.onrender.com/groups/${groupId}/settleup`, {
         groupId,
         payer: { name: payer },
         receiver: { name: receiver },

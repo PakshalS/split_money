@@ -22,7 +22,7 @@ const RequestPasswordReset = () => {
       }
 
       const response = await axios.put(
-        "http://localhost:3000/auth/change-password",
+        "https://split-money-api.onrender.com/auth/change-password",
         { oldPassword, newPassword },
         {
           headers: {
@@ -43,7 +43,7 @@ const RequestPasswordReset = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:3000/auth/request-password-reset",
+        "https://split-money-api.onrender.comauth/request-password-reset",
         { emailOrUsername }
       );
       setMessage(response.data.message);

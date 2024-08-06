@@ -16,7 +16,7 @@ const GroupEditForm = ({ groupId, onClose ,setIsDeleted }) => {
         return;
       }
 
-      await axios.put(`http://localhost:3000/groups/${groupId}/edit`, {
+      await axios.put(`https://split-money-api.onrender.com/groups/${groupId}/edit`, {
         groupId,
         name,
       }, {
@@ -41,7 +41,7 @@ const GroupEditForm = ({ groupId, onClose ,setIsDeleted }) => {
       }
   
       if(confirm("Are you sure you want to delete ?")) {
-        await axios.delete(`http://localhost:3000/groups/${groupId}`, {
+        await axios.delete(`https://split-money-api.onrender.com/groups/${groupId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

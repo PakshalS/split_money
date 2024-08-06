@@ -61,7 +61,7 @@
 //         }
 
 //         const response = await axios.get(
-//           `http://localhost:3000/groups/${groupId}`,
+//           `https://split-money-api.onrender.com/groups/${groupId}`,
 //           {
 //             headers: {
 //               Authorization: `Bearer ${token}`,
@@ -126,7 +126,7 @@
 //         return;
 //       }
 //       if(confirm("Are you sure you want to delete ?")){
-//         await axios.delete(`http://localhost:3000/groups/${groupId}/leave`, {
+//         await axios.delete(`https://split-money-api.onrender.com/groups/${groupId}/leave`, {
 //           headers: {
 //             Authorization: `Bearer ${token}`,
 //           },

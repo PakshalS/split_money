@@ -18,7 +18,7 @@ const FriendManagement = () => {
 
   const fetchRequests = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/friends/get-requests", {
+      const response = await axios.get("https://split-money-api.onrender.com/friends/get-requests", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -31,7 +31,7 @@ const FriendManagement = () => {
 
   const fetchFriends = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/friends/get-friends", {
+      const response = await axios.get("https://split-money-api.onrender.com/friends/get-friends", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -60,7 +60,7 @@ const FriendManagement = () => {
 
     try {
       await axios.post(
-        "http://localhost:3000/friends/send",
+        "https://split-money-api.onrender.com/friends/send",
         { email },
         {
           headers: {
@@ -80,7 +80,7 @@ const FriendManagement = () => {
   const respondToRequest = async (requesterId, action) => {
     try {
       await axios.post(
-        "http://localhost:3000/friends/respond",
+        "https://split-money-api.onrender.com/friends/respond",
         { requesterId, action },
         {
           headers: {
@@ -98,7 +98,7 @@ const FriendManagement = () => {
   const removeFriend = async (friendId) => {
     try {
       setLoading(true);
-      await axios.delete(`http://localhost:3000/friends/${friendId}/remove`, {
+      await axios.delete(`https://split-money-api.onrender.com/friends/${friendId}/remove`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
