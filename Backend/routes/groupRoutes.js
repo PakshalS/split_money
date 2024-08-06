@@ -3,7 +3,6 @@ const authenticateJWT = require('../middleware/authMiddleware');
 const { createGroup,addMember, removeMember, leaveGroup, editGroup , addFriendstoGroup,getUserGroups ,getGroupDetails, transferAdminRights, addExpense, settleUp, deleteGroup, editExpense, deleteExpense} = require('../Controller/group');
 
 const router = express.Router();
-
 router.post('/create', authenticateJWT, createGroup);
 router.post('/:groupId/add-member', authenticateJWT, addMember);
 router.delete('/:groupId/:memberName/remove-member', authenticateJWT, removeMember);
