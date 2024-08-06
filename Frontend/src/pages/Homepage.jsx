@@ -10,11 +10,11 @@ const Homepage = () => {
   useAuthRedirect();
   return (
     <div id="home">
-      <Navigationbar />
-      <Landing />
-      <About />
-      <Contact />
-      <Footer />
+      <Navigationbar/>
+      <Landing/>
+      <About/>
+      <Contact/>
+      <Footer/>
     </div>
   );
 };

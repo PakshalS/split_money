@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import logo from '../assets/cropped_image.png';
 
 const LandingPage = () => {
   return (
@@ -23,7 +24,7 @@ const LandingPage = () => {
         </div>
       </div>
       <div className="md:w-1/2 lg:p-32 flex justify-center">
-        <img src="src/assets/cropped_image.jpeg" alt="Application Logo" className="max-w-full h-auto"/>
+        <img src={logo} alt="Application Logo" className="max-w-full h-auto"/>
       </div>
     </div>
   );
