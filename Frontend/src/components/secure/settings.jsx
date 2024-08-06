@@ -61,7 +61,7 @@ const RequestPasswordReset = () => {
       </Suspense>
       <div className="w-full max-w-3xl bg-gray-950 shadow-lg rounded-lg p-6 mb-8">
         <h2 className="text-2xl font-semibold mb-4">Request Password Reset</h2>
-        <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
+        <form className="flex flex-col space-y-4">
           <input
             type="text"
             className="w-full p-2 border bg-gray-700 border-gray-600 rounded text-white"
@@ -82,7 +82,7 @@ const RequestPasswordReset = () => {
       </div>
       <div className="w-full max-w-3xl bg-gray-950 shadow-lg rounded-lg p-6 mb-8">
         <h2 className="text-2xl font-semibold mb-4">Change Password</h2>
-        <form onSubmit={handleChange} className="flex flex-col space-y-4">
+        <form className="flex flex-col space-y-4">
           <input
             type="password"
             className="w-full p-2 border bg-gray-700 border-gray-600 rounded text-white"

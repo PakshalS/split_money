@@ -1,9 +1,11 @@
 import React, { useState} from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { useNavigate } from 'react-router-dom';
 
 const GroupEditForm = ({ groupId, onClose }) => {
     const [name, setName] = useState('');
+    const navigate = useNavigate();
 
   const handleEdit = async () => {
 
@@ -47,6 +49,7 @@ const GroupEditForm = ({ groupId, onClose }) => {
         });
   
         alert('Deleted successfully!');
+        navigate('/home');
         onClose();
       }
     } catch (error) {
