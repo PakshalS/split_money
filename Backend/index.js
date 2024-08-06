@@ -10,7 +10,15 @@ const app = express();
 const port = process.env.port;
 
 // Middleware
-app.use(cors());
+app.use(cors(
+  // {
+  //   origin: ["https://deploy-split-money-api.vercel.app"],
+  //   methods:[
+  //     "POST" , "GET" , "DELETE" ,"PUT"
+  //   ],
+  //   credentials: true
+  // }
+));
 app.use(express.json());
 
 //Routes

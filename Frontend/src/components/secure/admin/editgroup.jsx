@@ -3,7 +3,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 
-const GroupEditForm = ({ groupId, onClose }) => {
+const GroupEditForm = ({ groupId, onClose ,setIsDeleted }) => {
     const [name, setName] = useState('');
     const navigate = useNavigate();
 
@@ -39,23 +39,23 @@ const GroupEditForm = ({ groupId, onClose }) => {
         console.error('No auth token found');
         return;
       }
-
-      if(confirm("Are you sure you want to delete ?"))
-      {
+  
+      if(confirm("Are you sure you want to delete ?")) {
         await axios.delete(`http://localhost:3000/groups/${groupId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-  
+        setIsDeleted(true);
         alert('Deleted successfully!');
-        navigate('/home');
-        onClose();
+        onClose(); // Close the edit form
+        navigate('/home'); // Navigate to home page
       }
     } catch (error) {
-      console.error('Error editing group', error);
+      console.error('Error deleting group', error);
     }
   };
+  
   
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">

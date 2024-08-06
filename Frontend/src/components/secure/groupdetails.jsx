@@ -40,8 +40,12 @@ const GroupDetails = () => {
   const [isRemoveMemberOpen, setIsRemoveMemberOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
   const [isChangeAdminOpen, setIsChangeAdminOpen] = useState(false);
+  const [isDeleted, setIsDeleted] = useState(false);
+
+
 
   const fetchGroupDetails = async () => {
+    if (isDeleted) return;
     try {
       const token = Cookies.get("authToken");
       if (!token) {
@@ -71,12 +75,17 @@ const GroupDetails = () => {
       setIsLoading(false);
     }
   };
-
-  const debouncedFetchGroupDetails = debounce(fetchGroupDetails, 300);
-
   useEffect(() => {
-    fetchGroupDetails();
-  }, [groupId]);
+    if (!isDeleted) {
+      fetchGroupDetails();
+    }
+  }, [groupId, isDeleted]);
+
+  const debouncedFetchGroupDetails = debounce(() => {
+    if (!isDeleted) {
+      fetchGroupDetails();
+    }
+  }, 300);
 
   const toggleEditExpenseForm = (expense) => {
     setSelectedExpense(expense);
@@ -156,6 +165,8 @@ const GroupDetails = () => {
       </div>
     );
   }
+
+  if (isDeleted) return null;
 
   const handleback =()=>{
   navigate('/home');
@@ -254,6 +265,7 @@ const GroupDetails = () => {
               <Suspense fallback={<div>Loading...</div>}>
                 <GroupEditForm
                   groupId={groupId}
+                  setIsDeleted={setIsDeleted} 
                   onClose={() => {
                     toggleGroupEditForm();
                     debouncedFetchGroupDetails();
@@ -410,7 +422,6 @@ const GroupDetails = () => {
             </ul>
           ))}
       </div>
-
       <div className="w-full max-w-3xl bg-gray-950 p-6 rounded-lg shadow-lg mb-8">
         <h2 className="text-2xl font-semibold mb-4">Settle Ups</h2>
         <button

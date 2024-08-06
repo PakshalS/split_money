@@ -422,6 +422,10 @@ const getGroupDetails = async (req, res) => {
       .populate('balances.userId', 'name email')
       .populate('transactionHistory.type', 'payer receiver amount');
 
+      if (!group) {
+        return res.status(404).json({ error: 'Group not found' });
+      }
+
       const balances = group.balances.map(balance => ({
         name: balance.name,
         email: balance.email,
@@ -429,9 +433,6 @@ const getGroupDetails = async (req, res) => {
       }));
       const summary = generateSummary(balances);
 
-    if (!group) {
-      return res.status(404).json({ error: 'Group not found' });
-    }
 
     res.status(200).json({summary ,group});
 
