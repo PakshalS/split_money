@@ -4,7 +4,7 @@ export default {
   theme: {
     extend: {
       backgroundImage: {
-        'auth-back': "url('src/assets/back.png')",
+        'auth-back': "url('src/assets/back.jpg')",
       }
     },
     screens: {
