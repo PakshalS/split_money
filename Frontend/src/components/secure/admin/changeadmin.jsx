@@ -16,7 +16,7 @@ const ChangeAdminForm = ({ groupId, onClose }) => {
         return;
       }
 
-      await axios.put(`https://split-money-api.onrender.com/groups/${groupId}/transfer-admin`, {
+      await axios.put(`https://split-money-api.vercel.app/groups/${groupId}/transfer-admin`, {
         groupId,
         newAdminName,
       }, {

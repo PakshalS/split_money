@@ -11,7 +11,7 @@ const RemoveMemberForm = ({ groupId, member, onClose }) => {
         return;
       }
 
-      await axios.delete(`https://split-money-api.onrender.com/groups/${groupId}/${member.name}/remove-member`, {
+      await axios.delete(`https://split-money-api.vercel.app/groups/${groupId}/${member.name}/remove-member`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

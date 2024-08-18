@@ -17,7 +17,7 @@ const SettleUpForm = ({ groupId, onClose }) => {
           return;
         }
 
-        const response = await axios.get(`https://split-money-api.onrender.com/groups/${groupId}`, {
+        const response = await axios.get(`https://split-money-api.vercel.app/groups/${groupId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -50,7 +50,7 @@ const SettleUpForm = ({ groupId, onClose }) => {
         return;
       }
 
-      await axios.post(`https://split-money-api.onrender.com/groups/${groupId}/settleup`, {
+      await axios.post(`https://split-money-api.vercel.app/groups/${groupId}/settleup`, {
         groupId,
         payer: { name: payer },
         receiver: { name: receiver },

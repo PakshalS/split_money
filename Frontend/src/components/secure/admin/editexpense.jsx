@@ -19,7 +19,7 @@ const EditExpenseForm = ({ groupId, expense, onClose }) => {
         }
 
         const response = await axios.get(
-          `https://split-money-api.onrender.com/groups/${groupId}`,
+          `https://split-money-api.vercel.app/groups/${groupId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -64,7 +64,7 @@ const EditExpenseForm = ({ groupId, expense, onClose }) => {
       }
 
       await axios.put(
-        `https://split-money-api.onrender.com/groups/${groupId}/expenses/${expense._id}`,
+        `https://split-money-api.vercel.app/groups/${groupId}/expenses/${expense._id}`,
         {
           name: expenseName,
           amount,

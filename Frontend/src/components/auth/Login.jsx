@@ -17,7 +17,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response =await axios.post("https://split-money-api.onrender.com/auth/login", {
+      const response =await axios.post("https://split-money-api.vercel.app/auth/login", {
         email,
         password,
       });

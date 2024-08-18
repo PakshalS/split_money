@@ -23,7 +23,7 @@ const GroupCreate = () => {
           return;
         }
 
-        const response = await axios.get('https://split-money-api.onrender.com/friends/get-friends', {
+        const response = await axios.get('https://split-money-api.vercel.app/friends/get-friends', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -81,7 +81,7 @@ const GroupCreate = () => {
         return;
       }
 
-      const response = await axios.post('https://split-money-api.onrender.com/groups/create', {
+      const response = await axios.post('https://split-money-api.vercel.app/groups/create', {
         name: groupName,
         members,
       }, {

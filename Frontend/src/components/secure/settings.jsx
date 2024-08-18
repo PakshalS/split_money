@@ -22,7 +22,7 @@ const RequestPasswordReset = () => {
       }
 
       const response = await axios.put(
-        "https://split-money-api.onrender.com/auth/change-password",
+        "https://split-money-api.vercel.app/auth/change-password",
         { oldPassword, newPassword },
         {
           headers: {
@@ -43,7 +43,7 @@ const RequestPasswordReset = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "https://split-money-api.onrender.comauth/request-password-reset",
+        "https://split-money-api.vercel.app/auth/request-password-reset",
         { emailOrUsername }
       );
       setMessage(response.data.message);

@@ -18,7 +18,7 @@ const AddMemberForm = ({ groupId, onClose }) => {
           return;
         }
 
-        const response = await axios.get('https://split-money-api.onrender.com/friends/get-friends', {
+        const response = await axios.get('https://split-money-api.vercel.app/friends/get-friends', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -47,7 +47,7 @@ const AddMemberForm = ({ groupId, onClose }) => {
 
     try {
       await axios.post(
-        `https://split-money-api.onrender.com/groups/${groupId}/add-member`,
+        `https://split-money-api.vercel.app/groups/${groupId}/add-member`,
         { members: validMembers },
         {
           headers: {
