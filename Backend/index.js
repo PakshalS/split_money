@@ -12,9 +12,9 @@ const port = process.env.port;
 
 // Middleware
 app.use(cors({
-  origin: ["https://split-money-alpha.vercel.app"],
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
+  // origin: ["https://split-money-alpha.vercel.app"],
+  // methods: ["GET", "POST", "PUT", "DELETE"],
+  // credentials: true
 }));
 app.use(express.json());
 
