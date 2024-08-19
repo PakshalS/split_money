@@ -1,18 +1,37 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { Link as RouterLink } from "react-router-dom";
 
 const PageNavigationbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const navRef = useRef(null);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
+  const handleClickOutside = (event) => {
+    if (navRef.current && !navRef.current.contains(event.target)) {
+      setIsOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen]);
 
   return (
-    <nav className="bg-black h-16 lg:h-20 flex justify-between items-center px-4 md:px-8 z-50 fixed w-full top-0 left-0">
+    <nav
+    ref={navRef}
+     className="bg-black h-16 lg:h-20 flex justify-between items-center px-4 md:px-8 z-50 fixed w-full top-0 left-0">
       <div className="text-white text-2xl font-bold hover:cursor-pointer hover:text-green-500 ">
-        <RouterLink to="/">Cash Splitter</RouterLink>
+        <RouterLink to="/">Split Money</RouterLink>
       </div>
       <div className="md:hidden">
         <button

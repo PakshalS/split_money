@@ -1,18 +1,17 @@
+import React, { useState, useContext, useEffect, useRef } from "react";
 import { AuthContext } from "../context/authcontext";
-import React, { useState, useContext } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { Link as RouterLink } from "react-router-dom";
 import { Link as ScrollLink } from "react-scroll";
 import Cookies from "js-cookie";
 
-
 const Navigationbar = () => {
   const { authData } = useContext(AuthContext);
   const [isOpen, setIsOpen] = useState(false);
+  const navRef = useRef(null);
 
   const handleLogout = () => {
-    if(confirm("Are you sure you want to logout !"))
-    {
+    if (confirm("Are you sure you want to logout!")) {
       Cookies.remove("authToken");
       window.location.reload(true);
     }
@@ -22,12 +21,36 @@ const Navigationbar = () => {
     setIsOpen(!isOpen);
   };
 
+  const handleClickOutside = (event) => {
+    if (navRef.current && !navRef.current.contains(event.target)) {
+      setIsOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen]);
+
   return (
-    <nav className="bg-black h-16 lg:h-20 flex justify-between items-center px-4 md:px-8 z-50 fixed w-full top-0 left-0">
+    <nav
+      ref={navRef}
+      className="bg-black h-16 lg:h-20 flex justify-between items-center px-4 md:px-8 z-50 fixed w-full top-0 left-0"
+    >
       <div className="text-white text-2xl font-bold hover:cursor-pointer hover:text-green-500 ">
-        <ScrollLink to="home" smooth={true} duration={500}>
-          Split Money
-        </ScrollLink>
+        {authData ? (
+          <RouterLink to="/home">Split Money</RouterLink>
+        ) : (
+          <ScrollLink to="home" smooth={true} duration={500}>
+            Split Money
+          </ScrollLink>
+        )}
       </div>
       <div className="md:hidden">
         <button
@@ -56,7 +79,7 @@ const Navigationbar = () => {
             </li>
             <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
               <RouterLink to="/home" onClick={() => setIsOpen(false)}>
-              Home              
+                Home
               </RouterLink>
             </li>
             <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
