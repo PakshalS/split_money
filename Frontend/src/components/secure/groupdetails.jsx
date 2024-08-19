@@ -54,7 +54,7 @@ const GroupDetails = () => {
       }
 
       const response = await axios.get(
-        `https://split-money-api.onrender.com/groups/${groupId}`,
+        `https://split-money-api.vercel.app/groups/${groupId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -124,7 +124,7 @@ const GroupDetails = () => {
         return;
       }
       if (confirm("Are you sure you want to leave ?")) {
-        await axios.delete(`https://split-money-api.onrender.com/groups/${groupId}/leave`, {
+        await axios.delete(`https://split-money-api.vercel.app/groups/${groupId}/leave`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
