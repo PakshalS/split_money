@@ -43,7 +43,7 @@ const Navigationbar = () => {
       ref={navRef}
       className="bg-black h-16 lg:h-20 flex justify-between items-center px-4 md:px-8 z-50 fixed w-full top-0 left-0"
     >
-      <div className="text-white text-2xl font-bold hover:cursor-pointer hover:text-green-500 ">
+      <div className="text-white text-2xl font-bold hover:cursor-pointer hover:text-green-700 ">
         {authData ? (
           <RouterLink to="/home">Split Money</RouterLink>
         ) : (
@@ -67,38 +67,38 @@ const Navigationbar = () => {
       >
         {authData ? (
           <>
-            <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
+            <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-700">
               <RouterLink to="/settings" onClick={() => setIsOpen(false)}>
                 Settings
               </RouterLink>
             </li>
-            <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
+            <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-700">
               <RouterLink to="/friends" onClick={() => setIsOpen(false)}>
                 Friends
               </RouterLink>
             </li>
-            <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
+            <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-700">
               <RouterLink to="/home" onClick={() => setIsOpen(false)}>
                 Home
               </RouterLink>
             </li>
-            <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
+            <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-700">
               <button onClick={handleLogout}>Logout</button>
             </li>
           </>
         ) : (
           <>
-            <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
+            <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-700">
               <RouterLink to="/login" onClick={() => setIsOpen(false)}>
                 Login
               </RouterLink>
             </li>
-            <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
+            <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-700">
               <RouterLink to="/register" onClick={() => setIsOpen(false)}>
                 SignUp
               </RouterLink>
             </li>
-            <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
+            <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-700">
               <ScrollLink
                 to="home"
                 smooth={true}
@@ -108,7 +108,7 @@ const Navigationbar = () => {
                 Home
               </ScrollLink>
             </li>
-            <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
+            <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-700">
               <ScrollLink
                 to="about"
                 smooth={true}
@@ -118,7 +118,7 @@ const Navigationbar = () => {
                 About
               </ScrollLink>
             </li>
-            <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-500">
+            <li className="hover:cursor-pointer py-2 md:py-0 bg-transparent hover:text-green-700">
               <ScrollLink
                 to="contact"
                 smooth={true}

@@ -1,11 +1,9 @@
 import React from "react";
-import Dashboard from "../components/secure/dashboard";
-import Navigationbar from "../components/navbar";
+import Dashboard from "../components/secure/dashboard/dashboard";
 
 const Homee = () => {
   return (
     <div id="home">
-      <Navigationbar />
       <Dashboard/>
     </div>
   );

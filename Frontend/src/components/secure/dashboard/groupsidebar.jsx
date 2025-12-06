@@ -13,7 +13,7 @@ const GroupSidebar = ({ groups }) => {
       {groups.map((group) => (
         <li
           key={group._id}
-          className="p-2 bg-black hover:text-green-500 rounded-md cursor-pointer transition duration-150"
+          className="p-2 bg-black hover:text-green-700 rounded-md cursor-pointer transition duration-150"
           onClick={() => handleGroupClick(group._id)}
         >
           {group.name}
