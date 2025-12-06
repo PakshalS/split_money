@@ -9,7 +9,7 @@ import Friends from "./components/secure/friends/friends";
 import Settings from "./components/secure/settings/settings";
 import GroupCreate from "./components/secure/create-group/creategroup";
 import GroupDetails from "./components/secure/group/groupdetails";
-import Layout from "./components/Layout";
+import Layout from "./components/layout";
 import ForgotPassReq from "./components/auth/ForgotPass";
 
 function App() {
