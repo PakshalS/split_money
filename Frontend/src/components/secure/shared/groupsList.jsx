@@ -3,11 +3,13 @@ import { Search, Plus } from 'lucide-react';
 import Cookies from "js-cookie";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
+import GroupListSkeleton from "./grouplistloader";
 
 const GroupList = ({ isDark, onFabClick }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [groups, setGroups] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
   const currentGroupId = location.pathname.split('/groups/')[1] || null;
@@ -23,6 +25,7 @@ const GroupList = ({ isDark, onFabClick }) => {
   // Fetch groups
   useEffect(() => {
     async function fetchGroups() {
+      setLoading(true);
       try {
         const token = Cookies.get("authToken");
         const response = await axios.get(
@@ -37,6 +40,8 @@ const GroupList = ({ isDark, onFabClick }) => {
       } catch (error) {
         console.error('Error fetching groups:', error);
         setGroups([]);
+      } finally {
+        setLoading(false);
       }
     }
     fetchGroups();
@@ -62,6 +67,26 @@ const GroupList = ({ isDark, onFabClick }) => {
     // Navigate to the group chat
     navigate(`/groups/${group._id}`, { state: { groupName: group.name } });
   };
+
+  // Show skeleton loader while loading
+  if (loading) {
+    return (
+      <div className="h-full relative">
+        <GroupListSkeleton isDark={isDark} />
+        {/* FAB still visible during loading */}
+        <button
+          onClick={onFabClick}
+          className={`absolute bottom-6 right-6 p-4 rounded-full flex items-center justify-center font-medium transition-all duration-300 shadow-lg hover:shadow-xl active:scale-95 z-10 ${
+            isDark
+                ? 'bg-green-600 hover:bg-green-700 text-white shadow-green-600/30 hover:shadow-green-600/50'
+                : 'bg-green-500 hover:bg-green-600 text-white shadow-green-500/30 hover:shadow-green-500/50'
+          }`}
+        >
+          <Plus className="w-6 h-6" />
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className={`h-full flex flex-col relative ${

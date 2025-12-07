@@ -4,75 +4,68 @@ import "react-loading-skeleton/dist/skeleton.css";
 
 const GroupDetailsSkeleton = ({ isDark }) => {
   return (
-    <div className={`min-h-screen ${isDark ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
-      {/* Navbar Skeleton */}
-      <nav className={`fixed top-0 left-0 right-0 z-40 border-b shadow-2xl backdrop-blur-sm animate-fade-in ${
+    <div className={`h-full flex flex-col ${
+      isDark ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'
+    }`}>
+      {/* Header Skeleton */}
+      <div className={`flex-shrink-0 ${
         isDark 
-        ? 'bg-gray-800 border-gray-800' 
-        :'bg-gray-50 border-gray-200'
-      }`}>
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            {/* Back Button Skeleton */}
-            <div className="flex items-center gap-2 animate-slide-in-left">
+          ? 'bg-gradient-to-r from-gray-900 via-gray-950 to-gray-900 border-gray-800' 
+          : 'bg-white border-gray-200'
+      } border-b shadow-lg`}>
+        <div className="px-4 py-3">
+          <div className="flex items-center justify-between gap-3">
+            {/* Back Button Skeleton (Mobile) */}
+            <div className="md:hidden">
               <Skeleton 
-                baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
-                highlightColor={isDark ? "#374151" : "#f3f4f6"} 
-                width={80} 
+                baseColor={isDark ? "#374151" : "#e5e7eb"} 
+                highlightColor={isDark ? "#4b5563" : "#f3f4f6"} 
+                width={40} 
                 height={40} 
                 borderRadius={8}
-                duration={1.5}
-                enableAnimation={true}
               />
             </div>
 
-            {/* Center Group Info Skeleton */}
-            <div className="flex-1 text-center px-4 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+            {/* Group Info Skeleton */}
+            <div className="flex-1 min-w-0">
               <Skeleton 
-                baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
-                highlightColor={isDark ? "#374151" : "#f3f4f6"} 
-                width={200} 
-                height={24} 
-                className="mx-auto mb-2"
-                duration={1.5}
-                enableAnimation={true}
+                baseColor={isDark ? "#374151" : "#e5e7eb"} 
+                highlightColor={isDark ? "#4b5563" : "#f3f4f6"} 
+                width={150} 
+                height={20} 
+                className="mb-1"
               />
               <Skeleton 
-                baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
-                highlightColor={isDark ? "#374151" : "#f3f4f6"} 
-                width={150} 
-                height={16} 
-                className="mx-auto"
-                duration={1.5}
-                enableAnimation={true}
+                baseColor={isDark ? "#374151" : "#e5e7eb"} 
+                highlightColor={isDark ? "#4b5563" : "#f3f4f6"} 
+                width={120} 
+                height={14}
               />
             </div>
 
             {/* Action Button Skeleton */}
-            <div className="animate-slide-in-right">
-              <Skeleton 
-                baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
-                highlightColor={isDark ? "#374151" : "#f3f4f6"} 
-                width={100} 
-                height={40} 
-                borderRadius={12}
-                duration={1.5}
-                enableAnimation={true}
-              />
-            </div>
+            <Skeleton 
+              baseColor={isDark ? "#374151" : "#e5e7eb"} 
+              highlightColor={isDark ? "#4b5563" : "#f3f4f6"} 
+              width={100} 
+              height={40} 
+              borderRadius={8}
+            />
           </div>
         </div>
-      </nav>
+      </div>
 
-      {/* Main Content */}
-      <div className="pt-24 p-4 flex flex-col items-center">
-        <div className="w-full max-w-6xl space-y-6">
+      {/* Main Content - Scrollable */}
+      <div className={`flex-1 overflow-y-auto scrollbar-hide ${
+        isDark ? 'bg-gray-900' : 'bg-gray-50'
+      }`}>
+        <div className="p-4 space-y-4">
           {/* Summary Component Skeleton */}
-          <div className={`rounded-2xl p-5 shadow-2xl border animate-slide-up ${
+          <div className={`rounded-2xl p-5 shadow-2xl border ${
             isDark 
               ? 'bg-gradient-to-br from-gray-900 to-gray-950 border-gray-800' 
               : 'bg-gradient-to-br from-white to-gray-50 border-gray-200'
-          }`} style={{ animationDelay: '0.2s' }}>
+          }`}>
             <div className="flex items-center gap-3 mb-6">
               <Skeleton 
                 baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
@@ -80,28 +73,21 @@ const GroupDetailsSkeleton = ({ isDark }) => {
                 width={40} 
                 height={40} 
                 borderRadius={8}
-                duration={1.5}
-                enableAnimation={true}
               />
-              <div className="flex-1">
-                <Skeleton 
-                  baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
-                  highlightColor={isDark ? "#374151" : "#f3f4f6"} 
-                  width={150} 
-                  height={28}
-                  duration={1.5}
-                  enableAnimation={true}
-                />
-              </div>
+              <Skeleton 
+                baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
+                highlightColor={isDark ? "#374151" : "#f3f4f6"} 
+                width={150} 
+                height={28}
+              />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {[1, 2, 3].map((i) => (
                 <div 
                   key={i} 
-                  className={`rounded-xl p-4 animate-scale-in ${
+                  className={`rounded-xl p-4 ${
                     isDark ? 'bg-gray-800/50' : 'bg-gray-100/50'
                   }`}
-                  style={{ animationDelay: `${0.3 + i * 0.1}s` }}
                 >
                   <Skeleton 
                     baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
@@ -109,16 +95,12 @@ const GroupDetailsSkeleton = ({ isDark }) => {
                     width={100} 
                     height={16} 
                     className="mb-2"
-                    duration={1.5}
-                    enableAnimation={true}
                   />
                   <Skeleton 
                     baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
                     highlightColor={isDark ? "#374151" : "#f3f4f6"} 
                     width={120} 
                     height={32}
-                    duration={1.5}
-                    enableAnimation={true}
                   />
                 </div>
               ))}
@@ -126,11 +108,11 @@ const GroupDetailsSkeleton = ({ isDark }) => {
           </div>
 
           {/* Expenses Component Skeleton */}
-          <div className={`rounded-2xl p-5 shadow-2xl border animate-slide-up ${
+          <div className={`rounded-2xl p-5 shadow-2xl border ${
             isDark 
               ? 'bg-gradient-to-br from-gray-900 to-gray-950 border-gray-800' 
               : 'bg-gradient-to-br from-white to-gray-50 border-gray-200'
-          }`} style={{ animationDelay: '0.4s' }}>
+          }`}>
             <div className="flex items-center gap-3 mb-6">
               <Skeleton 
                 baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
@@ -138,8 +120,6 @@ const GroupDetailsSkeleton = ({ isDark }) => {
                 width={40} 
                 height={40} 
                 borderRadius={8}
-                duration={1.5}
-                enableAnimation={true}
               />
               <div className="flex-1">
                 <Skeleton 
@@ -147,17 +127,6 @@ const GroupDetailsSkeleton = ({ isDark }) => {
                   highlightColor={isDark ? "#374151" : "#f3f4f6"} 
                   width={150} 
                   height={28}
-                  duration={1.5}
-                  enableAnimation={true}
-                />
-                <Skeleton 
-                  baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
-                  highlightColor={isDark ? "#374151" : "#f3f4f6"} 
-                  width={200} 
-                  height={16} 
-                  className="mt-1"
-                  duration={1.5}
-                  enableAnimation={true}
                 />
               </div>
             </div>
@@ -165,10 +134,9 @@ const GroupDetailsSkeleton = ({ isDark }) => {
               {[1, 2, 3].map((i) => (
                 <div 
                   key={i} 
-                  className={`rounded-xl p-4 animate-slide-in-left ${
+                  className={`rounded-xl p-4 ${
                     isDark ? 'bg-gray-800/50' : 'bg-gray-100/50'
                   }`}
-                  style={{ animationDelay: `${0.5 + i * 0.1}s` }}
                 >
                   <div className="flex justify-between items-start mb-2">
                     <Skeleton 
@@ -176,16 +144,12 @@ const GroupDetailsSkeleton = ({ isDark }) => {
                       highlightColor={isDark ? "#374151" : "#f3f4f6"} 
                       width={150} 
                       height={20}
-                      duration={1.5}
-                      enableAnimation={true}
                     />
                     <Skeleton 
                       baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
                       highlightColor={isDark ? "#374151" : "#f3f4f6"} 
                       width={80} 
                       height={20}
-                      duration={1.5}
-                      enableAnimation={true}
                     />
                   </div>
                   <Skeleton 
@@ -193,8 +157,6 @@ const GroupDetailsSkeleton = ({ isDark }) => {
                     highlightColor={isDark ? "#374151" : "#f3f4f6"} 
                     width={120} 
                     height={16}
-                    duration={1.5}
-                    enableAnimation={true}
                   />
                 </div>
               ))}
@@ -202,13 +164,13 @@ const GroupDetailsSkeleton = ({ isDark }) => {
           </div>
 
           {/* Two Column Layout Skeleton */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
             {/* Balances Skeleton */}
-            <div className={`rounded-2xl p-5 shadow-2xl border animate-slide-up ${
+            <div className={`rounded-2xl p-5 shadow-2xl border ${
               isDark 
                 ? 'bg-gradient-to-br from-gray-900 to-gray-950 border-gray-800' 
                 : 'bg-gradient-to-br from-white to-gray-50 border-gray-200'
-            }`} style={{ animationDelay: '0.6s' }}>
+            }`}>
               <div className="flex items-center gap-3 mb-6">
                 <Skeleton 
                   baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
@@ -216,26 +178,21 @@ const GroupDetailsSkeleton = ({ isDark }) => {
                   width={40} 
                   height={40} 
                   borderRadius={8}
-                  duration={1.5}
-                  enableAnimation={true}
                 />
                 <Skeleton 
                   baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
                   highlightColor={isDark ? "#374151" : "#f3f4f6"} 
                   width={120} 
                   height={28}
-                  duration={1.5}
-                  enableAnimation={true}
                 />
               </div>
               <div className="space-y-3">
                 {[1, 2, 3, 4].map((i) => (
                   <div 
                     key={i} 
-                    className={`rounded-xl p-4 animate-fade-in ${
+                    className={`rounded-xl p-4 ${
                       isDark ? 'bg-gray-800/50' : 'bg-gray-100/50'
                     }`}
-                    style={{ animationDelay: `${0.7 + i * 0.05}s` }}
                   >
                     <div className="flex justify-between items-center">
                       <Skeleton 
@@ -243,16 +200,12 @@ const GroupDetailsSkeleton = ({ isDark }) => {
                         highlightColor={isDark ? "#374151" : "#f3f4f6"} 
                         width={100} 
                         height={20}
-                        duration={1.5}
-                        enableAnimation={true}
                       />
                       <Skeleton 
                         baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
                         highlightColor={isDark ? "#374151" : "#f3f4f6"} 
                         width={80} 
                         height={24}
-                        duration={1.5}
-                        enableAnimation={true}
                       />
                     </div>
                   </div>
@@ -261,11 +214,11 @@ const GroupDetailsSkeleton = ({ isDark }) => {
             </div>
 
             {/* Settle Ups Skeleton */}
-            <div className={`rounded-2xl p-5 shadow-2xl border animate-slide-up ${
+            <div className={`rounded-2xl p-5 shadow-2xl border ${
               isDark 
                 ? 'bg-gradient-to-br from-gray-900 to-gray-950 border-gray-800' 
                 : 'bg-gradient-to-br from-white to-gray-50 border-gray-200'
-            }`} style={{ animationDelay: '0.7s' }}>
+            }`}>
               <div className="flex items-center gap-3 mb-6">
                 <Skeleton 
                   baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
@@ -273,26 +226,21 @@ const GroupDetailsSkeleton = ({ isDark }) => {
                   width={40} 
                   height={40} 
                   borderRadius={8}
-                  duration={1.5}
-                  enableAnimation={true}
                 />
                 <Skeleton 
                   baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
                   highlightColor={isDark ? "#374151" : "#f3f4f6"} 
                   width={120} 
                   height={28}
-                  duration={1.5}
-                  enableAnimation={true}
                 />
               </div>
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
                   <div 
                     key={i} 
-                    className={`rounded-xl p-4 animate-fade-in ${
+                    className={`rounded-xl p-4 ${
                       isDark ? 'bg-gray-800/50' : 'bg-gray-100/50'
                     }`}
-                    style={{ animationDelay: `${0.8 + i * 0.05}s` }}
                   >
                     <div className="flex justify-between items-start mb-2">
                       <Skeleton 
@@ -300,16 +248,12 @@ const GroupDetailsSkeleton = ({ isDark }) => {
                         highlightColor={isDark ? "#374151" : "#f3f4f6"} 
                         width={120} 
                         height={20}
-                        duration={1.5}
-                        enableAnimation={true}
                       />
                       <Skeleton 
                         baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
                         highlightColor={isDark ? "#374151" : "#f3f4f6"} 
                         width={60} 
                         height={20}
-                        duration={1.5}
-                        enableAnimation={true}
                       />
                     </div>
                     <Skeleton 
@@ -317,8 +261,6 @@ const GroupDetailsSkeleton = ({ isDark }) => {
                       highlightColor={isDark ? "#374151" : "#f3f4f6"} 
                       width={100} 
                       height={14}
-                      duration={1.5}
-                      enableAnimation={true}
                     />
                   </div>
                 ))}
@@ -327,11 +269,11 @@ const GroupDetailsSkeleton = ({ isDark }) => {
           </div>
 
           {/* Members Component Skeleton */}
-          <div className={`rounded-2xl p-5 shadow-2xl border animate-slide-up ${
+          <div className={`rounded-2xl p-5 shadow-2xl border ${
             isDark 
               ? 'bg-gradient-to-br from-gray-900 to-gray-950 border-gray-800' 
               : 'bg-gradient-to-br from-white to-gray-50 border-gray-200'
-          }`} style={{ animationDelay: '0.8s' }}>
+          }`}>
             <div className="flex items-center gap-3 mb-6">
               <Skeleton 
                 baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
@@ -339,8 +281,6 @@ const GroupDetailsSkeleton = ({ isDark }) => {
                 width={40} 
                 height={40} 
                 borderRadius={8}
-                duration={1.5}
-                enableAnimation={true}
               />
               <div className="flex-1">
                 <Skeleton 
@@ -348,17 +288,6 @@ const GroupDetailsSkeleton = ({ isDark }) => {
                   highlightColor={isDark ? "#374151" : "#f3f4f6"} 
                   width={120} 
                   height={28}
-                  duration={1.5}
-                  enableAnimation={true}
-                />
-                <Skeleton 
-                  baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
-                  highlightColor={isDark ? "#374151" : "#f3f4f6"} 
-                  width={150} 
-                  height={16} 
-                  className="mt-1"
-                  duration={1.5}
-                  enableAnimation={true}
                 />
               </div>
             </div>
@@ -366,10 +295,9 @@ const GroupDetailsSkeleton = ({ isDark }) => {
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div 
                   key={i} 
-                  className={`rounded-xl p-4 animate-scale-in ${
+                  className={`rounded-xl p-4 ${
                     isDark ? 'bg-gray-800/50' : 'bg-gray-100/50'
                   }`}
-                  style={{ animationDelay: `${0.9 + i * 0.05}s` }}
                 >
                   <Skeleton 
                     baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
@@ -377,16 +305,12 @@ const GroupDetailsSkeleton = ({ isDark }) => {
                     width={100} 
                     height={20} 
                     className="mb-2"
-                    duration={1.5}
-                    enableAnimation={true}
                   />
                   <Skeleton 
                     baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
                     highlightColor={isDark ? "#374151" : "#f3f4f6"} 
                     width={120} 
                     height={16}
-                    duration={1.5}
-                    enableAnimation={true}
                   />
                 </div>
               ))}
@@ -395,102 +319,14 @@ const GroupDetailsSkeleton = ({ isDark }) => {
         </div>
       </div>
 
-      {/* Custom Animations */}
       <style>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
         }
-
-        @keyframes slideUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes slideInLeft {
-          from {
-            opacity: 0;
-            transform: translateX(-30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-
-        @keyframes slideInRight {
-          from {
-            opacity: 0;
-            transform: translateX(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-
-        @keyframes scaleIn {
-          from {
-            opacity: 0;
-            transform: scale(0.9);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1);
-          }
-        }
-
-        @keyframes pulse {
-          0%, 100% {
-            opacity: 1;
-          }
-          50% {
-            opacity: 0.7;
-          }
-        }
-
-        .animate-fade-in {
-          animation: fadeIn 0.6s ease-out forwards;
-          opacity: 0;
-        }
-
-        .animate-slide-up {
-          animation: slideUp 0.6s ease-out forwards;
-          opacity: 0;
-        }
-
-        .animate-slide-in-left {
-          animation: slideInLeft 0.6s ease-out forwards;
-          opacity: 0;
-        }
-
-        .animate-slide-in-right {
-          animation: slideInRight 0.6s ease-out forwards;
-          opacity: 0;
-        }
-
-        .animate-scale-in {
-          animation: scaleIn 0.6s ease-out forwards;
-          opacity: 0;
-        }
-
-        .animate-pulse {
-          animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-
-        /* Smooth transition for skeleton shimmer */
-        .react-loading-skeleton {
-          transition: all 0.3s ease;
+        
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
         }
       `}</style>
     </div>
