@@ -3,7 +3,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { UserPlus, X, Mail, User, Trash2, Users, ChevronDown, ChevronUp } from 'lucide-react';
 
-const AddMemberForm = ({ groupId, onClose }) => {
+const AddMemberForm = ({ groupId, onClose, isDark }) => {
     const [members, setMembers] = useState([{ name: '', email: '' }]);
     const [friends, setFriends] = useState([]);
     const [error, setError] = useState(null);
@@ -116,61 +116,105 @@ const AddMemberForm = ({ groupId, onClose }) => {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4 md:p-6">
-            <div className="bg-gradient-to-br from-gray-900 to-gray-950 rounded-xl sm:rounded-2xl shadow-2xl border border-gray-800 w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto scrollbar-hide">
+        <div className="absolute inset-0 bg-black/80 backdrop-blur-0 flex items-center justify-center z-50 p-3 sm:p-4 md:p-6">
+            <div className={`rounded-xl sm:rounded-2xl shadow-2xl border w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto scrollbar-hide ${
+                isDark 
+                    ? 'bg-gradient-to-br from-gray-900 to-gray-950 border-gray-800' 
+                    : 'bg-gradient-to-br from-white to-gray-50 border-gray-200'
+            }`}>
                 {/* Header */}
-                <div className="sticky top-0 bg-gradient-to-br from-gray-900 to-gray-950 border-b border-gray-800 p-4 sm:p-5 md:p-6 flex items-center justify-between rounded-t-xl sm:rounded-t-2xl z-10">
+                <div className={`sticky top-0 border-b p-4 sm:p-5 md:p-6 flex items-center justify-between rounded-t-xl sm:rounded-t-2xl z-10 ${
+                    isDark 
+                        ? 'bg-gradient-to-br from-gray-900 to-gray-950 border-gray-800' 
+                        : 'bg-gradient-to-br from-white to-gray-50 border-gray-200'
+                }`}>
                     <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                        <div className="p-1.5 sm:p-2 bg-green-700/10 rounded-lg flex-shrink-0">
-                            <UserPlus className="w-5 h-5 sm:w-6 sm:h-6 text-green-700" />
+                        <div className={`p-1.5 sm:p-2 rounded-lg flex-shrink-0 ${
+                            isDark ? 'bg-green-700/10' : 'bg-green-100'
+                        }`}>
+                            <UserPlus className={`w-5 h-5 sm:w-6 sm:h-6 ${
+                                isDark ? 'text-green-700' : 'text-green-600'
+                            }`} />
                         </div>
-                        <h2 className="text-xl sm:text-2xl font-bold text-white truncate">Add Members</h2>
+                        <h2 className={`text-xl sm:text-2xl font-bold truncate ${
+                            isDark ? 'text-white' : 'text-gray-900'
+                        }`}>Add Members</h2>
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-1.5 sm:p-2 hover:bg-gray-800 rounded-lg transition-colors duration-300 flex-shrink-0"
+                        className={`p-1.5 sm:p-2 rounded-lg transition-colors duration-300 flex-shrink-0 ${
+                            isDark 
+                                ? 'hover:bg-gray-800 text-gray-400 hover:text-white' 
+                                : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
+                        }`}
                     >
-                        <X className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 hover:text-white" />
+                        <X className="w-5 h-5 sm:w-6 sm:h-6" />
                     </button>
                 </div>
 
                 <div className="p-4 sm:p-5 md:p-6 space-y-4 sm:space-y-5 md:space-y-6">
                     {/* Members Input Section */}
                     <div>
-                        <h3 className="text-white font-semibold mb-2 sm:mb-3 flex items-center gap-2 text-base sm:text-lg">
-                            <User className="w-4 h-4 sm:w-5 sm:h-5 text-green-700" />
+                        <h3 className={`font-semibold mb-2 sm:mb-3 flex items-center gap-2 text-base sm:text-lg ${
+                            isDark ? 'text-white' : 'text-gray-900'
+                        }`}>
+                            <User className={`w-4 h-4 sm:w-5 sm:h-5 ${
+                                isDark ? 'text-green-700' : 'text-green-600'
+                            }`} />
                             Member Details
                         </h3>
-                        <div className={`space-y-2 sm:space-y-3 ${members.length > 3 ? 'max-h-[250px] sm:max-h-[300px] overflow-y-auto scrollbar-hide' : ''} bg-gray-900/30 rounded-lg sm:rounded-xl p-2 sm:p-3`}>
+                        <div className={`space-y-2 sm:space-y-3 ${members.length > 3 ? 'max-h-[250px] sm:max-h-[300px] overflow-y-auto scrollbar-hide' : ''} rounded-lg sm:rounded-xl p-2 sm:p-3 ${
+                            isDark ? 'bg-gray-900/30' : 'bg-gray-100/50'
+                        }`}>
                             {members.map((member, index) => (
                                 <div
                                     key={index}
-                                    className="bg-gray-800/50 p-3 sm:p-4 rounded-lg sm:rounded-xl border border-gray-700 space-y-2 sm:space-y-3"
+                                    className={`p-3 sm:p-4 rounded-lg sm:rounded-xl border space-y-2 sm:space-y-3 ${
+                                        isDark 
+                                            ? 'bg-gray-800/50 border-gray-700' 
+                                            : 'bg-white border-gray-200'
+                                    }`}
                                 >
                                     <div className="relative">
-                                        <User className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
+                                        <User className={`absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 ${
+                                            isDark ? 'text-gray-500' : 'text-gray-400'
+                                        }`} />
                                         <input
                                             type="text"
                                             placeholder="Member Name"
                                             value={member.name}
                                             onChange={(e) => handleMemberChange(index, 'name', e.target.value)}
-                                            className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2.5 sm:py-3 rounded-lg border-2 border-gray-600 bg-gray-900 text-white text-sm sm:text-base placeholder-gray-500 focus:outline-none focus:border-green-700 transition-all duration-300"
+                                            className={`w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2.5 sm:py-3 rounded-lg border-2 text-sm sm:text-base focus:outline-none transition-all duration-300 ${
+                                                isDark 
+                                                    ? 'border-gray-600 bg-gray-900 text-white placeholder-gray-500 focus:border-green-700' 
+                                                    : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:border-green-500'
+                                            }`}
                                         />
                                     </div>
                                     <div className="relative">
-                                        <Mail className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
+                                        <Mail className={`absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 ${
+                                            isDark ? 'text-gray-500' : 'text-gray-400'
+                                        }`} />
                                         <input
                                             type="email"
                                             placeholder="Email (Optional)"
                                             value={member.email}
                                             onChange={(e) => handleMemberChange(index, 'email', e.target.value)}
-                                            className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2.5 sm:py-3 rounded-lg border-2 border-gray-600 bg-gray-900 text-white text-sm sm:text-base placeholder-gray-500 focus:outline-none focus:border-green-700 transition-all duration-300"
+                                            className={`w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2.5 sm:py-3 rounded-lg border-2 text-sm sm:text-base focus:outline-none transition-all duration-300 ${
+                                                isDark 
+                                                    ? 'border-gray-600 bg-gray-900 text-white placeholder-gray-500 focus:border-green-700' 
+                                                    : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:border-green-500'
+                                            }`}
                                         />
                                     </div>
                                     {members.length > 1 && (
                                         <button
                                             onClick={() => removeMemberField(index)}
-                                            className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-red-500/50 text-sm sm:text-base active:scale-[0.98]"
+                                            className={`w-full bg-gradient-to-r font-semibold px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 shadow-lg text-sm sm:text-base active:scale-[0.98] ${
+                                                isDark 
+                                                    ? 'from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white hover:shadow-red-500/50' 
+                                                    : 'from-red-400 to-red-500 hover:from-red-500 hover:to-red-600 text-white hover:shadow-red-400/50'
+                                            }`}
                                         >
                                             <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                             Remove Member
@@ -179,65 +223,98 @@ const AddMemberForm = ({ groupId, onClose }) => {
                                 </div>
                             ))}
                         </div>
-                    </div>{/* Add Another Member Button */}
+                    </div>
+
+                    {/* Add Another Member Button */}
                     <button
                         onClick={addNewMemberField}
-                        className="w-full bg-gray-800 hover:bg-gray-700 text-green-700 font-semibold px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-300 flex items-center justify-center gap-2 text-sm sm:text-base active:scale-[0.98]"
+                        className={`w-full font-semibold px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-300 flex items-center justify-center gap-2 text-sm sm:text-base active:scale-[0.98] ${
+                            isDark 
+                                ? 'bg-gray-800 hover:bg-gray-700 text-green-700' 
+                                : 'bg-gray-200 hover:bg-gray-300 text-green-600'
+                        }`}
                     >
                         <UserPlus className="w-4 h-4 sm:w-5 sm:h-5" />
                         Add Another Member
                     </button>
 
                     {/* Friends List Section */}
-                    <div className="border-t border-gray-800 pt-4 sm:pt-6">
+                    <div className={`border-t pt-4 sm:pt-6 ${
+                        isDark ? 'border-gray-800' : 'border-gray-200'
+                    }`}>
                         <button
                             onClick={() => setIsFriendsListOpen(!isFriendsListOpen)}
                             className="w-full flex items-center justify-between mb-3 sm:mb-4"
                         >
                             <div className="flex items-center gap-2">
-                                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-green-700" />
-                                <h3 className="text-white font-semibold text-base sm:text-lg">
+                                <Users className={`w-4 h-4 sm:w-5 sm:h-5 ${
+                                    isDark ? 'text-green-700' : 'text-green-600'
+                                }`} />
+                                <h3 className={`font-semibold text-base sm:text-lg ${
+                                    isDark ? 'text-white' : 'text-gray-900'
+                                }`}>
                                     Select from Friends
                                 </h3>
                             </div>
                             {isFriendsListOpen ? (
-                                <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5 text-green-700" />
+                                <ChevronUp className={`w-4 h-4 sm:w-5 sm:h-5 ${
+                                    isDark ? 'text-green-700' : 'text-green-600'
+                                }`} />
                             ) : (
-                                <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-green-700" />
+                                <ChevronDown className={`w-4 h-4 sm:w-5 sm:h-5 ${
+                                    isDark ? 'text-green-700' : 'text-green-600'
+                                }`} />
                             )}
                         </button>
 
                         {isFriendsListOpen && (
                             <>
                                 {friends.length === 0 ? (
-                                    <div className="text-center py-6 sm:py-8 text-gray-500">
+                                    <div className={`text-center py-6 sm:py-8 ${
+                                        isDark ? 'text-gray-500' : 'text-gray-400'
+                                    }`}>
                                         <Users className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 opacity-30" />
                                         <p className="text-base sm:text-lg">No friends available</p>
                                         <p className="text-xs sm:text-sm mt-2">Add friends first to quickly select them</p>
                                     </div>
                                 ) : (
-                                    <div className={`space-y-2 ${friends.length > 3 ? 'max-h-[180px] sm:max-h-[200px] overflow-y-auto scrollbar-hide' : ''} bg-gray-900/30 rounded-lg sm:rounded-xl p-2 sm:p-3`}>
+                                    <div className={`space-y-2 ${friends.length > 3 ? 'max-h-[180px] sm:max-h-[200px] overflow-y-auto scrollbar-hide' : ''} rounded-lg sm:rounded-xl p-2 sm:p-3 ${
+                                        isDark ? 'bg-gray-900/30' : 'bg-gray-100/50'
+                                    }`}>
                                         {friends.map((friend) => {
                                             const isSelected = isFriendSelected(friend);
                                             return (
                                                 <div
                                                     key={friend._id}
                                                     onClick={() => handleFriendSelect(friend)}
-                                                    className={`flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg border-2 cursor-pointer transition-all duration-300 ${isSelected
-                                                            ? 'bg-green-700/10 border-green-700 shadow-lg shadow-green-700/20'
-                                                            : 'bg-gray-800/50 border-gray-700 hover:border-gray-600'
-                                                        }`}
+                                                    className={`flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg border-2 cursor-pointer transition-all duration-300 ${
+                                                        isSelected
+                                                            ? (isDark 
+                                                                ? 'bg-green-700/10 border-green-700 shadow-lg shadow-green-700/20' 
+                                                                : 'bg-green-50 border-green-500 shadow-lg shadow-green-500/20')
+                                                            : (isDark 
+                                                                ? 'bg-gray-800/50 border-gray-700 hover:border-gray-600' 
+                                                                : 'bg-white border-gray-200 hover:border-gray-300')
+                                                    }`}
                                                 >
                                                     <input
                                                         type="checkbox"
                                                         checked={isSelected}
                                                         onChange={() => { }}
-                                                        className="w-4 h-4 sm:w-5 sm:h-5 rounded border-gray-600 text-green-700 focus:ring-green-700 focus:ring-offset-gray-800 pointer-events-none flex-shrink-0"
+                                                        className={`w-4 h-4 sm:w-5 sm:h-5 rounded text-green-700 focus:ring-green-700 pointer-events-none flex-shrink-0 ${
+                                                            isDark 
+                                                                ? 'border-gray-600 focus:ring-offset-gray-800' 
+                                                                : 'border-gray-300 focus:ring-offset-white'
+                                                        }`}
                                                     />
                                                     <div className="flex-1 min-w-0">
-                                                        <p className="text-white font-medium text-sm sm:text-base truncate">{friend.name}</p>
+                                                        <p className={`font-medium text-sm sm:text-base truncate ${
+                                                            isDark ? 'text-white' : 'text-gray-900'
+                                                        }`}>{friend.name}</p>
                                                         {friend.email && (
-                                                            <p className="text-xs sm:text-sm text-gray-500 truncate">{friend.email}</p>
+                                                            <p className={`text-xs sm:text-sm truncate ${
+                                                                isDark ? 'text-gray-500' : 'text-gray-600'
+                                                            }`}>{friend.email}</p>
                                                         )}
                                                     </div>
                                                 </div>
@@ -251,7 +328,11 @@ const AddMemberForm = ({ groupId, onClose }) => {
 
                     {/* Error Message */}
                     {error && (
-                        <div className="p-3 sm:p-4 bg-red-500/10 border border-red-500/50 rounded-lg sm:rounded-xl text-red-500 text-center text-sm sm:text-base">
+                        <div className={`p-3 sm:p-4 border rounded-lg sm:rounded-xl text-center text-sm sm:text-base ${
+                            isDark 
+                                ? 'bg-red-500/10 border-red-500/50 text-red-500' 
+                                : 'bg-red-50 border-red-300 text-red-600'
+                        }`}>
                             {error}
                         </div>
                     )}
@@ -260,14 +341,22 @@ const AddMemberForm = ({ groupId, onClose }) => {
                     <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-2 sm:pt-4">
                         <button
                             onClick={onClose}
-                            className="w-full sm:flex-1 bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2.5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-300 text-sm sm:text-base active:scale-[0.98]"
+                            className={`w-full sm:flex-1 font-semibold py-2.5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-300 text-sm sm:text-base active:scale-[0.98] ${
+                                isDark 
+                                    ? 'bg-gray-800 hover:bg-gray-700 text-white' 
+                                    : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
+                            }`}
                         >
                             Cancel
                         </button>
                         <button
                             onClick={handleAddMember}
                             disabled={loading}
-                            className="w-full sm:flex-1 bg-gradient-to-r from-green-700 to-green-600 hover:text-black  text-white font-semibold py-2.5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg  flex items-center justify-center gap-2 text-sm sm:text-base active:scale-[0.98]"
+                            className={`w-full sm:flex-1 bg-gradient-to-r font-semibold py-2.5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg flex items-center justify-center gap-2 text-sm sm:text-base active:scale-[0.98] ${
+                                isDark 
+                                    ? 'from-green-700 to-green-600 text-white hover:text-black' 
+                                    : 'from-green-600 to-green-500 text-white hover:from-green-700 hover:to-green-600'
+                            }`}
                         >
                             {loading ? 'Adding...' : 'Add Members'}
                         </button>
@@ -276,16 +365,17 @@ const AddMemberForm = ({ groupId, onClose }) => {
             </div>
 
             <style>{`
-    .scrollbar-hide::-webkit-scrollbar {
-      display: none;
-    }
-    
-    .scrollbar-hide {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-  `}</style>
+                .scrollbar-hide::-webkit-scrollbar {
+                    display: none;
+                }
+                
+                .scrollbar-hide {
+                    -ms-overflow-style: none;
+                    scrollbar-width: none;
+                }
+            `}</style>
         </div>
     );
 };
+
 export default AddMemberForm;

@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { Mail, Send } from "lucide-react";
+import { Mail, Send, Eye, EyeOff } from "lucide-react";
+import PageNavigationbar from "../pagenavbar";
+import { Link } from "react-router-dom";
 
 const ForgotPasswordPage = () => {
   const [emailOrUsername, setEmailOrUsername] = useState("");
@@ -29,69 +31,66 @@ const ForgotPasswordPage = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-auth-back flex items-center justify-center p-4">
-      {/* Centered Container */}
-      <div className="w-full max-w-md">
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 rounded-xl sm:rounded-2xl p-6 sm:p-8 shadow-2xl border border-gray-800 transition-all duration-300">
-          
-          {/* Header */}
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 bg-green-700/10 rounded-lg flex-shrink-0">
-              <Mail className="w-6 h-6 text-green-700" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="text-2xl font-bold text-white">Reset Password</h3>
-              <p className="text-sm text-gray-400 mt-1">
-                Enter your email or username
-              </p>
+    <div className="min-h-screen flex items-center justify-center bg-gray-950">
+      <PageNavigationbar />
+      <div className="bg-gray-900 p-8 rounded-lg shadow-lg w-full max-w-md mx-4">
+        {/* Header */}
+        <div className="mb-6">
+          <div className="flex items-center justify-center mb-2">
+            <div className="p-3 bg-teal-500/10 rounded-lg">
+              <Mail className="w-8 h-8 text-teal-500" />
             </div>
           </div>
+          <h2 className="text-white text-2xl text-center font-semibold">Reset Password</h2>
+          <p className="text-gray-400 text-center mt-2 text-sm">
+            Enter your email or username to receive a password reset link
+          </p>
+        </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="relative w-full">
-              <input
-                type="text"
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-700 bg-gray-900/50 text-white placeholder-gray-500 focus:outline-none focus:border-green-700 transition-all duration-300 focus:shadow-lg focus:shadow-green-700/20"
-                placeholder="Email or Username"
-                value={emailOrUsername}
-                onChange={(e) => setEmailOrUsername(e.target.value)}
-                required
-                disabled={loading}
-              />
-            </div>
-
-            <button
-              type="submit"
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <input
+              type="text"
+              className="w-full p-2 rounded bg-gray-800 text-white border border-gray-700 focus:border-teal-500 focus:outline-none placeholder-gray-500"
+              placeholder="Email or Username"
+              value={emailOrUsername}
+              onChange={(e) => setEmailOrUsername(e.target.value)}
+              required
               disabled={loading}
-              className="w-full bg-gradient-to-r from-green-700 to-green-600 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-green-700/50 hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
-            >
-              <Send className="w-5 h-5" />
-              {loading ? "Sending..." : "Request Password Reset"}
-            </button>
-          </form>
-
-          {/* Messages */}
-          {message && (
-            <div className="mt-4 p-4 bg-green-700/10 border border-green-700/50 rounded-xl text-green-400 text-center text-sm">
-              {message}
-            </div>
-          )}
-          {error && (
-            <div className="mt-4 p-4 bg-red-500/10 border border-red-500/50 rounded-xl text-red-400 text-center text-sm">
-              {error}
-            </div>
-          )}
-
-          {/* Back to Login Link */}
-          <div className="mt-6 text-center">
-            <a 
-              href="/login" 
-              className="text-sm text-gray-400 hover:text-green-700 transition-colors duration-300"
-            >
-              ← Back to Login
-            </a>
+            />
           </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-teal-500 text-white font-semibold py-2 px-4 rounded transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-teal-600 flex items-center justify-center gap-2"
+          >
+            <Send className="w-5 h-5" />
+            {loading ? "Sending..." : "Request Password Reset"}
+          </button>
+        </form>
+
+        {/* Messages */}
+        {message && (
+          <div className="mt-4 p-3 bg-teal-500/10 border border-teal-500/50 rounded text-teal-400 text-center text-sm">
+            {message}
+          </div>
+        )}
+        {error && (
+          <div className="mt-4 p-3 bg-red-500/10 border border-red-500/50 rounded text-red-400 text-center text-sm">
+            {error}
+          </div>
+        )}
+
+        {/* Back to Login Link */}
+        <div className="text-center mt-6">
+          <Link 
+            to="/login" 
+            className="text-sm text-gray-400 hover:text-teal-500 transition-colors"
+          >
+            ← Back to Login
+          </Link>
         </div>
       </div>
     </div>

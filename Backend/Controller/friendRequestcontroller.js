@@ -113,23 +113,38 @@ const respondFriendRequest = async (req, res) => {
   }
 };
 
-
 const getFriendsofUser = async (req, res) => {
   try {
     const userId = req.user.userId;
-    const user = await User.findById(userId).populate('friends', 'name email');
+    const search = req.query.search || "";
+
+    // Find user by _id field
+    const user = await User.findOne({ _id: userId }).populate({
+      path: 'friends',
+      select: 'name email',
+      match: search ? { name: { $regex: search, $options: 'i' } } : {},
+    });
+
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    res.status(200).json(user.friends);
+    // Remove nulls if search did not match and transform response
+    const filteredFriends = user.friends
+      .filter(Boolean)
+      .map(friend => ({
+        _id: friend._id.toString(),
+        name: friend.name,
+        email: friend.email,
+        isGuest: false
+      }));
+
+    res.status(200).json(filteredFriends);
   } catch (error) {
     console.error('Error fetching user friends:', error);
     res.status(500).json({ error: 'Server error' });
   }
 };
-
-
 
 const getFriendRequests = async (req, res) => {
   try {

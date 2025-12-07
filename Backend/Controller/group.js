@@ -396,19 +396,28 @@ const addFriendstoGroup = async (req, res) => {
 
 const getUserGroups = async (req, res) => {
   try {
-    // Assuming req.user contains the authenticated user's ID
     const userId = req.user.userId;
+    const search = req.query.search || "";
 
-    // Populate the groups from the user's document
-    const user = await User.findById(userId).populate('groups', 'name');
+    const user = await User.findOne({ _id: userId });
+
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
 
-    res.status(200).json(user.groups);
+    const groupQuery = {
+      _id: { $in: user.groups },
+      name: { $regex: search, $options: "i" },
+    };
+
+    const groups = await Group.find(groupQuery)
+      .sort({ createdAt: -1 })
+      .select("name createdAt admin members");
+
+    res.status(200).json(groups);
   } catch (error) {
-    console.error('Error fetching user groups:', error);
-    res.status(500).json({ error: 'Server error' });
+    console.error("Error fetching user groups:", error);
+    res.status(500).json({ error: "Server error" });
   }
 };
 

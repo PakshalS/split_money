@@ -3,6 +3,7 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { debounce } from "lodash";
+import { useTheme } from "../../../context/themeContext";
 import {
     ChevronLeft,
     Settings,
@@ -33,6 +34,7 @@ import SettleUpsComponent from "./settleups";
 import MembersComponent from "./members";
 
 const GroupDetails = () => {
+    const { isDark } = useTheme();
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
     const [message1, setMessage1] = useState("");
@@ -86,18 +88,6 @@ const GroupDetails = () => {
             fetchGroupDetails();
         }
     }, [groupId, isDeleted]);
-
-    // Prevent body scroll when sidebar is open
-    useEffect(() => {
-        if (isSidebarOpen) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = 'unset';
-        }
-        return () => {
-            document.body.style.overflow = 'unset';
-        };
-    }, [isSidebarOpen]);
 
     const debouncedFetchGroupDetails = debounce(() => {
         if (!isDeleted) {
@@ -155,12 +145,14 @@ const GroupDetails = () => {
 
     // Show skeleton loader while loading
     if (isLoading) {
-        return <GroupDetailsSkeleton />;
+        return <GroupDetailsSkeleton isDark={isDark}/>;
     }
 
     if (!groupDetails) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black flex items-center justify-center text-white">
+            <div className={`h-full flex items-center justify-center ${
+                isDark ? 'bg-gray-800' : 'bg-gray-50'
+            } ${isDark ? 'text-white' : 'text-gray-900'}`}>
                 <div className="text-xl">Error loading group details.</div>
             </div>
         );
@@ -169,27 +161,40 @@ const GroupDetails = () => {
     if (isDeleted) return null;
 
     return (
-        <div className="min-h-screen bg-auth-back text-white">
-            {/* Navbar */}
-            <nav className="fixed top-0 left-0 right-0 z-40 bg-gradient-to-r from-gray-900 via-gray-950 to-gray-900 border-b border-gray-800 shadow-2xl backdrop-blur-sm">
-                <div className="max-w-7xl mx-auto px-4 py-4">
-                    <div className="flex items-center justify-between">
-                        {/* Left: Back Button */}
+        <div className={`h-full flex flex-col relative ${
+            isDark ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'
+        }`}>
+            {/* Header */}
+            <div className={`flex-shrink-0 ${
+                isDark 
+                    ? 'bg-gradient-to-r from-gray-900 via-gray-950 to-gray-900 border-gray-800' 
+                    : 'bg-white border-gray-200'
+            } border-b shadow-lg`}>
+                <div className="px-4 py-3">
+                    <div className="flex items-center justify-between gap-3">
+                        {/* Left: Back Button (Mobile only) */}
                         <button
                             onClick={handleback}
-                            className="flex items-center gap-2 p-2 hover:bg-gray-800 rounded-lg transition-all duration-300 text-gray-400 hover:text-white"
+                            className={`md:hidden flex items-center gap-2 p-2 rounded-lg transition-all duration-300 ${
+                                isDark 
+                                    ? 'hover:bg-gray-800 text-gray-400 hover:text-white' 
+                                    : 'hover:bg-gray-200 text-gray-600 hover:text-gray-900'
+                            }`}
                         >
-                            <ChevronLeft className="w-6 h-6" />
-                            <span className="hidden sm:inline font-medium">Back</span>
+                            <ChevronLeft className="w-5 h-5" />
                         </button>
 
                         {/* Center: Group Info */}
-                        <div className="flex-1 text-center px-4 min-w-0">
-                            <h1 className="text-lg sm:text-xl font-bold text-white truncate">
+                        <div className="flex-1 min-w-0">
+                            <h1 className={`text-base sm:text-lg font-bold truncate ${
+                                isDark ? 'text-white' : 'text-gray-900'
+                            }`}>
                                 {groupDetails.group.name}
                             </h1>
-                            <p className="text-xs sm:text-sm text-gray-400 truncate">
-                                <span className="text-green-700">Admin:</span> {groupDetails.group.admin.name}
+                            <p className={`text-xs truncate ${
+                                isDark ? 'text-gray-400' : 'text-gray-600'
+                            }`}>
+                                <span className="text-green-600">Admin:</span> {groupDetails.group.admin.name}
                             </p>
                         </div>
 
@@ -197,149 +202,222 @@ const GroupDetails = () => {
                         {isAdmin ? (
                             <button
                                 onClick={toggleSidebar}
-                                className="flex items-center gap-2 bg-gradient-to-r from-green-700 to-green-600 hover:text-black  text-white font-semibold px-4 py-2.5 rounded-xl transition-all duration-300 shadow-lg"
+                                className="flex items-center gap-2 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white font-semibold px-3 py-2 rounded-lg transition-all duration-300 shadow-lg"
                             >
-                                <Menu className="w-5 h-5" />
-                                <span className="hidden sm:inline">Admin</span>
+                                <Menu className="w-4 h-4" />
+                                <span className="hidden sm:inline text-sm">Admin</span>
                             </button>
                         ) : (
                             <button
                                 onClick={handleLeave}
-                                className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2.5 rounded-xl transition-all duration-300 shadow-lg hover:shadow-red-500/50"
+                                className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white font-semibold px-3 py-2 rounded-lg transition-all duration-300 shadow-lg"
                             >
-                                <LogOut className="w-5 h-5" />
-                                <span className="hidden sm:inline">Leave</span>
+                                <LogOut className="w-4 h-4" />
+                                <span className="hidden sm:inline text-sm">Leave</span>
                             </button>
                         )}
                     </div>
                 </div>
-            </nav>
+            </div>
 
-            {/* Sidebar Overlay */}
+            {/* Sidebar Overlay - Scoped to this component */}
             {isSidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+                    className="absolute inset-0 bg-black/60 backdrop-blur-sm z-40"
                     onClick={toggleSidebar}
                 ></div>
             )}
 
-            {/* Sidebar - Responsive Design */}
+            {/* Sidebar - Scoped to this component */}
             <div
-                className={`fixed top-0 right-0 h-full w-full sm:w-96 md:w-[420px] lg:w-[480px] max-w-[100vw] bg-gradient-to-b from-gray-900 to-gray-950 border-l border-gray-800 shadow-2xl z-50 transform transition-transform duration-300 ease-in-out ${
+                className={`absolute top-0 right-0 h-full w-80 max-w-[90vw] ${
+                    isDark 
+                        ? 'bg-gradient-to-b from-gray-900 to-gray-950 border-gray-800' 
+                        : 'bg-gradient-to-b from-white to-gray-50 border-gray-300'
+                } border-l shadow-2xl z-40 transform transition-transform duration-300 ease-in-out ${
                     isSidebarOpen ? "translate-x-0" : "translate-x-full"
                 } overflow-hidden flex flex-col`}
             >
                 {/* Sidebar Header */}
-                <div className="p-4 sm:p-6 border-b border-gray-800 flex-shrink-0">
-                    <div className="flex items-center justify-between mb-3 sm:mb-4">
-                        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                            <div className="p-1.5 sm:p-2 bg-green-700/10 rounded-lg flex-shrink-0">
-                                <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-green-700" />
+                <div className={`p-4 border-b ${
+                    isDark ? 'border-gray-800' : 'border-gray-200'
+                } flex-shrink-0`}>
+                    <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2 min-w-0">
+                            <div className={`p-2 rounded-lg flex-shrink-0 ${
+                                isDark ? 'bg-green-600/10' : 'bg-green-100'
+                            }`}>
+                                <Settings className={`w-5 h-5 ${
+                                    isDark ? 'text-green-500' : 'text-green-600'
+                                }`} />
                             </div>
-                            <h2 className="text-lg sm:text-xl font-bold text-white truncate">Admin Actions</h2>
+                            <h2 className={`text-lg font-bold truncate ${
+                                isDark ? 'text-white' : 'text-gray-900'
+                            }`}>Admin Actions</h2>
                         </div>
                         <button
                             onClick={toggleSidebar}
-                            className="p-2 hover:bg-gray-800 rounded-lg transition-colors duration-300 flex-shrink-0"
+                            className={`p-2 rounded-lg transition-colors duration-300 flex-shrink-0 ${
+                                isDark 
+                                    ? 'hover:bg-gray-800 text-gray-400 hover:text-white' 
+                                    : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
+                            }`}
                         >
-                            <X className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 hover:text-white" />
+                            <X className="w-5 h-5" />
                         </button>
                     </div>
-                    <p className="text-xs sm:text-sm text-gray-400">Manage your group settings and actions</p>
+                    <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                        Manage your group settings
+                    </p>
                 </div>
 
                 {/* Sidebar Content - Scrollable */}
-                <div className="flex-1 p-3 sm:p-4 space-y-2 overflow-y-auto scrollbar-hide">
+                <div className="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-hide">
                     <button
                         onClick={toggleSettleUpForm}
-                        className="w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 sm:py-4 text-left text-white bg-gray-800/50 hover:bg-gray-800 rounded-xl transition-all duration-300 border border-gray-700 hover:border-green-700/50 active:scale-[0.98]"
+                        className={`w-full flex items-center gap-3 px-4 py-3 text-left rounded-lg transition-all duration-300 border ${
+                            isDark 
+                                ? 'bg-gray-800/50 hover:bg-gray-800 border-gray-700 hover:border-green-500/50 text-white' 
+                                : 'bg-gray-50 hover:bg-gray-100 border-gray-200 hover:border-green-500/50 text-gray-900'
+                        }`}
                     >
-                        <div className="p-1.5 sm:p-2 bg-green-700/10 rounded-lg flex-shrink-0">
-                            <IndianRupee className="w-4 h-4 sm:w-5 sm:h-5 text-green-700" />
+                        <div className={`p-2 rounded-lg flex-shrink-0 ${
+                            isDark ? 'bg-green-600/10' : 'bg-green-100'
+                        }`}>
+                            <IndianRupee className={`w-4 h-4 ${
+                                isDark ? 'text-green-500' : 'text-green-600'
+                            }`} />
                         </div>
                         <div className="min-w-0">
-                            <p className="font-semibold text-sm sm:text-base">Settle Up</p>
-                            <p className="text-xs text-gray-400 truncate">Record payment between members</p>
+                            <p className="font-semibold text-sm">Settle Up</p>
+                            <p className={`text-xs truncate ${
+                                isDark ? 'text-gray-400' : 'text-gray-600'
+                            }`}>Record payment</p>
                         </div>
                     </button>
 
                     <button
                         onClick={toggleAddExpenseForm}
-                        className="w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 sm:py-4 text-left text-white bg-gray-800/50 hover:bg-gray-800 rounded-xl transition-all duration-300 border border-gray-700 hover:border-green-700/50 active:scale-[0.98]"
+                        className={`w-full flex items-center gap-3 px-4 py-3 text-left rounded-lg transition-all duration-300 border ${
+                            isDark 
+                                ? 'bg-gray-800/50 hover:bg-gray-800 border-gray-700 hover:border-green-500/50 text-white' 
+                                : 'bg-gray-50 hover:bg-gray-100 border-gray-200 hover:border-green-500/50 text-gray-900'
+                        }`}
                     >
-                        <div className="p-1.5 sm:p-2 bg-green-700/10 rounded-lg flex-shrink-0">
-                            <Receipt className="w-4 h-4 sm:w-5 sm:h-5 text-green-700" />
+                        <div className={`p-2 rounded-lg flex-shrink-0 ${
+                            isDark ? 'bg-green-600/10' : 'bg-green-100'
+                        }`}>
+                            <Receipt className={`w-4 h-4 ${
+                                isDark ? 'text-green-500' : 'text-green-600'
+                            }`} />
                         </div>
                         <div className="min-w-0">
-                            <p className="font-semibold text-sm sm:text-base">Add Expense</p>
-                            <p className="text-xs text-gray-400 truncate">Create a new group expense</p>
+                            <p className="font-semibold text-sm">Add Expense</p>
+                            <p className={`text-xs truncate ${
+                                isDark ? 'text-gray-400' : 'text-gray-600'
+                            }`}>Create new expense</p>
                         </div>
                     </button>
 
                     <button
                         onClick={toggleAddMemberForm}
-                        className="w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 sm:py-4 text-left text-white bg-gray-800/50 hover:bg-gray-800 rounded-xl transition-all duration-300 border border-gray-700 hover:border-green-700/50 active:scale-[0.98]"
+                        className={`w-full flex items-center gap-3 px-4 py-3 text-left rounded-lg transition-all duration-300 border ${
+                            isDark 
+                                ? 'bg-gray-800/50 hover:bg-gray-800 border-gray-700 hover:border-green-500/50 text-white' 
+                                : 'bg-gray-50 hover:bg-gray-100 border-gray-200 hover:border-green-500/50 text-gray-900'
+                        }`}
                     >
-                        <div className="p-1.5 sm:p-2 bg-green-700/10 rounded-lg flex-shrink-0">
-                            <UserPlus className="w-4 h-4 sm:w-5 sm:h-5 text-green-700" />
+                        <div className={`p-2 rounded-lg flex-shrink-0 ${
+                            isDark ? 'bg-green-600/10' : 'bg-green-100'
+                        }`}>
+                            <UserPlus className={`w-4 h-4 ${
+                                isDark ? 'text-green-500' : 'text-green-600'
+                            }`} />
                         </div>
                         <div className="min-w-0">
-                            <p className="font-semibold text-sm sm:text-base">Add Member</p>
-                            <p className="text-xs text-gray-400 truncate">Invite people to the group</p>
+                            <p className="font-semibold text-sm">Add Member</p>
+                            <p className={`text-xs truncate ${
+                                isDark ? 'text-gray-400' : 'text-gray-600'
+                            }`}>Invite people</p>
                         </div>
                     </button>
 
-                    <div className="border-t border-gray-800 my-3 pt-3">
-                        <p className="text-xs text-gray-500 uppercase tracking-wider mb-2 px-2 sm:px-4">Settings</p>
+                    <div className={`border-t my-3 pt-3 ${
+                        isDark ? 'border-gray-800' : 'border-gray-200'
+                    }`}>
+                        <p className={`text-xs uppercase tracking-wider mb-2 px-2 ${
+                            isDark ? 'text-gray-500' : 'text-gray-500'
+                        }`}>Settings</p>
                     </div>
 
                     <button
                         onClick={toggleGroupEditForm}
-                        className="w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 sm:py-4 text-left text-white bg-gray-800/50 hover:bg-gray-800 rounded-xl transition-all duration-300 border border-gray-700 hover:border-yellow-500/50 active:scale-[0.98]"
+                        className={`w-full flex items-center gap-3 px-4 py-3 text-left rounded-lg transition-all duration-300 border ${
+                            isDark 
+                                ? 'bg-gray-800/50 hover:bg-gray-800 border-gray-700 hover:border-yellow-500/50 text-white' 
+                                : 'bg-gray-50 hover:bg-gray-100 border-gray-200 hover:border-yellow-500/50 text-gray-900'
+                        }`}
                     >
-                        <div className="p-1.5 sm:p-2 bg-yellow-500/10 rounded-lg flex-shrink-0">
-                            <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />
+                        <div className={`p-2 rounded-lg flex-shrink-0 ${
+                            isDark ? 'bg-yellow-500/10' : 'bg-yellow-100'
+                        }`}>
+                            <Settings className={`w-4 h-4 ${
+                                isDark ? 'text-yellow-500' : 'text-yellow-600'
+                            }`} />
                         </div>
                         <div className="min-w-0">
-                            <p className="font-semibold text-sm sm:text-base">Edit Group</p>
-                            <p className="text-xs text-gray-400 truncate">Modify or delete group</p>
+                            <p className="font-semibold text-sm">Edit Group</p>
+                            <p className={`text-xs truncate ${
+                                isDark ? 'text-gray-400' : 'text-gray-600'
+                            }`}>Modify or delete</p>
                         </div>
                     </button>
 
                     <button
                         onClick={toggleChangeAdminForm}
-                        className="w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 sm:py-4 text-left text-white bg-gray-800/50 hover:bg-gray-800 rounded-xl transition-all duration-300 border border-gray-700 hover:border-blue-500/50 active:scale-[0.98]"
+                        className={`w-full flex items-center gap-3 px-4 py-3 text-left rounded-lg transition-all duration-300 border ${
+                            isDark 
+                                ? 'bg-gray-800/50 hover:bg-gray-800 border-gray-700 hover:border-blue-500/50 text-white' 
+                                : 'bg-gray-50 hover:bg-gray-100 border-gray-200 hover:border-blue-500/50 text-gray-900'
+                        }`}
                     >
-                        <div className="p-1.5 sm:p-2 bg-blue-500/10 rounded-lg flex-shrink-0">
-                            <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
+                        <div className={`p-2 rounded-lg flex-shrink-0 ${
+                            isDark ? 'bg-blue-500/10' : 'bg-blue-100'
+                        }`}>
+                            <ShieldCheck className={`w-4 h-4 ${
+                                isDark ? 'text-blue-500' : 'text-blue-600'
+                            }`} />
                         </div>
                         <div className="min-w-0">
-                            <p className="font-semibold text-sm sm:text-base">Change Admin</p>
-                            <p className="text-xs text-gray-400 truncate">Transfer admin rights</p>
+                            <p className="font-semibold text-sm">Change Admin</p>
+                            <p className={`text-xs truncate ${
+                                isDark ? 'text-gray-400' : 'text-gray-600'
+                            }`}>Transfer rights</p>
                         </div>
                     </button>
-
-                    {/* Extra padding at bottom for mobile safe area */}
-                    <div className="h-24 sm:h-4"></div>
                 </div>
 
                 {/* Sidebar Footer */}
-                <div className="flex-shrink-0 p-3 sm:p-4 border-t border-gray-800 bg-gray-950">
+                <div className={`flex-shrink-0 p-4 border-t ${
+                    isDark ? 'border-gray-800 bg-gray-950' : 'border-gray-200 bg-gray-100'
+                }`}>
                     <button
                         onClick={handleLeave}
-                        className="w-full flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-3 rounded-xl transition-all duration-300 shadow-lg hover:shadow-red-500/50 active:scale-[0.98] text-sm sm:text-base"
+                        className="w-full flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-3 rounded-lg transition-all duration-300 shadow-lg text-sm"
                     >
-                        <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
+                        <LogOut className="w-4 h-4" />
                         Leave Group
                     </button>
                 </div>
             </div>
 
-            {/* Main Content */}
-            <div className="pt-24 p-4 flex flex-col items-center">
-                <div className="w-full max-w-6xl space-y-6">
+            {/* Main Content - Scrollable */}
+            <div className={`flex-1 overflow-y-auto scrollbar-hide ${
+                isDark ? 'bg-gray-900' : 'bg-gray-50'
+            }`}>
+                <div className="p-4 space-y-4">
                     {/* Summary Component */}
-                    <SummaryComponent summary={groupDetails.summary} />
+                    <SummaryComponent summary={groupDetails.summary} isDark={isDark} />
 
                     {/* Expenses Component */}
                     <ExpensesComponent
@@ -347,15 +425,16 @@ const GroupDetails = () => {
                         isAdmin={isAdmin}
                         groupId={groupId}
                         onExpenseUpdated={debouncedFetchGroupDetails}
+                        isDark={isDark}
                     />
 
                     {/* Two Column Layout */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                         {/* Balances Component */}
-                        <BalancesComponent balances={groupDetails.group.balances} />
+                        <BalancesComponent balances={groupDetails.group.balances} isDark={isDark} />
 
                         {/* Settle Ups Component */}
-                        <SettleUpsComponent transactions={groupDetails.group.transactionHistory} />
+                        <SettleUpsComponent transactions={groupDetails.group.transactionHistory} isDark={isDark} />
                     </div>
 
                     {/* Members Component */}
@@ -364,26 +443,27 @@ const GroupDetails = () => {
                         isAdmin={isAdmin}
                         groupId={groupId}
                         onMemberRemoved={debouncedFetchGroupDetails}
+                        isDark={isDark}
                     />
 
                     {/* Messages */}
                     {message && (
-                        <div className="p-4 bg-green-700/10 border border-green-700/50 rounded-xl text-green-700 text-center">
+                        <div className="p-3 bg-green-600/10 border border-green-500/50 rounded-lg text-green-500 text-center text-sm">
                             {message}
                         </div>
                     )}
                     {error && (
-                        <div className="p-4 bg-red-500/10 border border-red-500/50 rounded-xl text-red-500 text-center">
+                        <div className="p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-red-500 text-center text-sm">
                             {error}
                         </div>
                     )}
                     {message1 && (
-                        <div className="p-4 bg-green-700/10 border border-green-700/50 rounded-xl text-green-700 text-center">
+                        <div className="p-3 bg-green-600/10 border border-green-500/50 rounded-lg text-green-500 text-center text-sm">
                             {message1}
                         </div>
                     )}
                     {error1 && (
-                        <div className="p-4 bg-red-500/10 border border-red-500/50 rounded-xl text-red-500 text-center">
+                        <div className="p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-red-500 text-center text-sm">
                             {error1}
                         </div>
                     )}
@@ -399,6 +479,7 @@ const GroupDetails = () => {
                             toggleAddExpenseForm();
                             debouncedFetchGroupDetails();
                         }}
+                        isDark={isDark}
                     />
                 </Suspense>
             )}
@@ -408,56 +489,62 @@ const GroupDetails = () => {
                         groupId={groupId}
                         onClose={() => {
                             toggleAddMemberForm();
-                            debouncedFetchGroupDetails();}}
-                />
-            </Suspense>
-        )}
-        {isSettleUpOpen && (
-            <Suspense fallback={<GroupDetailsSkeleton />}>
-                <SettleUpForm
-                    groupId={groupId}
-                    onClose={() => {
-                        toggleSettleUpForm();
-                        debouncedFetchGroupDetails();
-                    }}
-                />
-            </Suspense>
-        )}
-        {isGroupEditOpen && (
-            <Suspense fallback={<GroupDetailsSkeleton />}>
-                <GroupEditForm
-                    groupId={groupId}
-                    setIsDeleted={setIsDeleted}
-                    onClose={() => {
-                        toggleGroupEditForm();
-                        debouncedFetchGroupDetails();
-                    }}
-                />
-            </Suspense>
-        )}
-        {isChangeAdminOpen && (
-            <Suspense fallback={<GroupDetailsSkeleton />}>
-                <ChangeAdminForm
-                    groupId={groupId}
-                    onClose={() => {
-                        toggleChangeAdminForm();
-                        debouncedFetchGroupDetails();
-                    }}
-                />
-            </Suspense>
-        )}
+                            debouncedFetchGroupDetails();
+                        }}
+                        isDark={isDark}
+                    />
+                </Suspense>
+            )}
+            {isSettleUpOpen && (
+                <Suspense fallback={<GroupDetailsSkeleton />}>
+                    <SettleUpForm
+                        groupId={groupId}
+                        onClose={() => {
+                            toggleSettleUpForm();
+                            debouncedFetchGroupDetails();
+                        }}
+                        isDark={isDark}
+                    />
+                </Suspense>
+            )}
+            {isGroupEditOpen && (
+                <Suspense fallback={<GroupDetailsSkeleton />}>
+                    <GroupEditForm
+                        groupId={groupId}
+                        setIsDeleted={setIsDeleted}
+                        onClose={() => {
+                            toggleGroupEditForm();
+                            debouncedFetchGroupDetails();
+                        }}
+                        isDark={isDark}
+                    />
+                </Suspense>
+            )}
+            {isChangeAdminOpen && (
+                <Suspense fallback={<GroupDetailsSkeleton />}>
+                    <ChangeAdminForm
+                        groupId={groupId}
+                        onClose={() => {
+                            toggleChangeAdminForm();
+                            debouncedFetchGroupDetails();
+                        }}
+                        isDark={isDark}
+                    />
+                </Suspense>
+            )}
 
-        <style>{`
-            .scrollbar-hide::-webkit-scrollbar {
-                display: none;
-            }
-            
-            .scrollbar-hide {
-                -ms-overflow-style: none;
-                scrollbar-width: none;
-            }
-        `}</style>
-    </div>
-);
+            <style>{`
+                .scrollbar-hide::-webkit-scrollbar {
+                    display: none;
+                }
+                
+                .scrollbar-hide {
+                    -ms-overflow-style: none;
+                    scrollbar-width: none;
+                }
+            `}</style>
+        </div>
+    );
 };
+
 export default GroupDetails;

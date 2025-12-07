@@ -1,25 +1,41 @@
 import React, { useState } from "react";
 import { Wallet, ChevronDown, ChevronUp } from "lucide-react";
 
-const BalancesComponent = ({ balances }) => {
+const BalancesComponent = ({ balances, isDark }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div className="bg-gradient-to-br from-gray-900 to-gray-950 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 shadow-2xl border border-gray-800 transition-all duration-300">
+    <div className={`rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 border transition-all duration-300 ${
+      isDark 
+        ? 'bg-gray-900 border-gray-800' 
+        :'bg-gray-50 border-gray-200'
+    }`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4 sm:mb-5 md:mb-6">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          <div className="p-1.5 sm:p-2 bg-green-700/10 rounded-lg flex-shrink-0">
-            <Wallet className="w-5 h-5 sm:w-6 sm:h-6 text-green-700" />
+          <div className={`p-1.5 sm:p-2 rounded-lg flex-shrink-0 ${
+            isDark ? 'bg-green-700/10' : 'bg-green-100'
+          }`}>
+            <Wallet className={`w-5 h-5 sm:w-6 sm:h-6 ${
+              isDark ? 'text-green-700' : 'text-green-600'
+            }`} />
           </div>
           <div className="min-w-0">
-            <h3 className="text-xl sm:text-2xl font-bold text-white truncate">Balances</h3>
-            <p className="text-xs sm:text-sm text-gray-500 mt-1">Individual balance sheet</p>
+            <h3 className={`text-xl sm:text-2xl font-bold truncate ${
+              isDark ? 'text-white' : 'text-gray-900'
+            }`}>Balances</h3>
+            <p className={`text-xs sm:text-sm mt-1 ${
+              isDark ? 'text-gray-500' : 'text-gray-600'
+            }`}>Individual balance sheet</p>
           </div>
         </div>
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="flex items-center gap-1 sm:gap-2 text-green-700 hover:text-green-400 transition-colors duration-300 flex-shrink-0"
+          className={`flex items-center gap-1 sm:gap-2 transition-colors duration-300 flex-shrink-0 ${
+            isDark 
+              ? 'text-green-700 hover:text-green-400' 
+              : 'text-green-600 hover:text-green-700'
+          }`}
         >
           {isExpanded ? (
             <>
@@ -39,7 +55,9 @@ const BalancesComponent = ({ balances }) => {
       {isExpanded && (
         <>
           {balances.length === 0 ? (
-            <div className="text-center py-6 sm:py-8 text-gray-500">
+            <div className={`text-center py-6 sm:py-8 ${
+              isDark ? 'text-gray-500' : 'text-gray-400'
+            }`}>
               <Wallet className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 mx-auto mb-3 sm:mb-4 opacity-30" />
               <p className="text-base sm:text-lg">No balances calculated</p>
             </div>
@@ -48,11 +66,19 @@ const BalancesComponent = ({ balances }) => {
               {balances.map((balance) => (
                 <div
                   key={balance._id}
-                  className="bg-gray-900/50 border-2 border-gray-800 hover:border-gray-700 p-3 sm:p-4 rounded-lg sm:rounded-xl transition-all duration-300"
+                  className={`border-2 p-3 sm:p-4 rounded-lg sm:rounded-xl transition-all duration-300 ${
+                    isDark 
+                      ? 'bg-gray-900/50 border-gray-800 hover:border-gray-700' 
+                      : 'bg-gray-50 border-gray-200 hover:border-gray-300'
+                  }`}
                 >
                   <div className="flex justify-between items-center gap-2">
-                    <span className="text-sm sm:text-base text-white font-medium">{balance.name}</span>
-                    <span className={`font-bold text-base sm:text-lg flex-shrink-0  ${balance.balance >= 0 ? 'text-green-700' : 'text-red-500'}`}>
+                    <span className={`text-sm sm:text-base font-medium ${
+                      isDark ? 'text-white' : 'text-gray-900'
+                    }`}>{balance.name}</span>
+                    <span className={`font-bold text-base sm:text-lg flex-shrink-0 ${
+                      balance.balance >= 0 ? (isDark ? 'text-green-700' : 'text-green-600') : 'text-red-500'
+                    }`}>
                       ₹{balance.balance}
                     </span>
                   </div>

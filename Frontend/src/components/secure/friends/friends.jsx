@@ -5,14 +5,16 @@ import SendRequestComponent from "./sendreq";
 import RequestListComponent from "./reqlist";
 import FriendListComponent from "./managefriends";
 import { FriendManagementSkeleton } from "./friendsloader";
+import { useOutletContext } from "react-router-dom";
 
 const Navigationbar = lazy(() => import("../../navbar"));
 
-const FriendManagement = () => {
+const FriendManagement = ({ isDark: isDarkProp}) => {
   const [requests, setRequests] = useState([]);
   const [friends, setFriends] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const outletContext = useOutletContext();
+  const isDark = isDarkProp ?? outletContext?.isDark ?? false;
   const token = Cookies.get("authToken");
 
   const fetchRequests = async () => {
@@ -70,19 +72,21 @@ const FriendManagement = () => {
 
   if (loading) {
     return (
-      <Suspense fallback={<FriendManagementSkeleton />}>
-        <FriendManagementSkeleton />
+      <Suspense fallback={<FriendManagementSkeleton isDark={isDark} />}>
+        <FriendManagementSkeleton isDark={isDark}/>
       </Suspense>
     );
   }
 
   return (
-    <Suspense fallback={<FriendManagementSkeleton />}>
-      <div className="min-h-screen bg-gray-950 pt-24 text-white flex flex-col items-center p-4">
+    <Suspense fallback={<FriendManagementSkeleton isDark={isDark}/>}>
+      <div className={`min-h-screen flex flex-col items-center p-4 ${
+        isDark ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'
+      }`}>
         <div className="w-full max-w-6xl space-y-6">
           {/* Send Request Section */}
           <div className="w-full">
-            <SendRequestComponent onRequestSent={handleRequestSent} />
+            <SendRequestComponent isDark={isDark} onRequestSent={handleRequestSent} />
           </div>
 
           {/* Two Column Layout for Requests and Friends */}
@@ -91,6 +95,7 @@ const FriendManagement = () => {
             <div className="w-full">
               <RequestListComponent 
                 requests={requests} 
+                isDark={isDark}
                 onRequestResponded={handleRequestResponded} 
               />
             </div>
@@ -99,6 +104,7 @@ const FriendManagement = () => {
             <div className="w-full">
               <FriendListComponent 
                 friends={friends} 
+                isDark={isDark}
                 onFriendRemoved={handleFriendRemoved} 
               />
             </div>
