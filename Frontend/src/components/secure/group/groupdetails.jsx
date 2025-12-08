@@ -1,4 +1,4 @@
-import React, { useEffect, useState, lazy, Suspense } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
@@ -21,11 +21,11 @@ import { useOutletContext } from "react-router-dom";
 import GroupDetailsSkeleton from "./grouploader";
 
 // Lazy load the components
-const AddExpenseForm = lazy(() => import("../admin/addexpense"));
-const SettleUpForm = lazy(() => import("../admin/settleup"));
-const GroupEditForm = lazy(() => import("../admin/editgroup"));
-const AddMemberForm = lazy(() => import("../admin/addmember"));
-const ChangeAdminForm = lazy(() => import("../admin/changeadmin"));
+import AddExpenseForm from "../admin/addexpense";
+import SettleUpForm from "../admin/settleup";
+import GroupEditForm from "../admin/editgroup";
+import AddMemberForm  from "../admin/addmember";
+import ChangeAdminForm from "../admin/changeadmin";
 
 // Import the new components
 import SummaryComponent from "./summary";
@@ -33,25 +33,6 @@ import ExpensesComponent from "./expenses";
 import BalancesComponent from "./balances";
 import SettleUpsComponent from "./settleups";
 import MembersComponent from "./members";
-
-// Modal Skeleton Component - only shows while modal is loading
-const ModalSkeleton = ({ isDark }) => (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-    <div className={`w-full max-w-2xl mx-4 rounded-xl shadow-2xl ${
-      isDark ? 'bg-gray-900 border border-gray-800' : 'bg-white border border-gray-200'
-    }`}>
-      <div className="p-6 space-y-4 animate-pulse">
-        {/* Header skeleton */}
-        <div className={`h-8 rounded ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
-        {/* Content skeleton */}
-        <div className={`h-32 rounded ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
-        <div className={`h-32 rounded ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
-        {/* Button skeleton */}
-        <div className={`h-12 rounded ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
-      </div>
-    </div>
-  </div>
-);
 
 const GroupDetails = () => {
   const { isDark } = useTheme();
@@ -578,7 +559,6 @@ const GroupDetails = () => {
 
       {/* Admin Forms - Each wrapped in its own Suspense with ModalSkeleton */}
       {isAddExpenseOpen && (
-        <Suspense fallback={<ModalSkeleton isDark={isDark} />}>
           <AddExpenseForm
             groupId={groupId}
             onClose={() => {
@@ -587,11 +567,9 @@ const GroupDetails = () => {
             }}
             isDark={isDark}
           />
-        </Suspense>
       )}
       
       {isOpenAddMember && (
-        <Suspense fallback={<ModalSkeleton isDark={isDark} />}>
           <AddMemberForm
             groupId={groupId}
             onClose={() => {
@@ -600,11 +578,9 @@ const GroupDetails = () => {
             }}
             isDark={isDark}
           />
-        </Suspense>
       )}
       
       {isSettleUpOpen && (
-        <Suspense fallback={<ModalSkeleton isDark={isDark} />}>
           <SettleUpForm
             groupId={groupId}
             onClose={() => {
@@ -613,11 +589,9 @@ const GroupDetails = () => {
             }}
             isDark={isDark}
           />
-        </Suspense>
       )}
       
       {isGroupEditOpen && (
-        <Suspense fallback={<ModalSkeleton isDark={isDark} />}>
           <GroupEditForm
             groupId={groupId}
             setIsDeleted={setIsDeleted}
@@ -627,11 +601,9 @@ const GroupDetails = () => {
             }}
             isDark={isDark}
           />
-        </Suspense>
       )}
       
       {isChangeAdminOpen && (
-        <Suspense fallback={<ModalSkeleton isDark={isDark} />}>
           <ChangeAdminForm
             groupId={groupId}
             onClose={() => {
@@ -640,7 +612,6 @@ const GroupDetails = () => {
             }}
             isDark={isDark}
           />
-        </Suspense>
       )}
 
       <style>{`
