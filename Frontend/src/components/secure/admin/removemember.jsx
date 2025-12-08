@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { UserMinus, X, AlertTriangle } from 'lucide-react';
+import { useOutletContext } from 'react-router-dom';
 
 const RemoveMemberForm = ({ groupId, member, onClose, isDark }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const { onRefreshGroups } = useOutletContext(); // Get refresh function
 
   const handleRemoveMember = async () => {
     setLoading(true);
@@ -27,6 +29,7 @@ const RemoveMemberForm = ({ groupId, member, onClose, isDark }) => {
       });
 
       alert('Member removed successfully!');
+      if (onRefreshGroups) onRefreshGroups(); // Refresh groups list
       onClose();
     } catch (error) {
       console.error('Error removing member:', error);

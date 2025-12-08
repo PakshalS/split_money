@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { UserPlus, X, Mail, User, Trash2, Users, ChevronDown, ChevronUp } from 'lucide-react';
+import { useOutletContext } from 'react-router-dom';
 
 const AddMemberForm = ({ groupId, onClose, isDark }) => {
     const [members, setMembers] = useState([{ name: '', email: '' }]);
@@ -9,6 +10,7 @@ const AddMemberForm = ({ groupId, onClose, isDark }) => {
     const [error, setError] = useState(null);
     const [isFriendsListOpen, setIsFriendsListOpen] = useState(false);
     const [loading, setLoading] = useState(false);
+    const { onRefreshGroups } = useOutletContext(); // Get refresh function
 
     useEffect(() => {
         const fetchFriends = async () => {
@@ -61,6 +63,7 @@ const AddMemberForm = ({ groupId, onClose, isDark }) => {
             );
 
             alert('Members added successfully!');
+            if (onRefreshGroups) onRefreshGroups(); // Refresh groups list
             onClose();
         } catch (error) {
             console.error('Error adding members:', error);

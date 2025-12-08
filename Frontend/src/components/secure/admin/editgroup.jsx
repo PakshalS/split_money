@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import { Edit, X, Trash2, Save } from 'lucide-react';
 
 const GroupEditForm = ({ groupId, onClose, setIsDeleted, isDark }) => {
@@ -9,6 +9,7 @@ const GroupEditForm = ({ groupId, onClose, setIsDeleted, isDark }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { onRefreshGroups } = useOutletContext(); // Get refresh function
 
   const handleEdit = async () => {
     if (!name.trim()) {
@@ -40,6 +41,7 @@ const GroupEditForm = ({ groupId, onClose, setIsDeleted, isDark }) => {
       );
 
       alert('Edited successfully!');
+      if (onRefreshGroups) onRefreshGroups(); // Refresh groups list
       onClose();
     } catch (error) {
       console.error('Error editing group', error);
@@ -66,6 +68,7 @@ const GroupEditForm = ({ groupId, onClose, setIsDeleted, isDark }) => {
         });
         setIsDeleted(true);
         alert('Deleted successfully!');
+        if (onRefreshGroups) onRefreshGroups(); // Refresh groups list
         onClose();
         navigate('/home');
       }
@@ -75,7 +78,7 @@ const GroupEditForm = ({ groupId, onClose, setIsDeleted, isDark }) => {
       setLoading(false);
     }
   };
-
+    
   return (
     <div className="absolute inset-0 bg-black/80 backdrop-blur-0 flex items-center justify-center z-50 p-3 sm:p-4 md:p-6">
       <div className={`rounded-xl sm:rounded-2xl shadow-2xl border w-full max-w-md ${

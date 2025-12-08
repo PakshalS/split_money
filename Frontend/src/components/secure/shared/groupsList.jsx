@@ -1,15 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Search, Plus } from 'lucide-react';
-import Cookies from "js-cookie";
-import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import GroupListSkeleton from "./grouplistloader";
 
-const GroupList = ({ isDark, onFabClick }) => {
+const GroupList = ({ groups, loading, onRefresh, isDark, onFabClick }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [groups, setGroups] = useState([]);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
   const currentGroupId = location.pathname.split('/groups/')[1] || null;
@@ -22,30 +18,10 @@ const GroupList = ({ isDark, onFabClick }) => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Fetch groups
-  useEffect(() => {
-    async function fetchGroups() {
-      setLoading(true);
-      try {
-        const token = Cookies.get("authToken");
-        const response = await axios.get(
-          `https://split-money-api.vercel.app/groups/user-groups?search=${debouncedSearch}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        setGroups(response.data);
-      } catch (error) {
-        console.error('Error fetching groups:', error);
-        setGroups([]);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchGroups();
-  }, [debouncedSearch]);
+  // Filter groups locally (instant, no API calls)
+  const filteredGroups = groups.filter(group =>
+    group.name.toLowerCase().includes(debouncedSearch.toLowerCase())
+  );
 
   // Format time for display
   const formatTime = (timestamp) => {
@@ -64,16 +40,14 @@ const GroupList = ({ isDark, onFabClick }) => {
   };
 
   const onGroupSelect = (group) => {
-    // Navigate to the group chat
     navigate(`/groups/${group._id}`, { state: { groupName: group.name } });
   };
 
-  // Show skeleton loader while loading
+  // Show skeleton loader ONLY on initial load
   if (loading) {
     return (
       <div className="h-full relative">
         <GroupListSkeleton isDark={isDark} />
-        {/* FAB still visible during loading */}
         <button
           onClick={onFabClick}
           className={`absolute bottom-6 right-6 p-4 rounded-full flex items-center justify-center font-medium transition-all duration-300 shadow-lg hover:shadow-xl active:scale-95 z-10 ${
@@ -114,29 +88,32 @@ const GroupList = ({ isDark, onFabClick }) => {
 
       {/* Group List - Scrollable without scrollbar */}
       <div className="flex-1 overflow-y-auto scrollbar-hide" style={{
-        scrollbarWidth: 'none', /* Firefox */
-        msOverflowStyle: 'none', /* IE and Edge */
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none',
       }}>
-        <style jsx>{`
+        <style>{`
           .scrollbar-hide::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
+            display: none;
           }
         `}</style>
         
-        {groups.length === 0 ? (
+        {filteredGroups.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full p-8 text-center">
             <div className={`text-4xl mb-4 ${isDark ? 'text-gray-600' : 'text-gray-400'}`}>
               👥
             </div>
             <p className={`text-lg font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-              No groups yet
+              {searchTerm ? 'No groups found' : 'No groups yet'}
             </p>
             <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-              Create a group to start splitting expenses
+              {searchTerm 
+                ? `No groups matching "${searchTerm}"`
+                : 'Create a group to start splitting expenses'
+              }
             </p>
           </div>
         ) : (
-          groups.map((group) => (
+          filteredGroups.map((group) => (
             <div
               key={group._id}
               onClick={() => onGroupSelect(group)}

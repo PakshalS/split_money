@@ -110,7 +110,7 @@ const FriendListComponent = ({ friends, onFriendRemoved, isDark }) => {
           <p className="text-xs sm:text-sm mt-2">Send requests to connect with friends</p>
         </div>
       ) : (
-        <div className="space-y-2 max-h-[300px] sm:max-h-[220px] overflow-y-auto scrollbar-hide">
+        <div className="space-y-2 max-h-[300px] sm:max-h-[150px] overflow-y-auto scrollbar-hide">
           {filteredFriends.map((friend) => {
             const isSelected = selectedFriend === friend._id;
             return (

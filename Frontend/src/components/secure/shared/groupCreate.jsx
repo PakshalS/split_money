@@ -238,7 +238,7 @@ const CreateGroupList = ({ isDark, onBack, onGroupCreated }) => {
         scrollbarWidth: 'none', /* Firefox */
         msOverflowStyle: 'none', /* IE and Edge */
       }}>
-        <style jsx>{`
+        <style>{`
           .scrollbar-hide::-webkit-scrollbar {
             display: none; /* Chrome, Safari, Opera */
           }
