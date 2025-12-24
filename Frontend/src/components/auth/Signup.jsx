@@ -12,19 +12,33 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(false);
   const Navigate = useNavigate();
   
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setSuccess('');
+    setLoading(true);
+    
     try {
       await axios.post("https://split-money-api.vercel.app/auth/register", {
         name,
         email,
         password,
       });
-      Navigate('/login');
+      setSuccess('Registration successful! Redirecting to login...');
+      setTimeout(() => {
+        Navigate('/login');
+      }, 1500);
     } catch (error) {
-      console.error('Registration failed:', error.response?.data?.message || error.message);
+      const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Registration failed. Please try again.';
+      setError(errorMessage);
+      console.error('Registration failed:', errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -33,6 +47,16 @@ const Register = () => {
       <PageNavigationbar />
       <div className="bg-gray-900 p-8 rounded-lg shadow-lg">
         <h2 className="text-white text-2xl mb-6 text-center">Register</h2>
+        {error && (
+          <div className="mb-4 p-3 rounded bg-red-500/20 border border-red-500 text-red-200 text-sm">
+            {error}
+          </div>
+        )}
+        {success && (
+          <div className="mb-4 p-3 rounded bg-green-500/20 border border-green-500 text-green-200 text-sm">
+            {success}
+          </div>
+        )}
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <input
@@ -73,9 +97,10 @@ const Register = () => {
           </div>
           <button
             type="submit"
-            className="w-full p-2 bg-teal-500 rounded text-white hover:bg-teal-600 transition-colors"
+            disabled={loading}
+            className="w-full p-2 bg-teal-500 rounded text-white hover:bg-teal-600 transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed"
           >
-            Sign Up
+            {loading ? 'Signing up...' : 'Sign Up'}
           </button>
         </form>
         <div className="text-center mt-4 text-gray-400">

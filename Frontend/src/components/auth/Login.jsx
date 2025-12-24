@@ -12,11 +12,16 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setLoading(true);
+    
     try {
       const response = await axios.post("https://split-money-api.vercel.app/auth/login", {
         email,
@@ -26,7 +31,11 @@ const Login = () => {
       login(token);
       navigate('/home');
     } catch (error) {
-      console.error('Login failed:', error.response?.data?.message || error.message);
+      const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Login failed. Please try again.';
+      setError(errorMessage);
+      console.error('Login failed:', errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -35,6 +44,11 @@ const Login = () => {
       <PageNavigationbar/>
       <div className="bg-gray-900 p-8 rounded-lg shadow-lg">
         <h2 className="text-white text-2xl mb-6 text-center">Login</h2>
+        {error && (
+          <div className="mb-4 p-3 rounded bg-red-500/20 border border-red-500 text-red-200 text-sm">
+            {error}
+          </div>
+        )}
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <input
@@ -66,8 +80,12 @@ const Login = () => {
           <div className="mb-4 text-right">
             <Link to="/forgot-password" className="text-sm text-gray-400 hover:text-teal-500">Forgot Password?</Link>
           </div>
-          <button type="submit" className="w-full p-2 bg-teal-500 rounded text-white hover:bg-teal-600 transition-colors">
-            Log In
+          <button 
+            type="submit" 
+            disabled={loading}
+            className="w-full p-2 bg-teal-500 rounded text-white hover:bg-teal-600 transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Logging in...' : 'Log In'}
           </button>
         </form>
         <div className="text-center mt-4 text-gray-400">
