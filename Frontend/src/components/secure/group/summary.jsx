@@ -1,7 +1,7 @@
 import React from "react";
-import { TrendingUp } from "lucide-react";
+import { TrendingUp, HandCoins } from "lucide-react";
 
-const SummaryComponent = ({ summary, isDark }) => {
+const SummaryComponent = ({ summary, isDark, isAdmin, onSettleUp }) => {
   return (
     <div className={`rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6  border transition-all duration-300 ${
       isDark 
@@ -47,15 +47,30 @@ const SummaryComponent = ({ summary, isDark }) => {
                   : 'bg-gray-50 border-gray-200 hover:border-gray-300'
               }`}
             >
-              <p className={`text-sm sm:text-base leading-relaxed ${
-                isDark ? 'text-white' : 'text-gray-900'
-              }`}>
-                <span className="font-semibold">{item.from}</span>
-                <span className={isDark ? 'text-gray-400' : 'text-gray-600'}> owes </span>
-                <span className="font-semibold">{item.to}</span>
-                <span className={isDark ? 'text-gray-400' : 'text-gray-600'}> </span>
-                <span className="font-bold">₹{item.amount}</span>
-              </p>
+              <div className="flex items-center justify-between gap-3">
+                <p className={`text-sm sm:text-base leading-relaxed flex-1 ${
+                  isDark ? 'text-white' : 'text-gray-900'
+                }`}>
+                  <span className="font-semibold">{item.from}</span>
+                  <span className={isDark ? 'text-gray-400' : 'text-gray-600'}> owes </span>
+                  <span className="font-semibold">{item.to}</span>
+                  <span className={isDark ? 'text-gray-400' : 'text-gray-600'}> </span>
+                  <span className="font-bold">₹{Number(item.amount).toFixed(2)}</span>
+                </p>
+                {isAdmin && onSettleUp && (
+                  <button
+                    onClick={() => onSettleUp(item.from, item.to, item.amount)}
+                    className={`p-2 rounded-lg transition-all duration-300 flex-shrink-0 ${
+                      isDark 
+                        ? 'bg-green-700/20 hover:bg-green-700/30 text-green-700' 
+                        : 'bg-green-100 hover:bg-green-200 text-green-600'
+                    }`}
+                    title="Settle Up"
+                  >
+                    <HandCoins className="w-4 h-4 sm:w-5 sm:h-5" />
+                  </button>
+                )}
+              </div>
             </div>
           ))}
         </div>

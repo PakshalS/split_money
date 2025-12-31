@@ -41,6 +41,7 @@ const GroupDetails = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
   const [isSettleUpOpen, setIsSettleUpOpen] = useState(false);
+  const [settleUpData, setSettleUpData] = useState(null);
   const [isGroupEditOpen, setIsGroupEditOpen] = useState(false);
   const [isOpenAddMember, setIsOpenAddMember] = useState(false);
   const [isChangeAdminOpen, setIsChangeAdminOpen] = useState(false);
@@ -95,8 +96,13 @@ const GroupDetails = () => {
     setIsSidebarOpen(false);
   };
   const toggleSettleUpForm = () => {
+    setSettleUpData(null);
     setIsSettleUpOpen(!isSettleUpOpen);
     setIsSidebarOpen(false);
+  };
+  const handleSettleUpFromSummary = (from, to, amount) => {
+    setSettleUpData({ payer: from, receiver: to, amount: amount });
+    setIsSettleUpOpen(true);
   };
   const toggleGroupEditForm = () => {
     setIsGroupEditOpen(!isGroupEditOpen);
@@ -251,7 +257,12 @@ const GroupDetails = () => {
       >
         <div className="p-4 space-y-4">
           {/* Summary Component */}
-          <SummaryComponent summary={groupDetails.summary} isDark={isDark} />
+          <SummaryComponent 
+            summary={groupDetails.summary} 
+            isDark={isDark} 
+            isAdmin={isAdmin}
+            onSettleUp={handleSettleUpFromSummary}
+          />
 
           {/* Expenses Component */}
           <ExpensesComponent
@@ -268,6 +279,7 @@ const GroupDetails = () => {
             <BalancesComponent
               balances={groupDetails.group.balances}
               isDark={isDark}
+              membersWithSpend={groupDetails.membersWithSpend || []}
             />
 
             {/* Settle Ups Component */}
@@ -341,10 +353,12 @@ const GroupDetails = () => {
         <SettleUpForm
           groupId={groupId}
           onClose={() => {
-            toggleSettleUpForm();
+            setIsSettleUpOpen(false);
+            setSettleUpData(null);
             debouncedFetchGroupDetails();
           }}
           isDark={isDark}
+          initialData={settleUpData}
         />
       )}
 

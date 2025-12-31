@@ -442,8 +442,15 @@ const getGroupDetails = async (req, res) => {
       }));
       const summary = generateSummary(balances);
 
+      // Calculate total spend for each member
+      const membersWithSpend = group.members.map(member => ({
+        userId: member.userId,
+        name: member.name,
+        email: member.email,
+        totalSpend: calculateTotalSpend(group, member.name)
+      }));
 
-    res.status(200).json({summary ,group});
+    res.status(200).json({summary, group, membersWithSpend});
 
   } catch (error) {
     console.error('Error fetching group details:', error);
@@ -542,9 +549,20 @@ const settleUp = async (req, res) => {
       return res.status(400).json({ error: 'No outstanding debt found between these members' });
     }
 
-    // Ensure the amount does not exceed the summary amount
-    if (amount > summaryEntry.amount) {
+    // Allow partial settlements - just check that amount doesn't exceed the debt
+    let settlementAmount = Number(amount);
+    const owedAmount = summaryEntry.amount;
+    
+    // Check if the rounded amounts match (to 2 decimals)
+    // If user is settling the "display amount", use the actual precise amount
+    if (Math.abs(settlementAmount.toFixed(2) - owedAmount.toFixed(2)) < 0.01) {
+      settlementAmount = owedAmount;
+    } else if (settlementAmount > owedAmount) {
       return res.status(400).json({ error: 'Settle amount exceeds outstanding debt' });
+    }
+
+    if (settlementAmount <= 0) {
+      return res.status(400).json({ error: 'Settlement amount must be greater than zero' });
     }
 
     // Update balances
@@ -555,23 +573,16 @@ const settleUp = async (req, res) => {
       return res.status(400).json({ error: 'Payer or receiver not found in group balances' });
     }
 
-        // Ensure valid bounds before updating
-    if (Number(payerBalance.balance) + amount > 0) {
-      return res.status(400).json({ error: 'Invalid balance for payer after settlement' });
-    }
-    if (Number(receiverBalance.balance) - amount < 0) {
-      return res.status(400).json({ error: 'Invalid balance for receiver after settlement' });
-    }
     // Update balances with the settled amount
-    payerBalance.balance = Number(payerBalance.balance) + Number(amount); // Ensure balance is a number
-    receiverBalance.balance = Number(receiverBalance.balance) - Number(amount); // Ensure balance is a number
+    payerBalance.balance = Number(payerBalance.balance) + Number(settlementAmount);
+    receiverBalance.balance = Number(receiverBalance.balance) - Number(settlementAmount);
 
     // Record the transaction history for transparency
     group.transactionHistory.push({
       type: 'settlement',
       payer: { name: payer.name},
       receiver: { name: receiver.name},
-      amount,
+      amount: settlementAmount,
       date: new Date(),
     });
 
@@ -615,6 +626,33 @@ const generateSummary = (balances) => {
   });
 
   return summary;
+};
+
+const calculateTotalSpend = (group, memberName) => {
+  let totalSpend = 0;
+
+  // Step 1: Sum all amounts paid by this user in all expenses
+  group.expenses.forEach(expense => {
+    const paidByUser = expense.paidBy.find(p => p.name === memberName);
+    if (paidByUser) {
+      totalSpend += paidByUser.amount;
+    }
+  });
+
+  // Step 2: Add amounts where this user was the payer in settlements
+  group.transactionHistory.forEach(transaction => {
+    if (transaction.type === 'settlement') {
+      if (transaction.payer.name === memberName) {
+        totalSpend += transaction.amount;
+      }
+      // Step 3: Subtract amounts where this user was the receiver in settlements
+      if (transaction.receiver.name === memberName) {
+        totalSpend -= transaction.amount;
+      }
+    }
+  });
+
+  return totalSpend;
 };
 
 const editExpense = async (req, res) => {

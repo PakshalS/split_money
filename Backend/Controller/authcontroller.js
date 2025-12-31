@@ -63,7 +63,7 @@ const login = async (req, res) => {
         const token = jwt.sign(
             { userId: user._id, email: user.email },
             process.env.SECRET_KEY,
-            { expiresIn: "24h" }
+            { expiresIn: "365d" }
         );
         console.log("Password match, token generated");
         res.status(200).json({ message: "Login Successful", token });

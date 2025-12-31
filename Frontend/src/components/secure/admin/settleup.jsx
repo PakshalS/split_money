@@ -3,10 +3,10 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { HandCoins, X, ArrowRight, User, IndianRupee } from 'lucide-react';
 
-const SettleUpForm = ({ groupId, onClose, isDark }) => {
-  const [payer, setPayer] = useState('');
-  const [receiver, setReceiver] = useState('');
-  const [amount, setAmount] = useState('');
+const SettleUpForm = ({ groupId, onClose, isDark, initialData }) => {
+  const [payer, setPayer] = useState(initialData?.payer || '');
+  const [receiver, setReceiver] = useState(initialData?.receiver || '');
+  const [amount, setAmount] = useState(initialData?.amount || '');
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');

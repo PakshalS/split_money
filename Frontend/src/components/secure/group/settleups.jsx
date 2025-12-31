@@ -88,7 +88,7 @@ const SettleUpsComponent = ({ transactions, isDark }) => {
                       {transaction.receiver.name}
                     </span>
                     <span className={isDark ? 'text-gray-400' : 'text-gray-600'}> for </span>
-                    <span className="font-bold">₹{transaction.amount}</span>
+                    <span className="font-bold">₹{Number(transaction.amount).toFixed(2)}</span>
                   </p>
                 </div>
               ))}
@@ -97,7 +97,7 @@ const SettleUpsComponent = ({ transactions, isDark }) => {
         </>
       )}
 
-      <style>{`
+      <style>{` 
         .scrollbar-hide::-webkit-scrollbar {
           display: none;
         }
