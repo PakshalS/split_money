@@ -1,47 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import Cookies from 'js-cookie';
 import { UserPlus, X, Mail, User, Trash2, Users, ChevronDown, ChevronUp } from 'lucide-react';
-import { useOutletContext } from 'react-router-dom';
+import useStore from '../../../store/useStore';
 
 const AddMemberForm = ({ groupId, onClose, isDark }) => {
     const [members, setMembers] = useState([{ name: '', email: '' }]);
-    const [friends, setFriends] = useState([]);
     const [error, setError] = useState(null);
     const [isFriendsListOpen, setIsFriendsListOpen] = useState(false);
     const [loading, setLoading] = useState(false);
-    const { onRefreshGroups } = useOutletContext(); // Get refresh function
+
+    // Get store actions and data
+    const { 
+        addMembers: addMembersToGroup,
+        friends,
+        fetchFriends
+    } = useStore();
 
     useEffect(() => {
-        const fetchFriends = async () => {
-            try {
-                const token = Cookies.get('authToken');
-                if (!token) {
-                    console.error('No auth token found');
-                    return;
-                }
-
-                const response = await axios.get('https://split-money-api.vercel.app/friends/get-friends', {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-                setFriends(response.data);
-            } catch (error) {
-                console.error('Error fetching friends:', error);
-            }
-        };
-
-        fetchFriends();
-    }, []);
+        // Fetch friends from store if not already loaded
+        if (friends.length === 0) {
+            fetchFriends();
+        }
+    }, [friends.length, fetchFriends]);
 
     const handleAddMember = async () => {
-        const token = Cookies.get('authToken');
-        if (!token) {
-            console.error('No auth token found');
-            return;
-        }
-
         const validMembers = members.filter(member => member.name.trim() !== '');
         if (validMembers.length === 0) {
             setError('Please add at least one member with a name.');
@@ -52,22 +33,12 @@ const AddMemberForm = ({ groupId, onClose, isDark }) => {
         setError(null);
 
         try {
-            await axios.post(
-                `https://split-money-api.vercel.app/groups/${groupId}/add-member`,
-                { members: validMembers },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-
+            await addMembersToGroup(groupId, validMembers);
             alert('Members added successfully!');
-            if (onRefreshGroups) onRefreshGroups(); // Refresh groups list
             onClose();
         } catch (error) {
             console.error('Error adding members:', error);
-            setError(error.response?.data?.error || 'Failed to add members.');
+            setError(error.message || 'Failed to add members.');
         } finally {
             setLoading(false);
         }

@@ -3,6 +3,7 @@ import axios from "axios";
 import { Mail, Send, Eye, EyeOff } from "lucide-react";
 import PageNavigationbar from "../pagenavbar";
 import { Link } from "react-router-dom";
+import { API_ENDPOINTS } from '../../config/api';
 
 const ForgotPasswordPage = () => {
   const [emailOrUsername, setEmailOrUsername] = useState("");
@@ -18,7 +19,7 @@ const ForgotPasswordPage = () => {
 
     try {
       const response = await axios.post(
-        "https://split-money-api.vercel.app/auth/request-password-reset",
+        API_ENDPOINTS.AUTH.REQUEST_PASSWORD_RESET,
         { emailOrUsername }
       );
       setMessage(response.data.message);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import Cookies from 'js-cookie';
 import { Receipt, X, Users, IndianRupee, CheckCircle } from 'lucide-react';
+import useStore from '../../../store/useStore';
 
 const AddExpenseForm = ({ groupId, onClose, isDark }) => {
   const [expenseName, setExpenseName] = useState('');
@@ -13,30 +13,16 @@ const AddExpenseForm = ({ groupId, onClose, isDark }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Get store actions
+  const { groupDetails: allGroupDetails, addExpense } = useStore();
+
   useEffect(() => {
-    const fetchMembers = async () => {
-      try {
-        const token = Cookies.get('authToken');
-        if (!token) {
-          console.error('No auth token found');
-          return;
-        }
-
-        const response = await axios.get(`https://split-money-api.vercel.app/groups/${groupId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        setMembers(response.data.group.members);
-      } catch (error) {
-        console.error('Error fetching members:', error);
-        setError('Failed to fetch members');
-      }
-    };
-
-    fetchMembers();
-  }, [groupId]);
+    // Get members from store
+    const groupData = allGroupDetails[groupId];
+    if (groupData?.group?.members) {
+      setMembers(groupData.group.members);
+    }
+  }, [groupId, allGroupDetails]);
 
   const handlePaidEqually = () => {
     if (!amount || parseFloat(amount) <= 0) {
@@ -80,28 +66,18 @@ const AddExpenseForm = ({ groupId, onClose, isDark }) => {
     setError('');
 
     try {
-      const token = Cookies.get('authToken');
-      if (!token) {
-        console.error('No auth token found');
-        return;
-      }
-
-      await axios.post(`https://split-money-api.vercel.app/groups/${groupId}/add-expense`, {
+      await addExpense(groupId, {
         name: expenseName,
         amount,
         paidBy,
         splitAmongst,
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       });
 
       alert('Expense added successfully!');
       onClose();
     } catch (error) {
       console.error('Error adding expense:', error);
-      setError(error.response?.data?.error || 'Failed to add expense');
+      setError(error.message || 'Failed to add expense');
     } finally {
       setLoading(false);
     }

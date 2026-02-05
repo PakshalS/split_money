@@ -1,46 +1,29 @@
-import React, { useState, useCallback, useRef } from "react";
-import axios from "axios";
-import Cookies from "js-cookie";
+import React, { useState, useCallback } from "react";
 import { Clock, Check, X } from "lucide-react";
+import useStore from "../../../store/useStore";
 
 const RequestListComponent = ({ requests, onRequestResponded, isDark }) => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const debounceTimerRef = useRef(null);
 
-  const token = Cookies.get("authToken");
+  // Get respondToRequest action from store
+  const { respondToRequestAsync } = useStore();
 
   const respondToRequest = useCallback(async (requesterId, action) => {
-    // Clear existing timer
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
+    setLoading(true);
+    setError("");
+    
+    try {
+      await respondToRequestAsync(requesterId, action);
+      setSelectedRequest(null);
+      if (onRequestResponded) onRequestResponded();
+    } catch (error) {
+      setError(error.response?.data?.error || error.message || "Failed to respond to friend request");
+    } finally {
+      setLoading(false);
     }
-
-    // Debounce the API call
-    debounceTimerRef.current = setTimeout(async () => {
-      setLoading(true);
-      setError("");
-      
-      try {
-        await axios.post(
-          "https://split-money-api.vercel.app/friends/respond",
-          { requesterId, action },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        setSelectedRequest(null);
-        if (onRequestResponded) onRequestResponded();
-      } catch (error) {
-        setError(error.response?.data?.error || "Failed to respond to friend request");
-      } finally {
-        setLoading(false);
-      }
-    }, 300);
-  }, [token, onRequestResponded]);
+  }, [respondToRequestAsync, onRequestResponded]);
 
   return (
     <div className={`rounded-xl sm:rounded-2xl p-2 sm:p-3 md:p-5 border transition-all duration-300 ${

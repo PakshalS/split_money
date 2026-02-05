@@ -6,6 +6,7 @@ import {useNavigate} from 'react-router-dom'
 import { AuthContext } from '../../context/authcontext';
 import useAuthRedirect from '../../context/useauthredirect';
 import { Eye, EyeOff } from 'lucide-react';
+import { API_ENDPOINTS } from '../../config/api';
 
 const Login = () => {
   useAuthRedirect();
@@ -23,7 +24,7 @@ const Login = () => {
     setLoading(true);
     
     try {
-      const response = await axios.post("https://split-money-api.vercel.app/auth/login", {
+      const response = await axios.post(API_ENDPOINTS.AUTH.LOGIN, {
         email,
         password,
       });

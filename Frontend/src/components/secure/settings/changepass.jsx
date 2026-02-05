@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { Lock, Key, Eye, EyeOff } from "lucide-react";
+import { API_ENDPOINTS } from '../../../config/api';
 
 const ChangePasswordComponent = ({ isDark }) => {
   const [oldPassword, setOldPassword] = useState("");
@@ -41,7 +42,7 @@ const ChangePasswordComponent = ({ isDark }) => {
       }
 
       const response = await axios.post(
-        "https://split-money-api.vercel.app/auth/change-password",
+        API_ENDPOINTS.AUTH.CHANGE_PASSWORD,
         { oldPassword, newPassword },
         {
           headers: {

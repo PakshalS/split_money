@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import Cookies from 'js-cookie';
 import { HandCoins, X, ArrowRight, User, IndianRupee } from 'lucide-react';
+import useStore from '../../../store/useStore';
 
 const SettleUpForm = ({ groupId, onClose, isDark, initialData }) => {
   const [payer, setPayer] = useState(initialData?.payer || '');
@@ -11,30 +11,16 @@ const SettleUpForm = ({ groupId, onClose, isDark, initialData }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Get store data and actions
+  const { groupDetails: allGroupDetails, addSettlement } = useStore();
+
   useEffect(() => {
-    const fetchMembers = async () => {
-      try {
-        const token = Cookies.get('authToken');
-        if (!token) {
-          console.error('No auth token found');
-          return;
-        }
-
-        const response = await axios.get(`https://split-money-api.vercel.app/groups/${groupId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        setMembers(response.data.group.members);
-      } catch (error) {
-        console.error('Error fetching members:', error);
-        setError('Failed to fetch members');
-      }
-    };
-
-    fetchMembers();
-  }, [groupId]);
+    // Get members from store
+    const groupData = allGroupDetails[groupId];
+    if (groupData?.group?.members) {
+      setMembers(groupData.group.members);
+    }
+  }, [groupId, allGroupDetails]);
 
   const handleSettleUp = async () => {
     if (parseFloat(amount) <= 0) {
@@ -56,32 +42,18 @@ const SettleUpForm = ({ groupId, onClose, isDark, initialData }) => {
     setError('');
 
     try {
-      const token = Cookies.get('authToken');
-      if (!token) {
-        console.error('No auth token found');
-        return;
-      }
-
-      await axios.post(
-        `https://split-money-api.vercel.app/groups/${groupId}/settleup`,
-        {
-          groupId,
-          payer: { name: payer },
-          receiver: { name: receiver },
-          amount,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await addSettlement(groupId, {
+        payer: { name: payer },
+        receiver: { name: receiver },
+        amount: parseFloat(amount),
+        date: new Date().toISOString(),
+      });
 
       alert('Settlement recorded successfully!');
       onClose();
     } catch (error) {
       console.error('Error recording settlement:', error);
-      setError(error.response?.data?.error || 'Failed to record settlement');
+      setError(error.message || 'Failed to record settlement');
     } finally {
       setLoading(false);
     }

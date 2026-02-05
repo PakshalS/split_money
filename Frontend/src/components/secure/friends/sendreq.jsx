@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useRef } from "react";
-import axios from "axios";
-import Cookies from "js-cookie";
 import { UserPlus, Mail } from "lucide-react";
+import useStore from "../../../store/useStore";
 
 const SendRequestComponent = ({ onRequestSent, isDark }) => {
   const [email, setEmail] = useState("");
@@ -10,38 +9,26 @@ const SendRequestComponent = ({ onRequestSent, isDark }) => {
   const [error, setError] = useState("");
   const debounceTimerRef = useRef(null);
 
-  const token = Cookies.get("authToken");
+  // Get store action
+  const { sendFriendRequestAsync } = useStore();
 
   // Debounced submit function
   const debouncedSubmit = useCallback(async (emailValue) => {
-    if (!token) {
-      setError("No auth token found");
-      return;
-    }
-
     setLoading(true);
     setMessage("");
     setError("");
 
     try {
-      await axios.post(
-        "https://split-money-api.vercel.app/friends/send",
-        { email: emailValue },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await sendFriendRequestAsync(emailValue);
       setMessage("Friend request sent successfully!");
       setEmail("");
       if (onRequestSent) onRequestSent();
     } catch (error) {
-      setError(error.response?.data?.error || "Failed to send request");
+      setError(error.response?.data?.error || error.message || "Failed to send request");
     } finally {
       setLoading(false);
     }
-  }, [token, onRequestSent]);
+  }, [sendFriendRequestAsync, onRequestSent]);
 
   const handleSubmit = (e) => {
     e.preventDefault();

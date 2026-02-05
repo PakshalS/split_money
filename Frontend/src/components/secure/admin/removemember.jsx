@@ -1,39 +1,29 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-import Cookies from 'js-cookie';
 import { UserMinus, X, AlertTriangle } from 'lucide-react';
-import { useOutletContext } from 'react-router-dom';
+import useStore from '../../../store/useStore';
 
-const RemoveMemberForm = ({ groupId, member, onClose, isDark }) => {
+const RemoveMemberForm = ({ groupId, member, onClose, onSuccess, isDark }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const { onRefreshGroups } = useOutletContext(); // Get refresh function
+  
+  // Get store action
+  const { removeMember } = useStore();
 
   const handleRemoveMember = async () => {
     setLoading(true);
     setError('');
 
     try {
-      const token = Cookies.get('authToken');
-      if (!token) {
-        console.error('No auth token found');
-        setError('Authentication token not found');
-        setLoading(false);
-        return;
-      }
-
-      await axios.delete(`https://split-money-api.vercel.app/groups/${groupId}/${member.name}/remove-member`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
+      await removeMember(groupId, member.name);
       alert('Member removed successfully!');
-      if (onRefreshGroups) onRefreshGroups(); // Refresh groups list
-      onClose();
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        onClose();
+      }
     } catch (error) {
       console.error('Error removing member:', error);
-      setError(error.response?.data?.error || 'Failed to remove member');
+      setError(error.message || 'Failed to remove member');
     } finally {
       setLoading(false);
     }

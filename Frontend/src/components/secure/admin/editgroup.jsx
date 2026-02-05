@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-import Cookies from 'js-cookie';
-import { useNavigate, useOutletContext } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Edit, X, Trash2, Save } from 'lucide-react';
+import useStore from '../../../store/useStore';
 
 const GroupEditForm = ({ groupId, onClose, setIsDeleted, isDark }) => {
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { onRefreshGroups } = useOutletContext(); // Get refresh function
+
+  // Get store actions
+  const { updateGroup, deleteGroup } = useStore();
 
   const handleEdit = async () => {
     if (!name.trim()) {
@@ -21,31 +22,12 @@ const GroupEditForm = ({ groupId, onClose, setIsDeleted, isDark }) => {
     setError('');
 
     try {
-      const token = Cookies.get('authToken');
-      if (!token) {
-        console.error('No auth token found');
-        return;
-      }
-
-      await axios.put(
-        `https://split-money-api.vercel.app/groups/${groupId}/edit`,
-        {
-          groupId,
-          name,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
+      await updateGroup(groupId, { name });
       alert('Edited successfully!');
-      if (onRefreshGroups) onRefreshGroups(); // Refresh groups list
       onClose();
     } catch (error) {
       console.error('Error editing group', error);
-      setError(error.response?.data?.error || 'Failed to edit group');
+      setError(error.message || 'Failed to edit group');
     } finally {
       setLoading(false);
     }
@@ -53,28 +35,17 @@ const GroupEditForm = ({ groupId, onClose, setIsDeleted, isDark }) => {
 
   const handleDelete = async () => {
     try {
-      const token = Cookies.get('authToken');
-      if (!token) {
-        console.error('No auth token found');
-        return;
-      }
-
       if (window.confirm('Are you sure you want to delete this group? This action cannot be undone.')) {
         setLoading(true);
-        await axios.delete(`https://split-money-api.vercel.app/groups/${groupId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        await deleteGroup(groupId);
         setIsDeleted(true);
         alert('Deleted successfully!');
-        if (onRefreshGroups) onRefreshGroups(); // Refresh groups list
         onClose();
         navigate('/home');
       }
     } catch (error) {
       console.error('Error deleting group', error);
-      setError(error.response?.data?.error || 'Failed to delete group');
+      setError(error.message || 'Failed to delete group');
       setLoading(false);
     }
   };

@@ -173,6 +173,11 @@ const addMember = async (req, res) => {
     }
 
     await group.save();
+    
+    // Emit socket event for real-time update
+    const io = req.app.get('io');
+    io.to(`group-${groupId}`).emit('group-updated', { groupId, action: 'member-added' });
+    
     res.status(200).json({ message: "Members added successfully", group });
   } catch (error) {
     console.error("Error adding members:", error);
@@ -229,6 +234,10 @@ const removeMember = async (req, res) => {
       }
     }
 
+    // Emit socket event for real-time update
+    const io = req.app.get('io');
+    io.to(`group-${groupId}`).emit('group-updated', { groupId, action: 'member-removed' });
+
     res.status(200).json({ message: "Member removed successfully", group });
   } catch (error) {
     console.error("Error removing member:", error);
@@ -267,6 +276,10 @@ const transferAdminRights = async (req, res) => {
     // Transfer admin rights
     group.admin = newAdmin.userId;
     await group.save();
+
+    // Emit socket event for real-time update
+    const io = req.app.get('io');
+    io.to(`group-${groupId}`).emit('group-updated', { groupId, action: 'admin-transferred' });
 
     res.status(200).json({ message: 'Admin rights transferred successfully', group });
   } catch (error) {
@@ -339,6 +352,10 @@ const editGroup = async (req, res) => {
 
     group.name = name;
     await group.save();
+
+    // Emit socket event for real-time update
+    const io = req.app.get('io');
+    io.to(`group-${groupId}`).emit('group-updated', { groupId, action: 'group-edited' });
 
     res
       .status(200)
@@ -482,7 +499,14 @@ const addExpense = async (req, res) => {
       return res.status(403).json({ error: 'Only the admin can add expense' });
     }
 
-    const expense = new Expense({ groupId, name, amount, paidBy, splitAmongst });
+    const expense = new Expense({ 
+      groupId, 
+      name, 
+      amount, 
+      paidBy, 
+      splitAmongst,
+      createdBy: adminId 
+    });
     await expense.save();
     group.expenses.push(expense._id);
 
@@ -513,6 +537,11 @@ const addExpense = async (req, res) => {
     });
 
     await group.save();
+    
+    // Emit socket event for real-time update
+    const io = req.app.get('io');
+    io.to(`group-${groupId}`).emit('group-updated', { groupId, action: 'expense-added' });
+    
     res.status(201).json({ message: 'Expense added successfully', expense });
   } catch (error) {
     console.error('Error adding expense:', error);
@@ -596,6 +625,10 @@ const settleUp = async (req, res) => {
       balance: b.balance
     }));
     const updatedSummary = generateSummary(updatedBalances);
+
+    // Emit socket event for real-time update
+    const io = req.app.get('io');
+    io.to(`group-${groupId}`).emit('group-updated', { groupId, action: 'settlement-added' });
 
     res.status(200).json({ message: 'Balance settled successfully', summary: updatedSummary });
   } catch (error) {
@@ -737,6 +770,10 @@ const editExpense = async (req, res) => {
     // Save the updated group with new balances
     await group.save();
 
+    // Emit socket event for real-time update
+    const io = req.app.get('io');
+    io.to(`group-${groupId}`).emit('group-updated', { groupId, action: 'expense-edited' });
+
     res.status(200).json({ message: 'Expense edited successfully', expense });
   } catch (error) {
     console.error('Error editing expense:', error);
@@ -782,6 +819,10 @@ const deleteExpense = async (req, res) => {
     await Expense.findByIdAndDelete(expenseId);
     group.expenses = group.expenses.filter(expId => expId.toString() !== expenseId);
     await group.save();
+
+    // Emit socket event for real-time update
+    const io = req.app.get('io');
+    io.to(`group-${groupId}`).emit('group-updated', { groupId, action: 'expense-deleted' });
 
     res.status(200).json({ message: 'Expense deleted successfully' });
   } catch (error) {

@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-import Cookies from 'js-cookie';
 import { ShieldCheck, X, User, AlertCircle } from 'lucide-react';
+import useStore from '../../../store/useStore';
 
 const ChangeAdminForm = ({ groupId, onClose, isDark }) => {
   const [newAdminName, setNewAdminName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Get store action
+  const { changeAdmin } = useStore();
 
   const handleEdit = async () => {
     if (!newAdminName.trim()) {
@@ -18,30 +20,12 @@ const ChangeAdminForm = ({ groupId, onClose, isDark }) => {
     setError('');
 
     try {
-      const token = Cookies.get('authToken');
-      if (!token) {
-        console.error('No auth token found');
-        return;
-      }
-
-      await axios.put(
-        `https://split-money-api.vercel.app/groups/${groupId}/transfer-admin`,
-        {
-          groupId,
-          newAdminName,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
+      await changeAdmin(groupId, newAdminName);
       alert('Transfer admin rights successfully!');
       onClose();
     } catch (error) {
       console.error('Error changing admin', error);
-      setError(error.response?.data?.error || 'Failed to change admin');
+      setError(error.message || 'Failed to change admin');
     } finally {
       setLoading(false);
     }

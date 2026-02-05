@@ -1,36 +1,25 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-import Cookies from 'js-cookie';
 import { Trash2, X, AlertTriangle } from 'lucide-react';
+import useStore from '../../../store/useStore';
 
 const DeleteExpenseForm = ({ groupId, expense, onClose, isDark }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Get store action
+  const { deleteExpense } = useStore();
 
   const handleDeleteExpense = async () => {
     setLoading(true);
     setError('');
 
     try {
-      const token = Cookies.get('authToken');
-      if (!token) {
-        console.error('No auth token found');
-        setError('Authentication token not found');
-        setLoading(false);
-        return;
-      }
-
-      await axios.delete(`https://split-money-api.vercel.app/groups/${groupId}/expenses/${expense._id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
+      await deleteExpense(groupId, expense._id);
       alert('Expense deleted successfully!');
       onClose();
     } catch (error) {
       console.error('Error deleting expense:', error);
-      setError(error.response?.data?.error || 'Failed to delete expense');
+      setError(error.message || 'Failed to delete expense');
     } finally {
       setLoading(false);
     }

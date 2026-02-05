@@ -1,53 +1,36 @@
-import React, { useState, useCallback, useRef } from "react";
-import axios from "axios";
-import Cookies from "js-cookie";
+import React, { useState, useCallback } from "react";
 import { Users, Trash2 } from "lucide-react";
-import { useDebounce } from "./debounce"; // Import the hook
+import useStore from "../../../store/useStore";
 
 const FriendListComponent = ({ friends, onFriendRemoved, isDark }) => {
   const [selectedFriend, setSelectedFriend] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const debounceTimerRef = useRef(null);
 
-  // Debounce search term
-  const debouncedSearchTerm = useDebounce(searchTerm, 300);
-
-  const token = Cookies.get("authToken");
+  // Get removeFriend action from store
+  const { removeFriendAsync } = useStore();
 
   const filteredFriends = friends.filter(
     (friend) =>
-      friend.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-      (friend.email && friend.email.toLowerCase().includes(debouncedSearchTerm.toLowerCase()))
+      friend.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (friend.email && friend.email.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const removeFriend = useCallback(async (friendId) => {
-    // Clear existing timer
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
+    setLoading(true);
+    setError("");
+
+    try {
+      await removeFriendAsync(friendId);
+      setSelectedFriend(null);
+      if (onFriendRemoved) onFriendRemoved();
+    } catch (error) {
+      setError(error.response?.data?.error || error.message || "Failed to remove friend");
+    } finally {
+      setLoading(false);
     }
-
-    // Debounce the API call
-    debounceTimerRef.current = setTimeout(async () => {
-      setLoading(true);
-      setError("");
-
-      try {
-        await axios.delete(`https://split-money-api.vercel.app/friends/${friendId}/remove`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setSelectedFriend(null);
-        if (onFriendRemoved) onFriendRemoved();
-      } catch (error) {
-        setError(error.response?.data?.error || "Failed to remove friend");
-      } finally {
-        setLoading(false);
-      }
-    }, 300);
-  }, [token, onFriendRemoved]);
+  }, [removeFriendAsync, onFriendRemoved]);
 
   return (
     <div className={`rounded-xl sm:rounded-2xl p-2 sm:p-3 md:p-5 border transition-all duration-300 ${

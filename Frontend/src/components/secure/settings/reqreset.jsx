@@ -3,6 +3,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { Mail, Send, AlertTriangle } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
+import { API_ENDPOINTS } from '../../../config/api';
 
 const RequestPasswordResetComponent = ({ isDark }) => {
   const [userEmail, setUserEmail] = useState("");
@@ -31,7 +32,7 @@ const RequestPasswordResetComponent = ({ isDark }) => {
 
     try {
       const response = await axios.post(
-        "https://split-money-api.vercel.app/auth/request-password-reset",
+        API_ENDPOINTS.AUTH.REQUEST_PASSWORD_RESET,
         { emailOrUsername: userEmail }
       );
       setMessage(response.data.message);

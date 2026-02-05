@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-import Cookies from "js-cookie";
+import Cookies from 'js-cookie';
 import { Edit, X, Users, IndianRupee, CheckCircle } from 'lucide-react';
+import useStore from '../../../store/useStore';
 
 const EditExpenseForm = ({ groupId, expense, onClose, isDark }) => {
   const [expenseName, setExpenseName] = useState(expense.name || "");
@@ -13,33 +13,16 @@ const EditExpenseForm = ({ groupId, expense, onClose, isDark }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Get store data and actions
+  const { groupDetails: allGroupDetails, updateExpense } = useStore();
+
   useEffect(() => {
-    const fetchMembers = async () => {
-      try {
-        const token = Cookies.get("authToken");
-        if (!token) {
-          console.error("No auth token found");
-          return;
-        }
-
-        const response = await axios.get(
-          `https://split-money-api.vercel.app/groups/${groupId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        setMembers(response.data.group.members);
-      } catch (error) {
-        console.error("Error fetching members:", error);
-        setError('Failed to fetch members');
-      }
-    };
-
-    fetchMembers();
-  }, [groupId]);
+    // Get members from store
+    const groupData = allGroupDetails[groupId];
+    if (groupData?.group?.members) {
+      setMembers(groupData.group.members);
+    }
+  }, [groupId, allGroupDetails]);
 
   const handlePaidEqually = () => {
     if (!amount || parseFloat(amount) <= 0) {
@@ -86,32 +69,18 @@ const EditExpenseForm = ({ groupId, expense, onClose, isDark }) => {
     setError('');
 
     try {
-      const token = Cookies.get("authToken");
-      if (!token) {
-        console.error("No auth token found");
-        return;
-      }
-
-      await axios.put(
-        `https://split-money-api.vercel.app/groups/${groupId}/expenses/${expense._id}`,
-        {
-          name: expenseName,
-          amount,
-          paidBy,
-          splitAmongst,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await updateExpense(groupId, expense._id, {
+        name: expenseName,
+        amount,
+        paidBy,
+        splitAmongst,
+      });
 
       alert("Expense updated successfully!");
       onClose();
     } catch (error) {
       console.error("Error updating expense:", error);
-      setError(error.response?.data?.error || 'Failed to update expense');
+      setError(error.message || 'Failed to update expense');
     } finally {
       setLoading(false);
     }

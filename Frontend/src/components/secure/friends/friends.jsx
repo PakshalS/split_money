@@ -1,8 +1,10 @@
-import React, { lazy, Suspense } from "react";
+import React, { Suspense } from "react";
 import SendRequestComponent from "./sendreq";
 import RequestListComponent from "./reqlist";
 import FriendListComponent from "./managefriends";
 import { FriendManagementSkeleton } from "./friendsloader";
+import useStore from "../../../store/useStore";
+import { useTheme } from "../../../context/themeContext";
 import { useOutletContext } from "react-router-dom";
 
 const FriendManagement = ({
@@ -14,29 +16,38 @@ const FriendManagement = ({
   onRefreshAll: onRefreshAllProp,
   isDark: isDarkProp,
 }) => {
+  // Get theme from context
+  const { isDark: themeIsDark } = useTheme();
   const outletContext = useOutletContext() || {};
 
-  // Use props first, fallback to outlet context
-  const isDark = isDarkProp ?? outletContext.isDark ?? false;
-  const friends = friendsProp ?? outletContext.friends ?? [];
-  const requests = requestsProp ?? outletContext.requests ?? [];
-  const loading = loadingProp ?? outletContext.friendsLoading ?? false;
-  const onRefreshFriends =
-    onRefreshFriendsProp ?? outletContext.onRefreshFriends;
-  const onRefreshRequests =
-    onRefreshRequestsProp ?? outletContext.onRefreshRequests;
-  const onRefreshAll = onRefreshAllProp ?? outletContext.onRefreshAll;
+  // Get data from Zustand store
+  const {
+    friends: storeFriends,
+    requests: storeRequests,
+    isLoadingFriends,
+    isLoadingRequests,
+    fetchFriends,
+    fetchRequests,
+    fetchAllFriendsData,
+  } = useStore();
 
+  // Use props first, fallback to theme context, then outlet context
+  const isDark = isDarkProp ?? themeIsDark ?? outletContext.isDark ?? false;
+  const friends = friendsProp ?? storeFriends ?? [];
+  const requests = requestsProp ?? storeRequests ?? [];
+  const loading = loadingProp ?? (isLoadingFriends || isLoadingRequests) ?? false;
+
+  // Handlers that call store functions
   const handleRequestSent = () => {
-    if (onRefreshRequests) onRefreshRequests();
+    fetchRequests();
   };
 
   const handleRequestResponded = () => {
-    if (onRefreshAll) onRefreshAll();
+    fetchAllFriendsData();
   };
 
   const handleFriendRemoved = () => {
-    if (onRefreshFriends) onRefreshFriends();
+    fetchFriends();
   };
 
   if (loading) {

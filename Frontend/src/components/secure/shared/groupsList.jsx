@@ -2,13 +2,24 @@ import React, { useState, useEffect } from "react";
 import { Search, Plus } from 'lucide-react';
 import { useNavigate, useLocation } from "react-router-dom";
 import GroupListSkeleton from "./grouplistloader";
+import useStore from "../../../store/useStore";
 
-const GroupList = ({ groups, loading, onRefresh, isDark, onFabClick }) => {
+const GroupList = ({ isDark, onFabClick }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
   const currentGroupId = location.pathname.split('/groups/')[1] || null;
+
+  // Get groups from Zustand store
+  const { groups, isLoadingGroups, fetchGroups } = useStore();
+
+  // Fetch groups on mount only (empty dependency array)
+  useEffect(() => {
+    if (groups.length === 0) {
+      fetchGroups();
+    }
+  }, []);
 
   // Debounce search term
   useEffect(() => {
@@ -43,8 +54,8 @@ const GroupList = ({ groups, loading, onRefresh, isDark, onFabClick }) => {
     navigate(`/groups/${group._id}`, { state: { groupName: group.name } });
   };
 
-  // Show skeleton loader ONLY on initial load
-  if (loading) {
+  // Show skeleton loader ONLY if loading AND no cached data
+  if (isLoadingGroups && groups.length === 0) {
     return (
       <div className="h-full relative">
         <GroupListSkeleton isDark={isDark} />

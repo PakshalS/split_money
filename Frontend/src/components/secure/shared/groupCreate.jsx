@@ -1,50 +1,45 @@
 import { ArrowLeft, MoreVertical, SendIcon } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { Search, Plus, Check, X } from 'lucide-react';
-import Cookies from "js-cookie";
-import axios from "axios";
 import AddGuestModal from './addGuestModal';
+import FriendsListSkeleton from './friendsloader';
+import useStore from "../../../store/useStore";
 
 const CreateGroupList = ({ isDark, onBack, onGroupCreated }) => {
   const [groupName, setGroupName] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [friends, setFriends] = useState([]);
   const [guests, setGuests] = useState([]);
   const [selectedFriends, setSelectedFriends] = useState([]);
   const [isCreating, setIsCreating] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [showGuestModal, setShowGuestModal] = useState(false);
 
-  // Debounce search term
+  // Get from store (friends are cached globally now)
+  const { 
+    friends, 
+    isLoadingFriends, 
+    friendsError,
+    fetchFriends: fetchFriendsFromStore, 
+    createGroup: createGroupInStore 
+  } = useStore();
+
+  // Fetch friends ONCE on mount (empty dependency array)
+  useEffect(() => {
+    if (friends.length === 0) {
+      fetchFriendsFromStore();
+    }
+  }, []);
+
+  // Auto-refresh friends if empty after a short delay (indicates possible API error)
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedSearch(searchTerm);
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
-
-  // Fetch friends
-  useEffect(() => {
-    async function fetchFriends() {
-      try {
-        const token = Cookies.get("authToken");
-        const response = await axios.get(
-          `https://split-money-api.vercel.app/friends/get-friends?search=${debouncedSearch}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        setFriends(response.data);
-      } catch (error) {
-        console.error('Error fetching friends:', error);
-        setFriends([]);
+      if (friends.length === 0 && !isLoadingFriends) {
+        console.log('Friends list empty after load, attempting refresh...');
+        fetchFriendsFromStore();
       }
-    }
-    fetchFriends();
-  }, [debouncedSearch]);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [friends.length, isLoadingFriends]);
 
   const toggleFriendSelection = (friend) => {
     setSelectedFriends(prev => {
@@ -81,7 +76,6 @@ const CreateGroupList = ({ isDark, onBack, onGroupCreated }) => {
 
     setIsCreating(true);
     try {
-      const token = Cookies.get("authToken");
       const payload = {
         name: groupName.trim(),
         members: selectedFriends.map(friend => ({
@@ -91,22 +85,14 @@ const CreateGroupList = ({ isDark, onBack, onGroupCreated }) => {
         }))
       };
 
-      const response = await axios.post(
-        'https://split-money-api.vercel.app/groups/create',
-        payload,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      // Use store action - handles optimistic updates automatically
+      const newGroup = await createGroupInStore(payload);
 
-      onGroupCreated?.(response.data.group);
+      onGroupCreated?.(newGroup);
       onBack?.();
     } catch (error) {
       console.error('Error creating group:', error);
-      alert(error.response?.data?.error || 'Failed to create group');
+      alert(error.message || 'Failed to create group');
     } finally {
       setIsCreating(false);
     }
@@ -120,6 +106,11 @@ const CreateGroupList = ({ isDark, onBack, onGroupCreated }) => {
     contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (contact.email && contact.email.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
+  // Show skeleton loader ONLY if loading AND no cached data
+  if (isLoadingFriends && friends.length === 0) {
+    return <FriendsListSkeleton isDark={isDark} />;
+  }
 
   return (
     <div className={`h-full flex flex-col relative ${
@@ -317,9 +308,41 @@ const CreateGroupList = ({ isDark, onBack, onGroupCreated }) => {
         
         {filteredContacts.length === 0 && (
           <div className="p-8 text-center">
-            <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-              {searchTerm ? 'No contacts found matching your search' : 'No friends or guests available'}
-            </p>
+            {searchTerm ? (
+              <>
+                <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  No contacts found matching "{searchTerm}"
+                </p>
+              </>
+            ) : friendsError ? (
+              <>
+                <p className={`text-sm font-medium mb-4 ${isDark ? 'text-red-400' : 'text-red-600'}`}>
+                  Error loading friends
+                </p>
+                <p className={`text-xs mb-4 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  {friendsError}
+                </p>
+                <button
+                  onClick={() => fetchFriendsFromStore()}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    isDark 
+                      ? 'bg-green-600 hover:bg-green-700 text-white' 
+                      : 'bg-green-500 hover:bg-green-600 text-white'
+                  }`}
+                >
+                  Retry
+                </button>
+              </>
+            ) : (
+              <>
+                <p className={`text-sm font-medium mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  No friends yet
+                </p>
+                <p className={`text-xs ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Add friends to include them in groups
+                </p>
+              </>
+            )}
           </div>
         )}
       </div>

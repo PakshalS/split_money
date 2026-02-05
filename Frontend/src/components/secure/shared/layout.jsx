@@ -11,7 +11,7 @@ import CreateGroupList from "./groupCreate";
 import FriendManagement from "../friends/friends";
 import RequestPasswordReset from "../settings/settings";
 import Cookies from "js-cookie";
-import axios from "axios";
+import useStore from "../../../store/useStore";
 
 const MainLayout = () => {
   const { isDark, toggleTheme } = useTheme();
@@ -19,87 +19,25 @@ const MainLayout = () => {
   const [activeTab, setActiveTab] = useState("home");
   const [showNewComponent, setShowNewComponent] = useState(false);
 
-  // ===== LIFTED STATE =====
-  // Groups state
-  const [groups, setGroups] = useState([]);
-  const [groupsLoading, setGroupsLoading] = useState(true);
-
-  // Friends state
-  const [friends, setFriends] = useState([]);
-  const [requests, setRequests] = useState([]);
-  const [friendsLoading, setFriendsLoading] = useState(true);
+  // ===== ZUSTAND STORE =====
+  // Groups from store
+  const { groups, isLoadingGroups, fetchGroups } = useStore();
+  
+  // Friends from store (cached globally)
+  const { 
+    friends, 
+    requests, 
+    isLoadingFriends, 
+    isLoadingRequests, 
+    fetchFriends,
+    fetchRequests,
+    fetchAllFriendsData 
+  } = useStore();
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
   const location = useLocation();
   const isGroupPage = location.pathname.startsWith("/groups/");
   const isHomePage = location.pathname === "/home";
-
-  // Fetch Groups (only once on mount)
-  const fetchGroups = async () => {
-    setGroupsLoading(true);
-    try {
-      const token = Cookies.get("authToken");
-      const response = await axios.get(
-        `https://split-money-api.vercel.app/groups/user-groups`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setGroups(response.data);
-    } catch (error) {
-      console.error("Error fetching groups:", error);
-      setGroups([]);
-    } finally {
-      setGroupsLoading(false);
-    }
-  };
-
-  // Fetch Friends (only once on mount)
-  const fetchFriends = async () => {
-    try {
-      const token = Cookies.get("authToken");
-      const response = await axios.get(
-        "https://split-money-api.vercel.app/friends/get-friends",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setFriends(response.data);
-    } catch (error) {
-      console.error("Error fetching friends:", error);
-      setFriends([]);
-    }
-  };
-
-  // Fetch Requests (only once on mount)
-  const fetchRequests = async () => {
-    try {
-      const token = Cookies.get("authToken");
-      const response = await axios.get(
-        "https://split-money-api.vercel.app/friends/get-requests",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setRequests(response.data);
-    } catch (error) {
-      console.error("Error fetching requests:", error);
-      setRequests([]);
-    }
-  };
-
-  // Fetch all friends data
-  const fetchAllFriendsData = async () => {
-    setFriendsLoading(true);
-    await Promise.all([fetchFriends(), fetchRequests()]);
-    setFriendsLoading(false);
-  };
 
   // Initial fetch on mount
   useEffect(() => {
@@ -123,8 +61,7 @@ const MainLayout = () => {
 
   // Handle group creation
   const handleGroupCreated = (newGroup) => {
-    // Refresh groups after creating a new one
-    fetchGroups();
+    // Groups are automatically updated in store, just close the form
     setShowNewComponent(false);
   };
 
@@ -140,9 +77,6 @@ const MainLayout = () => {
           />
         ) : (
           <GroupList
-            groups={groups}
-            loading={groupsLoading}
-            onRefresh={fetchGroups}
             isDark={isDark}
             onFabClick={() => setShowNewComponent(true)}
           />
@@ -152,7 +86,7 @@ const MainLayout = () => {
           <FriendManagement
             friends={friends}
             requests={requests}
-            loading={friendsLoading}
+            loading={isLoadingFriends || isLoadingRequests}
             onRefreshFriends={fetchFriends}
             onRefreshRequests={fetchRequests}
             onRefreshAll={fetchAllFriendsData}
@@ -188,7 +122,7 @@ const MainLayout = () => {
         className={`
         transition-all duration-300
         ${isSidebarOpen ? "md:ml-64" : "md:ml-16"}
-        pt-16 pb-20 md:pb-0
+        pt-16 ${isGroupPage ? "pb-0" : "pb-20"} md:pb-0
         h-screen
       `}
       >
@@ -217,9 +151,6 @@ const MainLayout = () => {
                 />
               ) : (
                 <GroupList
-                  groups={groups}
-                  loading={groupsLoading}
-                  onRefresh={fetchGroups}
                   isDark={isDark}
                   onFabClick={() => setShowNewComponent(true)}
                 />
@@ -276,11 +207,10 @@ const MainLayout = () => {
                 <Outlet
                   context={{
                     isDark,
-                    onRefreshGroups: fetchGroups,
-                    // Add friends data to context
+                    // Friends data from store (cached globally)
                     friends,
                     requests,
-                    friendsLoading,
+                    friendsLoading: isLoadingFriends || isLoadingRequests,
                     onRefreshFriends: fetchFriends,
                     onRefreshRequests: fetchRequests,
                     onRefreshAll: fetchAllFriendsData,
