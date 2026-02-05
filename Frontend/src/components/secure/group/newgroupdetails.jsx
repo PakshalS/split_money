@@ -15,14 +15,13 @@ import GroupBanner from "./GroupBanner";
 // Import the GroupInfoSidebar component
 import GroupInfoSidebar from "./GroupInfoSidebar";
 
-// Import the AdminSidebar component
-import AdminSidebar from "../admin/adminsidebar";
 
 // Import new chat-view components
 import TransactionChatView from "./TransactionChatView";
 import BottomActionBar from "./BottomActionBar";
 import ActionMenu from "./ActionMenu";
 import FilterMenu from "./FilterMenu";
+import SearchSidebar from "./SearchSidebar";
 
 // Lazy load the form components
 const AddExpenseForm = lazy(() => import("../admin/addexpense"));
@@ -30,7 +29,7 @@ const SettleUpForm = lazy(() => import("../admin/settleup"));
 const EditExpenseForm = lazy(() => import("../admin/editexpense"));
 const DeleteExpenseForm = lazy(() => import("../admin/deleteexpense"));
 const AddMemberForm = lazy(() => import("../admin/addmember"));
-const GroupEditForm = lazy(() => import("../admin/editgroup"));
+const DeleteGroupForm = lazy(() => import("../admin/editgroup"));
 const ChangeAdminForm = lazy(() => import("../admin/changeadmin"));
 
 const NewGroupDetails = () => {
@@ -41,6 +40,7 @@ const NewGroupDetails = () => {
   const [isDeleted, setIsDeleted] = useState(false);
   const [isGroupInfoOpen, setIsGroupInfoOpen] = useState(false);
   const [isAdminSidebarOpen, setIsAdminSidebarOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { friends, requests, onRefreshFriends } = useOutletContext();
 
   // Chat view specific states
@@ -52,13 +52,16 @@ const NewGroupDetails = () => {
   const [isEditExpenseOpen, setIsEditExpenseOpen] = useState(false);
   const [isDeleteExpenseOpen, setIsDeleteExpenseOpen] = useState(false);
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
-  const [isGroupEditOpen, setIsGroupEditOpen] = useState(false);
+  const [isDeleteGroupOpen, setIsDeleteGroupOpen] = useState(false);
   const [isChangeAdminOpen, setIsChangeAdminOpen] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState(null);
   const [settleUpData, setSettleUpData] = useState(null);
 
   // Get socket instance
   const { joinGroup, leaveGroup: leaveSocketGroup, onGroupUpdate, isConnected: socketConnected } = useSocket();
+
+  // Ref for scrolling to search results
+  const chatViewRef = useRef(null);
 
   // Get group details from Zustand store
   const { 
@@ -83,12 +86,13 @@ const NewGroupDetails = () => {
     m => m.userId?._id === currentUserId || m.userId === currentUserId
   )?.name || "";
 
-  // Fetch group details only if we don't have them cached
+  // Fetch group details - always fetch but use cache to display immediately
   useEffect(() => {
-    if (!isDeleted && groupId && !groupDetails) {
+    if (!isDeleted && groupId) {
+      // Fetch in background (will use cache first if available)
       fetchGroupDetails(groupId);
     }
-  }, [groupId, isDeleted, fetchGroupDetails, groupDetails]);
+  }, [groupId, isDeleted, fetchGroupDetails]);
 
   // Store the current groupId in a ref so we can access it in the socket callback
   const currentGroupIdRef = useRef(groupId);
@@ -142,10 +146,13 @@ const NewGroupDetails = () => {
   // Check if current user is admin
   useEffect(() => {
     if (groupDetails?.group?.admin) {
-      const adminId = typeof groupDetails.group.admin === 'object' 
-        ? groupDetails.group.admin._id 
-        : groupDetails.group.admin;
-      setIsAdmin(adminId === currentUserId);
+      const adminValue = groupDetails.group.admin;
+      const adminId = typeof adminValue === 'object'
+        ? (adminValue._id || adminValue.userId?._id || adminValue.userId)
+        : adminValue;
+      const normalizedAdminId = adminId ? String(adminId) : null;
+      const normalizedCurrentId = currentUserId ? String(currentUserId) : null;
+      setIsAdmin(normalizedAdminId === normalizedCurrentId);
     }
   }, [groupDetails, currentUserId]);
 
@@ -155,7 +162,7 @@ const NewGroupDetails = () => {
   };
 
   const handleSearchClick = () => {
-    alert("Search clicked! (Feature coming soon)");
+    setIsSearchOpen(true);
   };
 
   const handleMenuClick = () => {
@@ -181,6 +188,13 @@ const NewGroupDetails = () => {
     }
   };
 
+  const handleSearchResultSelect = (item) => {
+    // Scroll to the transaction in the chat view
+    if (chatViewRef.current) {
+      chatViewRef.current.scrollToTransaction(item.id, item.type);
+    }
+  };
+
   const toggleAddExpenseForm = () => {
     setIsAddExpenseOpen(!isAddExpenseOpen);
     setIsActionMenuOpen(false);
@@ -199,8 +213,8 @@ const NewGroupDetails = () => {
     setIsAdminSidebarOpen(false);
   };
 
-  const toggleGroupEditForm = () => {
-    setIsGroupEditOpen(!isGroupEditOpen);
+  const toggleDeleteGroupForm = () => {
+    setIsDeleteGroupOpen(!isDeleteGroupOpen);
     setIsAdminSidebarOpen(false);
   };
 
@@ -272,28 +286,18 @@ const NewGroupDetails = () => {
         onInfoClick={handleInfoClick}
         onSearchClick={handleSearchClick}
         onMenuClick={handleMenuClick}
+        onBackClick={() => navigate("/home")}
         socketConnected={socketConnected}
       />
-
-      {/* Admin Sidebar */}
-      <AdminSidebar
-        isOpen={isAdminSidebarOpen}
-        onClose={() => setIsAdminSidebarOpen(false)}
-        isDark={isDark}
-        onSettleUp={toggleSettleUpForm}
-        onAddExpense={toggleAddExpenseForm}
-        onAddMember={toggleAddMemberForm}
-        onEditGroup={toggleGroupEditForm}
-        onChangeAdmin={toggleChangeAdminForm}
-        onLeave={handleLeave}
-      />
-
+      
       {/* Transaction Chat View */}
       <TransactionChatView
+        ref={chatViewRef}
         expenses={groupDetails.group.expenses || []}
         transactions={groupDetails.group.transactionHistory || []}
         currentUserId={currentUserId}
         currentUserName={currentUserName}
+        groupMembers={groupDetails.group.members || []} // <--- ADDED THIS PROP
         isDark={isDark}
         isAdmin={isAdmin}
         filterType={filterType}
@@ -349,6 +353,21 @@ const NewGroupDetails = () => {
         membersWithSpend={groupDetails.membersWithSpend || []}
         summary={groupDetails.summary || []}
         onSettleUp={handleSettleUpFromSummary}
+        onAddMember={toggleAddMemberForm}
+        onChangeAdmin={toggleChangeAdminForm}
+        onDeleteGroup={toggleDeleteGroupForm}
+      />
+
+      {/* Search Sidebar */}
+      <SearchSidebar
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        isDark={isDark}
+        expenses={groupDetails.group.expenses || []}
+        transactions={groupDetails.group.transactionHistory || []}
+        currentUserId={currentUserId}
+        currentUserName={currentUserName}
+        onSelectResult={handleSearchResultSelect}
       />
 
       {/* Add Expense Form */}
@@ -412,12 +431,13 @@ const NewGroupDetails = () => {
         </Suspense>
       )}
 
-      {/* Edit Group Form */}
-      {isGroupEditOpen && (
+      {/* Delete Group Form */}
+      {isDeleteGroupOpen && (
         <Suspense fallback={<div className="text-center">Loading...</div>}>
-          <GroupEditForm
+          <DeleteGroupForm
             groupId={groupId}
-            onClose={toggleGroupEditForm}
+            onClose={toggleDeleteGroupForm}
+            setIsDeleted={setIsDeleted}
             isDark={isDark}
           />
         </Suspense>

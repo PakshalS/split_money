@@ -1,5 +1,5 @@
 import React from "react";
-import { Search, MoreVertical } from "lucide-react";
+import { Search, MoreVertical, ArrowLeft } from "lucide-react";
 
 const GroupBanner = ({ 
   groupName, 
@@ -8,6 +8,7 @@ const GroupBanner = ({
   onInfoClick, 
   onSearchClick, 
   onMenuClick,
+  onBackClick,
   socketConnected = false 
 }) => {
   // Get first letter of group name for avatar
@@ -64,6 +65,18 @@ const GroupBanner = ({
 
           {/* Right: Action Icons */}
           <div className="flex items-center gap-2">
+            {/* Back Icon (Mobile Only) */}
+            <button
+              onClick={onBackClick}
+              className={`md:hidden p-2 rounded-full transition-all duration-200 ${
+                isDark
+                  ? "hover:bg-gray-800 text-gray-400 hover:text-white"
+                  : "hover:bg-gray-100 text-gray-600 hover:text-gray-900"
+              }`}
+              title="Back"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
             {/* Search Icon */}
             <button
               onClick={onSearchClick}
@@ -77,20 +90,6 @@ const GroupBanner = ({
               <Search className="w-5 h-5" />
             </button>
 
-            {/* Three Dots Menu Icon (Admin Only) */}
-            {isAdmin && (
-              <button
-                onClick={onMenuClick}
-                className={`p-2 rounded-full transition-all duration-200 ${
-                  isDark
-                    ? "hover:bg-gray-800 text-gray-400 hover:text-white"
-                    : "hover:bg-gray-100 text-gray-600 hover:text-gray-900"
-                }`}
-                title="More options"
-              >
-                <MoreVertical className="w-5 h-5" />
-              </button>
-            )}
           </div>
         </div>
       </div>

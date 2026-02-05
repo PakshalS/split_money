@@ -13,6 +13,27 @@ export const createFriendsSlice = (set, get) => ({
 
   // Actions
   fetchFriends: async () => {
+    const state = get();
+    const cachedFriends = state.friends;
+    
+    // If we have cached data, return it immediately and update in background
+    if (cachedFriends && cachedFriends.length > 0) {
+      // Background refresh
+      const token = Cookies.get("authToken");
+      axios.get(API_ENDPOINTS.FRIENDS.GET_FRIENDS, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then(response => {
+        set({ friends: response.data });
+      })
+      .catch(error => {
+        console.error('Background friends refresh error:', error);
+      });
+      
+      return cachedFriends; // Return cached immediately
+    }
+    
+    // No cache - show loading and fetch
     set({ isLoadingFriends: true, friendsError: null });
     try {
       const token = Cookies.get("authToken");
@@ -31,6 +52,27 @@ export const createFriendsSlice = (set, get) => ({
   },
 
   fetchRequests: async () => {
+    const state = get();
+    const cachedRequests = state.requests;
+    
+    // If we have cached data, return it immediately and update in background
+    if (cachedRequests && cachedRequests.length > 0) {
+      // Background refresh
+      const token = Cookies.get("authToken");
+      axios.get(API_ENDPOINTS.FRIENDS.GET_REQUESTS, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then(response => {
+        set({ requests: response.data });
+      })
+      .catch(error => {
+        console.error('Background requests refresh error:', error);
+      });
+      
+      return cachedRequests; // Return cached immediately
+    }
+    
+    // No cache - show loading and fetch
     set({ isLoadingRequests: true, requestsError: null });
     try {
       const token = Cookies.get("authToken");

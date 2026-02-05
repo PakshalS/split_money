@@ -1,55 +1,31 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Edit, X, Trash2, Save } from 'lucide-react';
+import { X, Trash2, AlertTriangle } from 'lucide-react';
 import useStore from '../../../store/useStore';
 
-const GroupEditForm = ({ groupId, onClose, setIsDeleted, isDark }) => {
-  const [name, setName] = useState('');
+const DeleteGroupForm = ({ groupId, onClose, setIsDeleted, isDark }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
   // Get store actions
-  const { updateGroup, deleteGroup } = useStore();
-
-  const handleEdit = async () => {
-    if (!name.trim()) {
-      setError('Please enter a group name');
-      return;
-    }
-
-    setLoading(true);
-    setError('');
-
-    try {
-      await updateGroup(groupId, { name });
-      alert('Edited successfully!');
-      onClose();
-    } catch (error) {
-      console.error('Error editing group', error);
-      setError(error.message || 'Failed to edit group');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { deleteGroup } = useStore();
 
   const handleDelete = async () => {
     try {
-      if (window.confirm('Are you sure you want to delete this group? This action cannot be undone.')) {
-        setLoading(true);
-        await deleteGroup(groupId);
-        setIsDeleted(true);
-        alert('Deleted successfully!');
-        onClose();
-        navigate('/home');
-      }
+      setLoading(true);
+      setError('');
+      await deleteGroup(groupId);
+      setIsDeleted(true);
+      onClose();
+      navigate('/home');
     } catch (error) {
       console.error('Error deleting group', error);
       setError(error.message || 'Failed to delete group');
       setLoading(false);
     }
   };
-    
+
   return (
     <div className="absolute inset-0 bg-black/80 backdrop-blur-0 flex items-center justify-center z-50 p-3 sm:p-4 md:p-6">
       <div className={`rounded-xl sm:rounded-2xl shadow-2xl border w-full max-w-md ${
@@ -65,15 +41,15 @@ const GroupEditForm = ({ groupId, onClose, setIsDeleted, isDark }) => {
         }`}>
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <div className={`p-1.5 sm:p-2 rounded-lg flex-shrink-0 ${
-              isDark ? 'bg-green-700/10' : 'bg-green-100'
+              isDark ? 'bg-red-600/10' : 'bg-red-100'
             }`}>
-              <Edit className={`w-5 h-5 sm:w-6 sm:h-6 ${
-                isDark ? 'text-green-700' : 'text-green-600'
+              <Trash2 className={`w-5 h-5 sm:w-6 sm:h-6 ${
+                isDark ? 'text-red-500' : 'text-red-600'
               }`} />
             </div>
             <h2 className={`text-xl sm:text-2xl font-bold truncate ${
               isDark ? 'text-white' : 'text-gray-900'
-            }`}>Edit Group</h2>
+            }`}>Delete Group</h2>
           </div>
           <button
             onClick={onClose}
@@ -88,25 +64,19 @@ const GroupEditForm = ({ groupId, onClose, setIsDeleted, isDark }) => {
         </div>
 
         <div className="p-4 sm:p-5 md:p-6 space-y-4 sm:space-y-5 md:space-y-6">
-          {/* Group Name Input */}
-          <div>
-            <label className={`text-xs sm:text-sm mb-2 block ${
-              isDark ? 'text-gray-400' : 'text-gray-600'
-            }`}>Group Name</label>
-            <input
-              type="text"
-              placeholder="Enter new group name"
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
-                setError('');
-              }}
-              className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl border-2 text-sm sm:text-base focus:outline-none transition-all duration-300 focus:shadow-lg ${
-                isDark 
-                  ? 'border-gray-700 bg-gray-900/50 text-white placeholder-gray-500 focus:border-green-700 focus:shadow-green-700/20' 
-                  : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:border-green-500 focus:shadow-green-500/20'
-              }`}
-            />
+          {/* Warning Message */}
+          <div className={`p-4 rounded-lg sm:rounded-xl border flex items-start gap-3 ${
+            isDark 
+              ? 'bg-red-500/10 border-red-500/40' 
+              : 'bg-red-50 border-red-300'
+          }`}>
+            <AlertTriangle className={`w-5 h-5 flex-shrink-0 ${
+              isDark ? 'text-red-400' : 'text-red-600'
+            }`} />
+            <div className={`text-sm ${isDark ? 'text-red-300' : 'text-red-700'}`}>
+              <p className="font-semibold mb-1">This action is permanent.</p>
+              <p>Deleting this group will remove all expenses and history. This cannot be undone.</p>
+            </div>
           </div>
 
           {/* Error Message */}
@@ -122,35 +92,19 @@ const GroupEditForm = ({ groupId, onClose, setIsDeleted, isDark }) => {
 
           {/* Action Buttons */}
           <div className="space-y-2 sm:space-y-3">
-            {/* Save Button */}
-            <button
-              onClick={handleEdit}
-              disabled={loading}
-              className={`w-full bg-gradient-to-r font-semibold py-2.5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg flex items-center justify-center gap-2 text-sm sm:text-base active:scale-[0.98] ${
-                isDark 
-                  ? 'from-green-700 to-green-600 text-white hover:text-black' 
-                  : 'from-green-600 to-green-500 text-white hover:from-green-700 hover:to-green-600'
-              }`}
-            >
-              <Save className="w-4 h-4 sm:w-5 sm:h-5" />
-              {loading ? 'Saving...' : 'Save Changes'}
-            </button>
-
-            {/* Delete Button */}
             <button
               onClick={handleDelete}
               disabled={loading}
               className={`w-full bg-gradient-to-r font-semibold py-2.5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg flex items-center justify-center gap-2 text-sm sm:text-base active:scale-[0.98] ${
                 isDark 
                   ? 'from-red-500 to-red-600 text-white hover:text-black' 
-                  : 'from-red-400 to-red-500 text-white hover:from-red-500 hover:to-red-600'
+                  : 'from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700'
               }`}
             >
               <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
               {loading ? 'Deleting...' : 'Delete Group'}
             </button>
 
-            {/* Cancel Button */}
             <button
               onClick={onClose}
               disabled={loading}
@@ -169,4 +123,4 @@ const GroupEditForm = ({ groupId, onClose, setIsDeleted, isDark }) => {
   );
 };
 
-export default GroupEditForm;
+export default DeleteGroupForm;

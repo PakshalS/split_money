@@ -4,10 +4,10 @@ import "react-loading-skeleton/dist/skeleton.css";
 
 const GroupDetailsSkeleton = ({ isDark }) => {
   return (
-    <div className={`h-full flex flex-col ${
+    <div className={`h-full flex flex-col relative overflow-hidden ${
       isDark ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'
     }`}>
-      {/* Header Skeleton */}
+      {/* Group Banner Skeleton */}
       <div className={`flex-shrink-0 ${
         isDark 
           ? 'bg-gradient-to-r from-gray-900 via-gray-950 to-gray-900 border-gray-800' 
@@ -43,278 +43,121 @@ const GroupDetailsSkeleton = ({ isDark }) => {
               />
             </div>
 
-            {/* Action Button Skeleton */}
-            <Skeleton 
-              baseColor={isDark ? "#374151" : "#e5e7eb"} 
-              highlightColor={isDark ? "#4b5563" : "#f3f4f6"} 
-              width={100} 
-              height={40} 
-              borderRadius={8}
-            />
+            {/* Action Buttons Skeleton */}
+            <div className="flex gap-2">
+              <Skeleton 
+                baseColor={isDark ? "#374151" : "#e5e7eb"} 
+                highlightColor={isDark ? "#4b5563" : "#f3f4f6"} 
+                width={40} 
+                height={40} 
+                borderRadius={8}
+              />
+              <Skeleton 
+                baseColor={isDark ? "#374151" : "#e5e7eb"} 
+                highlightColor={isDark ? "#4b5563" : "#f3f4f6"} 
+                width={40} 
+                height={40} 
+                borderRadius={8}
+              />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Main Content - Scrollable */}
-      <div className={`flex-1 overflow-y-auto scrollbar-hide ${
+      {/* Chat View - Transaction Bubbles Skeleton */}
+      <div className={`flex-1 overflow-y-auto scrollbar-hide p-4 ${
         isDark ? 'bg-gray-900' : 'bg-gray-50'
       }`}>
-        <div className="p-4 space-y-4">
-          {/* Summary Component Skeleton */}
-          <div className={`rounded-2xl p-5 shadow-2xl border ${
-            isDark 
-              ? 'bg-gradient-to-br from-gray-900 to-gray-950 border-gray-800' 
-              : 'bg-gradient-to-br from-white to-gray-50 border-gray-200'
-          }`}>
-            <div className="flex items-center gap-3 mb-6">
-              <Skeleton 
-                baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
-                highlightColor={isDark ? "#374151" : "#f3f4f6"} 
-                width={40} 
-                height={40} 
-                borderRadius={8}
-              />
-              <Skeleton 
-                baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
-                highlightColor={isDark ? "#374151" : "#f3f4f6"} 
-                width={150} 
-                height={28}
-              />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {[1, 2, 3].map((i) => (
-                <div 
-                  key={i} 
-                  className={`rounded-xl p-4 ${
-                    isDark ? 'bg-gray-800/50' : 'bg-gray-100/50'
+        <div className="max-w-4xl mx-auto space-y-3">
+          {/* Transaction Bubble Skeletons - Mix of left and right aligned */}
+          {[1, 2, 3, 4, 5, 6, 7].map((i) => {
+            const isRight = i % 3 === 0; // Every 3rd bubble on right (settle-ups)
+            return (
+              <div
+                key={i}
+                className={`flex ${isRight ? 'justify-end' : 'justify-start'}`}
+              >
+                <div
+                  className={`max-w-[75%] sm:max-w-md rounded-2xl p-4 shadow-md ${
+                    isRight
+                      ? isDark
+                        ? 'bg-green-900/30 border border-green-800/50'
+                        : 'bg-green-50 border border-green-200'
+                      : isDark
+                      ? 'bg-gray-800/90 border border-gray-700'
+                      : 'bg-white border border-gray-200'
                   }`}
                 >
-                  <Skeleton 
-                    baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
-                    highlightColor={isDark ? "#374151" : "#f3f4f6"} 
-                    width={100} 
-                    height={16} 
+                  {/* Header */}
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <Skeleton
+                      baseColor={isDark ? "#1f2937" : "#e5e7eb"}
+                      highlightColor={isDark ? "#374151" : "#f3f4f6"}
+                      width={120}
+                      height={18}
+                    />
+                    <Skeleton
+                      baseColor={isDark ? "#1f2937" : "#e5e7eb"}
+                      highlightColor={isDark ? "#374151" : "#f3f4f6"}
+                      width={60}
+                      height={16}
+                    />
+                  </div>
+
+                  {/* Description */}
+                  <Skeleton
+                    baseColor={isDark ? "#1f2937" : "#e5e7eb"}
+                    highlightColor={isDark ? "#374151" : "#f3f4f6"}
+                    width="90%"
+                    height={14}
                     className="mb-2"
                   />
-                  <Skeleton 
-                    baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
-                    highlightColor={isDark ? "#374151" : "#f3f4f6"} 
-                    width={120} 
-                    height={32}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
 
-          {/* Expenses Component Skeleton */}
-          <div className={`rounded-2xl p-5 shadow-2xl border ${
-            isDark 
-              ? 'bg-gradient-to-br from-gray-900 to-gray-950 border-gray-800' 
-              : 'bg-gradient-to-br from-white to-gray-50 border-gray-200'
-          }`}>
-            <div className="flex items-center gap-3 mb-6">
-              <Skeleton 
-                baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
-                highlightColor={isDark ? "#374151" : "#f3f4f6"} 
-                width={40} 
-                height={40} 
-                borderRadius={8}
-              />
-              <div className="flex-1">
-                <Skeleton 
-                  baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
-                  highlightColor={isDark ? "#374151" : "#f3f4f6"} 
-                  width={150} 
-                  height={28}
-                />
-              </div>
-            </div>
-            <div className="space-y-3">
-              {[1, 2, 3].map((i) => (
-                <div 
-                  key={i} 
-                  className={`rounded-xl p-4 ${
-                    isDark ? 'bg-gray-800/50' : 'bg-gray-100/50'
-                  }`}
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <Skeleton 
-                      baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
-                      highlightColor={isDark ? "#374151" : "#f3f4f6"} 
-                      width={150} 
-                      height={20}
+                  {/* Amount & Date */}
+                  <div className="flex items-center justify-between mt-3 pt-2 border-t border-gray-700/30">
+                    <Skeleton
+                      baseColor={isDark ? "#1f2937" : "#e5e7eb"}
+                      highlightColor={isDark ? "#374151" : "#f3f4f6"}
+                      width={80}
+                      height={12}
                     />
-                    <Skeleton 
-                      baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
-                      highlightColor={isDark ? "#374151" : "#f3f4f6"} 
-                      width={80} 
-                      height={20}
+                    <Skeleton
+                      baseColor={isDark ? "#1f2937" : "#e5e7eb"}
+                      highlightColor={isDark ? "#374151" : "#f3f4f6"}
+                      width={40}
+                      height={12}
                     />
                   </div>
-                  <Skeleton 
-                    baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
-                    highlightColor={isDark ? "#374151" : "#f3f4f6"} 
-                    width={120} 
-                    height={16}
-                  />
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
 
-          {/* Two Column Layout Skeleton */}
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-            {/* Balances Skeleton */}
-            <div className={`rounded-2xl p-5 shadow-2xl border ${
-              isDark 
-                ? 'bg-gradient-to-br from-gray-900 to-gray-950 border-gray-800' 
-                : 'bg-gradient-to-br from-white to-gray-50 border-gray-200'
-            }`}>
-              <div className="flex items-center gap-3 mb-6">
-                <Skeleton 
-                  baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
-                  highlightColor={isDark ? "#374151" : "#f3f4f6"} 
-                  width={40} 
-                  height={40} 
-                  borderRadius={8}
-                />
-                <Skeleton 
-                  baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
-                  highlightColor={isDark ? "#374151" : "#f3f4f6"} 
-                  width={120} 
-                  height={28}
-                />
-              </div>
-              <div className="space-y-3">
-                {[1, 2, 3, 4].map((i) => (
-                  <div 
-                    key={i} 
-                    className={`rounded-xl p-4 ${
-                      isDark ? 'bg-gray-800/50' : 'bg-gray-100/50'
-                    }`}
-                  >
-                    <div className="flex justify-between items-center">
-                      <Skeleton 
-                        baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
-                        highlightColor={isDark ? "#374151" : "#f3f4f6"} 
-                        width={100} 
-                        height={20}
-                      />
-                      <Skeleton 
-                        baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
-                        highlightColor={isDark ? "#374151" : "#f3f4f6"} 
-                        width={80} 
-                        height={24}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+      {/* Bottom Action Bar Skeleton */}
+      <div className={`flex-shrink-0 border-t ${
+        isDark ? 'bg-gray-800/95 border-gray-700' : 'bg-white/95 border-gray-200'
+      } backdrop-blur-sm`}>
+        <div className="px-4 py-3">
+          <div className="flex items-center justify-between gap-3 max-w-4xl mx-auto">
+            {/* Filter Button Skeleton */}
+            <Skeleton
+              baseColor={isDark ? "#374151" : "#e5e7eb"}
+              highlightColor={isDark ? "#4b5563" : "#f3f4f6"}
+              width={100}
+              height={40}
+              borderRadius={20}
+            />
 
-            {/* Settle Ups Skeleton */}
-            <div className={`rounded-2xl p-5 shadow-2xl border ${
-              isDark 
-                ? 'bg-gradient-to-br from-gray-900 to-gray-950 border-gray-800' 
-                : 'bg-gradient-to-br from-white to-gray-50 border-gray-200'
-            }`}>
-              <div className="flex items-center gap-3 mb-6">
-                <Skeleton 
-                  baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
-                  highlightColor={isDark ? "#374151" : "#f3f4f6"} 
-                  width={40} 
-                  height={40} 
-                  borderRadius={8}
-                />
-                <Skeleton 
-                  baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
-                  highlightColor={isDark ? "#374151" : "#f3f4f6"} 
-                  width={120} 
-                  height={28}
-                />
-              </div>
-              <div className="space-y-3">
-                {[1, 2, 3].map((i) => (
-                  <div 
-                    key={i} 
-                    className={`rounded-xl p-4 ${
-                      isDark ? 'bg-gray-800/50' : 'bg-gray-100/50'
-                    }`}
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <Skeleton 
-                        baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
-                        highlightColor={isDark ? "#374151" : "#f3f4f6"} 
-                        width={120} 
-                        height={20}
-                      />
-                      <Skeleton 
-                        baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
-                        highlightColor={isDark ? "#374151" : "#f3f4f6"} 
-                        width={60} 
-                        height={20}
-                      />
-                    </div>
-                    <Skeleton 
-                      baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
-                      highlightColor={isDark ? "#374151" : "#f3f4f6"} 
-                      width={100} 
-                      height={14}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Members Component Skeleton */}
-          <div className={`rounded-2xl p-5 shadow-2xl border ${
-            isDark 
-              ? 'bg-gradient-to-br from-gray-900 to-gray-950 border-gray-800' 
-              : 'bg-gradient-to-br from-white to-gray-50 border-gray-200'
-          }`}>
-            <div className="flex items-center gap-3 mb-6">
-              <Skeleton 
-                baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
-                highlightColor={isDark ? "#374151" : "#f3f4f6"} 
-                width={40} 
-                height={40} 
-                borderRadius={8}
-              />
-              <div className="flex-1">
-                <Skeleton 
-                  baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
-                  highlightColor={isDark ? "#374151" : "#f3f4f6"} 
-                  width={120} 
-                  height={28}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div 
-                  key={i} 
-                  className={`rounded-xl p-4 ${
-                    isDark ? 'bg-gray-800/50' : 'bg-gray-100/50'
-                  }`}
-                >
-                  <Skeleton 
-                    baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
-                    highlightColor={isDark ? "#374151" : "#f3f4f6"} 
-                    width={100} 
-                    height={20} 
-                    className="mb-2"
-                  />
-                  <Skeleton 
-                    baseColor={isDark ? "#1f2937" : "#e5e7eb"} 
-                    highlightColor={isDark ? "#374151" : "#f3f4f6"} 
-                    width={120} 
-                    height={16}
-                  />
-                </div>
-              ))}
-            </div>
+            {/* Add Button Skeleton (Admin only) */}
+            <Skeleton
+              baseColor={isDark ? "#374151" : "#e5e7eb"}
+              highlightColor={isDark ? "#4b5563" : "#f3f4f6"}
+              width={120}
+              height={44}
+              borderRadius={22}
+            />
           </div>
         </div>
       </div>

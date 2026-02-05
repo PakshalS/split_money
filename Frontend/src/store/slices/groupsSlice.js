@@ -15,8 +15,27 @@ export const createGroupsSlice = (set, get) => ({
 
   /**
    * Fetch all groups for the current user
+   * Uses stale-while-revalidate: shows cached data immediately and updates in background
    */
   fetchGroups: async () => {
+    const state = get();
+    const cachedGroups = state.groups;
+    
+    // If we have cached groups, return them immediately and update in background
+    if (cachedGroups && cachedGroups.length > 0) {
+      // Background refresh
+      groupsAPI.fetchUserGroups()
+        .then(groups => {
+          set({ groups });
+        })
+        .catch(error => {
+          console.error('Background groups refresh error:', error);
+        });
+      
+      return cachedGroups; // Return cached immediately
+    }
+    
+    // No cache - show loading and fetch
     set({ isLoadingGroups: true, groupErrors: {} });
     try {
       const groups = await groupsAPI.fetchUserGroups();
@@ -35,8 +54,30 @@ export const createGroupsSlice = (set, get) => ({
 
   /**
    * Fetch detailed information for a specific group
+   * Uses stale-while-revalidate pattern: shows cached data immediately and updates in background
    */
   fetchGroupDetails: async (groupId) => {
+    const state = get();
+    const cachedData = state.groupDetails[groupId];
+    
+    // If we have cached data, return it immediately and update in background
+    if (cachedData) {
+      // Fetch fresh data in background without showing loading state
+      groupsAPI.fetchGroupDetails(groupId)
+        .then(details => {
+          set(state => ({
+            groupDetails: { ...state.groupDetails, [groupId]: details }
+          }));
+        })
+        .catch(error => {
+          console.error('Background refresh error:', error);
+          // Keep using cached data on error
+        });
+      
+      return cachedData; // Return cached data immediately
+    }
+    
+    // No cached data - show loading state and fetch
     set(state => ({
       isLoadingGroupDetails: { ...state.isLoadingGroupDetails, [groupId]: true },
       groupErrors: { ...state.groupErrors, [groupId]: null }
@@ -369,6 +410,45 @@ export const createGroupsSlice = (set, get) => ({
     } catch (error) {
       console.error('Error handling socket update:', error);
       // Don't throw error for background updates
+    }
+  },
+
+  /**
+   * Prefetch group details for multiple groups (in background)
+   * Useful for preloading the first few groups for instant access
+   */
+  prefetchGroupDetails: async (groupIds, maxConcurrent = 3) => {
+    const state = get();
+    
+    // Filter out groups that are already cached or currently loading
+    const groupsToPrefetch = groupIds.filter(
+      id => !state.groupDetails[id] && !state.isLoadingGroupDetails[id]
+    );
+
+    if (groupsToPrefetch.length === 0) return;
+
+    console.log('🚀 Prefetching group details for:', groupsToPrefetch.slice(0, maxConcurrent));
+
+    // Prefetch only first N groups concurrently to avoid overwhelming the server
+    const prefetchBatch = groupsToPrefetch.slice(0, maxConcurrent);
+    
+    // Fetch in background without setting loading states (silent prefetch)
+    try {
+      await Promise.all(
+        prefetchBatch.map(async (groupId) => {
+          try {
+            const details = await groupsAPI.fetchGroupDetails(groupId);
+            set(state => ({
+              groupDetails: { ...state.groupDetails, [groupId]: details }
+            }));
+          } catch (error) {
+            console.error(`Error prefetching group ${groupId}:`, error);
+            // Silently fail for background prefetch
+          }
+        })
+      );
+    } catch (error) {
+      console.error('Error in prefetch batch:', error);
     }
   }
 });

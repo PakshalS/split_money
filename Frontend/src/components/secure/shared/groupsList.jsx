@@ -162,10 +162,10 @@ const GroupList = ({ isDark, onFabClick }) => {
       {/* Floating Action Button (FAB) */}
       <button
         onClick={onFabClick}
-        className={`absolute bottom-6 right-6 p-4 rounded-full flex items-center justify-center font-medium transition-all duration-300 shadow-lg hover:shadow-xl active:scale-95 z-10 ${
+        className={`absolute bottom-6 right-6 p-4 rounded-full flex items-center justify-center font-medium transition-all duration-300 shadow-md active:scale-95 z-10 ${
           isDark
-              ? 'bg-green-600 hover:bg-green-700 text-white shadow-green-600/30 hover:shadow-green-600/50'
-              : 'bg-green-500 hover:bg-green-600 text-white shadow-green-500/30 hover:shadow-green-500/50'
+              ? 'bg-green-600 hover:bg-green-700 text-white'
+              : 'bg-green-500 hover:bg-green-600 text-white'
         }`}
       >
         <Plus className="w-6 h-6" />
