@@ -10,6 +10,7 @@ import Settings from "./components/secure/settings/settings";
 import NewGroupDetails from "./components/secure/group/newgroupdetails";
 import ForgotPassReq from "./components/auth/ForgotPass";
 import MainLayout from "./components/secure/shared/layout";
+import JoinViaLink from "./pages/JoinViaLink";
 
 function App() {
   return (
@@ -20,6 +21,16 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassReq />} />
+
+        {/* Protected join via link route - standalone (no MainLayout) */}
+        <Route
+          path="/group/join/:joinCode"
+          element={
+            <ProtectedRoute>
+              <JoinViaLink />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Protected routes WITH MainLayout (persistent navbar + sidebar) */}
         <Route

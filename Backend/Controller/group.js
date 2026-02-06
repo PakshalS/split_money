@@ -1,6 +1,19 @@
 const Group = require("../models/Group");
 const User = require("../models/User");
-const Expense = require('../models/expense');
+const Expense = require("../models/expense");
+
+const generateUniqueCode = async () => {
+  let code;
+  let exists = true;
+  while (exists) {
+    code = Math.floor(100000 + Math.random() * 900000).toString();
+    exists = await Group.exists({ joinCode: code });
+  }
+  return code;
+};
+
+const isGroupAdmin = (group, userId) =>
+  group.admins?.some((adminId) => adminId.toString() === userId.toString());
 
 const createGroup = async (req, res) => {
   try {
@@ -42,25 +55,26 @@ const createGroup = async (req, res) => {
       })
     );
 
-    // Add admin as the first member, ensuring no duplicate
-    if (namesSet.has(admin.name.toLowerCase())) {
-      throw new Error(`Duplicate name detected: ${admin.name}`);
-    }
-    if (emailsSet.has(admin.email)) {
-      throw new Error(`Duplicate email detected: ${admin.email}`);
+    // Add admin as the first member if not already present
+    if (!namesSet.has(admin.name.toLowerCase())) {
+      namesSet.add(admin.name.toLowerCase());
+      if (admin.email) emailsSet.add(admin.email);
+      groupMembers.unshift({
+        userId: admin._id,
+        name: admin.name,
+        email: admin.email,
+      });
     }
 
-    groupMembers.unshift({
-      userId: admin._id,
-      name: admin.name,
-      email: admin.email,
-    });
+    const joinCode = await generateUniqueCode();
 
     // Create the group
     const group = new Group({
       name,
-      admin: adminId,
+      admins: [adminId],
       members: groupMembers,
+      joinCode,
+      strictJoin: false,
     });
 
     await group.save();
@@ -93,18 +107,20 @@ const deleteGroup = async (req, res) => {
       return res.status(404).json({ error: 'Group not found' });
     }
 
-    // Check if the requesting user is the admin
-    if (group.admin.toString() !== adminId) {
-      return res.status(403).json({ error: 'Only the group admin can delete the group' });
+    // Check if the requesting user is an admin
+    if (!isGroupAdmin(group, adminId)) {
+      return res.status(403).json({ error: "Only a group admin can delete the group" });
     }
 
     // Delete associated expenses
     await Expense.deleteMany({ groupId: groupId });
 
     // Remove group references from users' groups array
-    const userUpdates = group.members.map(member =>
-      User.findByIdAndUpdate(member.userId, { $pull: { groups: groupId } })
-    );
+    const userUpdates = group.members
+      .filter((member) => member.userId)
+      .map((member) =>
+        User.findByIdAndUpdate(member.userId, { $pull: { groups: groupId } })
+      );
     await Promise.all(userUpdates);
 
     // Delete the group
@@ -129,13 +145,15 @@ const addMember = async (req, res) => {
       return res.status(404).json({ error: "Group not found" });
     }
 
-    // Ensure only the admin can add members
-    if (group.admin.toString() !== userId) {
-      return res.status(403).json({ error: "Only the group admin can add members" });
+    // Ensure only an admin can add members
+    if (!isGroupAdmin(group, userId)) {
+      return res.status(403).json({ error: "Only a group admin can add members" });
     }
 
-    const namesSet = new Set(group.members.map(member => member.name.toLowerCase()));
-    const emailsSet = new Set(group.members.map(member => member.email));
+    const namesSet = new Set(group.members.map((member) => member.name.toLowerCase()));
+    const emailsSet = new Set(
+      group.members.map((member) => member.email).filter(Boolean)
+    );
 
     for (const member of members) {
       // Check if the name is provided
@@ -153,10 +171,10 @@ const addMember = async (req, res) => {
 
       if (member.email) {
         user = await User.findOne({ email: member.email, name: member.name });
-        if (user && emailsSet.has(user.email)) {
+        if (user && user.email && emailsSet.has(user.email)) {
           return res.status(400).json({ error: `The email "${member.email}" is already used in the group` });
         }
-        emailsSet.add(member.email);
+        if (member.email) emailsSet.add(member.email);
 
         // Only add the user if both email and name match
         if (user) {
@@ -199,9 +217,9 @@ const removeMember = async (req, res) => {
       return res.status(404).json({ error: "Group not found" });
     }
 
-    // Check if the requester is the admin
-    if (group.admin.toString() !== userId) {
-      return res.status(403).json({ error: "Only the group admin can remove members" });
+    // Check if the requester is an admin
+    if (!isGroupAdmin(group, userId)) {
+      return res.status(403).json({ error: "Only a group admin can remove members" });
     }
 
     // Find the member by name
@@ -211,9 +229,19 @@ const removeMember = async (req, res) => {
       return res.status(404).json({ error: "Member not found in the group" });
     }
 
-    // Prevent the admin from removing themselves
-    if (member.userId && group.admin.toString() === member.userId.toString()) {
-      return res.status(400).json({ error: "Admin cannot remove themselves" });
+    // Prevent an admin from removing themselves
+    if (member.userId && member.userId.toString() === userId.toString()) {
+      return res.status(400).json({ error: "Admins cannot remove themselves" });
+    }
+
+    // If the member is an admin, ensure there is at least one admin left
+    if (member.userId && isGroupAdmin(group, member.userId)) {
+      if (group.admins.length < 2) {
+        return res.status(400).json({ error: "Group must have at least one admin" });
+      }
+      group.admins = group.admins.filter(
+        (adminId) => adminId.toString() !== member.userId.toString()
+      );
     }
 
     // Remove the member from the group's members list
@@ -244,6 +272,96 @@ const removeMember = async (req, res) => {
     res.status(500).json({ error: "Failed to remove member" });
   }
 };
+
+const addAdmin = async (req, res) => {
+  try {
+    const { groupId, memberName } = req.params;
+    const userId = req.user.userId;
+
+    const group = await Group.findById(groupId);
+    if (!group) {
+      return res.status(404).json({ error: "Group not found" });
+    }
+
+    if (!isGroupAdmin(group, userId)) {
+      return res.status(403).json({ error: "Only a group admin can add another admin" });
+    }
+
+    const member = group.members.find(
+      (m) => m.name.toLowerCase() === memberName.toLowerCase()
+    );
+    if (!member) {
+      return res.status(404).json({ error: "Member not found in the group" });
+    }
+
+    if (!member.userId) {
+      return res.status(400).json({ error: "Only registered users can be promoted to admin" });
+    }
+
+    if (isGroupAdmin(group, member.userId)) {
+      return res.status(400).json({ error: "User is already an admin" });
+    }
+
+    group.admins.push(member.userId);
+    await group.save();
+
+    res.status(200).json({
+      message: `${member.name} promoted to admin successfully`,
+      group,
+    });
+  } catch (error) {
+    console.error("Error promoting to admin:", error);
+    res.status(500).json({ error: "Failed to promote to admin" });
+  }
+};
+
+const removeAdmin = async (req, res) => {
+  try {
+    const { groupId, memberName } = req.params;
+    const userId = req.user.userId;
+
+    const group = await Group.findById(groupId);
+    if (!group) {
+      return res.status(404).json({ error: "Group not found" });
+    }
+
+    if (!isGroupAdmin(group, userId)) {
+      return res.status(403).json({ error: "Only a group admin can remove another admin" });
+    }
+
+    const member = group.members.find(
+      (m) => m.name.toLowerCase() === memberName.toLowerCase()
+    );
+    if (!member) {
+      return res.status(404).json({ error: "Member not found in the group" });
+    }
+
+    if (!member.userId || !isGroupAdmin(group, member.userId)) {
+      return res.status(400).json({ error: "The specified member is not an admin" });
+    }
+
+    if (member.userId.toString() === userId.toString()) {
+      return res.status(400).json({ error: "Admins cannot remove themselves" });
+    }
+
+    if (group.admins.length < 2) {
+      return res.status(400).json({ error: "Group must have at least one admin" });
+    }
+
+    group.admins = group.admins.filter(
+      (adminId) => adminId.toString() !== member.userId.toString()
+    );
+    await group.save();
+
+    res.status(200).json({
+      message: `${member.name} removed from admin successfully`,
+      group,
+    });
+  } catch (error) {
+    console.error("Error removing admin:", error);
+    res.status(500).json({ error: "Failed to remove admin" });
+  }
+};
 const transferAdminRights = async (req, res) => {
   try {
     const { groupId } = req.params;
@@ -256,9 +374,9 @@ const transferAdminRights = async (req, res) => {
       return res.status(404).json({ error: 'Group not found' });
     }
 
-    // Check if the current user is the admin
-    if (group.admin.toString() !== userId) {
-      return res.status(403).json({ error: 'Only the current admin can transfer admin rights' });
+    // Check if the current user is an admin
+    if (!isGroupAdmin(group, userId)) {
+      return res.status(403).json({ error: "Only a group admin can transfer admin rights" });
     }
 
     // Find the member by their name
@@ -273,8 +391,8 @@ const transferAdminRights = async (req, res) => {
       return res.status(400).json({ error: 'Selected member is not a registered user' });
     }
 
-    // Transfer admin rights
-    group.admin = newAdmin.userId;
+    // Transfer admin rights (replace current admins)
+    group.admins = [newAdmin.userId];
     await group.save();
 
     // Emit socket event for real-time update
@@ -300,9 +418,11 @@ const leaveGroup = async (req, res) => {
       return res.status(404).json({ error: "Group not found" });
     }
 
-    // If the admin is trying to leave, prevent them from doing so
-    if (group.admin.toString() === userId) {
-      return res.status(400).json({ error: "Admin cannot leave the group. Please transfer admin rights first." });
+    const isAdmin = isGroupAdmin(group, userId);
+    if (isAdmin && group.admins.length < 2) {
+      return res.status(400).json({
+        error: "You are the only admin. Please assign another admin before leaving.",
+      });
     }
 
     // Remove the member from the group
@@ -314,6 +434,12 @@ const leaveGroup = async (req, res) => {
     // Check if member was actually removed
     if (group.members.length === initialMembersCount) {
       return res.status(404).json({ error: "Member not found in the group" });
+    }
+
+    if (isAdmin) {
+      group.admins = group.admins.filter(
+        (adminId) => adminId.toString() !== userId.toString()
+      );
     }
 
     await group.save();
@@ -336,7 +462,7 @@ const leaveGroup = async (req, res) => {
 const editGroup = async (req, res) => {
   try {
     const groupId = req.params.groupId;
-    const { name } = req.body;
+    const { name, strictJoin } = req.body;
     const userId = req.user.userId;
 
     const group = await Group.findById(groupId);
@@ -344,13 +470,15 @@ const editGroup = async (req, res) => {
       return res.status(404).json({ error: "Group not found" });
     }
 
-    if (group.admin.toString() !== userId) {
+    if (!isGroupAdmin(group, userId)) {
       return res
         .status(403)
-        .json({ error: "Only the group admin can edit group details" });
+        .json({ error: "Only a group admin can edit group details" });
     }
 
-    group.name = name;
+    if (name) group.name = name;
+    if (strictJoin !== undefined) group.strictJoin = strictJoin;
+    
     await group.save();
 
     // Emit socket event for real-time update
@@ -366,6 +494,120 @@ const editGroup = async (req, res) => {
   }
 };
 
+const getGroupInviteLink = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { groupId } = req.params;
+
+    const group = await Group.findById(groupId);
+    if (!group) {
+      return res.status(404).json({ error: "Group not found" });
+    }
+
+    if (!isGroupAdmin(group, userId)) {
+      return res.status(403).json({ error: "Only admins can generate invite links" });
+    }
+
+    if (!group.joinCode) {
+      group.joinCode = await generateUniqueCode();
+      await group.save();
+    }
+
+    const inviteLink = `${process.env.FRONTEND_URL}/group/join/${group.joinCode}`;
+    res.json({ inviteLink });
+  } catch (error) {
+    console.error("Error generating group invite link:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+const joinGroup = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const joinCode = req.params.joinCode || req.body.joinCode;
+
+    if (!joinCode) {
+      return res.status(400).json({ error: "Join code is required" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const group = await Group.findOne({ joinCode });
+    if (!group) {
+      return res.status(404).json({ error: "Invalid join code" });
+    }
+
+    const alreadyMember = group.members.some(
+      (m) => m.userId?.toString() === user._id.toString() || m.email === user.email
+    );
+    if (alreadyMember) {
+      return res.status(400).json({ error: "Already a member of this group" });
+    }
+
+    const pendingRequest = group.joinRequests?.some(
+      (r) => r.requester?.toString() === user._id.toString() && r.status === "pending"
+    );
+    if (pendingRequest) {
+      return res.status(400).json({ error: "You already have a pending join request for this group" });
+    }
+
+    const namesSet = new Set(group.members.map((m) => m.name.toLowerCase()));
+    const emailsSet = new Set(group.members.map((m) => m.email).filter(Boolean));
+
+    if (namesSet.has(user.name.toLowerCase()) || emailsSet.has(user.email)) {
+      return res.status(400).json({ error: "Your name or email already exists in the group" });
+    }
+
+    if (group.strictJoin) {
+      group.joinRequests.push({ requester: user._id });
+      await group.save();
+      
+      // Populate to get full group data
+      const populatedGroup = await Group.findById(group._id)
+        .populate('admins', 'name email')
+        .populate('members.userId', 'name email')
+        .populate('expenses')
+        .populate('joinRequests.requester', 'name email _id');
+      
+      return res.json({ 
+        message: "Join request submitted, awaiting admin approval",
+        group: populatedGroup 
+      });
+    }
+
+    group.members.push({
+      userId: user._id,
+      name: user.name,
+      email: user.email,
+    });
+
+    if (!user.groups.includes(group._id)) {
+      user.groups.push(group._id);
+      await user.save();
+    }
+
+    await group.save();
+    
+    // Populate to get full group data
+    const populatedGroup = await Group.findById(group._id)
+      .populate('admins', 'name email')
+      .populate('members.userId', 'name email')
+      .populate('expenses')
+      .populate('joinRequests.requester', 'name email _id');
+    
+    return res.json({ 
+      message: "Joined successfully",
+      group: populatedGroup 
+    });
+  } catch (error) {
+    console.error("Error joining group:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
 const addFriendstoGroup = async (req, res) => {
   try {
     const { groupId, friendId } = req.body;
@@ -376,10 +618,10 @@ const addFriendstoGroup = async (req, res) => {
       return res.status(404).json({ error: "Group not found" });
     }
 
-    if (group.admin.toString() !== userId) {
+    if (!isGroupAdmin(group, userId)) {
       return res
         .status(403)
-        .json({ error: "Only the group admin can add members" });
+        .json({ error: "Only a group admin can add members" });
     }
     const friend = await User.findById(friendId);
     if (!friend) {
@@ -429,7 +671,7 @@ const getUserGroups = async (req, res) => {
 
     const groups = await Group.find(groupQuery)
       .sort({ createdAt: -1 })
-      .select("name createdAt admin members");
+      .select("name createdAt admins members");
 
     res.status(200).json(groups);
   } catch (error) {
@@ -442,12 +684,13 @@ const getGroupDetails = async (req, res) => {
   try {
     const groupId = req.params.groupId;
     const group = await Group.findById(groupId)
-      .populate('admin', 'name email')
+      .populate('admins', 'name email')
       .populate('members.userId', 'name email')
       .populate('expenses')
       .populate('expenses.createdBy', 'name email')
       .populate('balances.userId', 'name email')
-      .populate('transactionHistory.createdBy', 'name email');
+      .populate('transactionHistory.createdBy', 'name email')
+      .populate('joinRequests.requester', 'name email _id');
 
       if (!group) {
         return res.status(404).json({ error: 'Group not found' });
@@ -496,8 +739,8 @@ const addExpense = async (req, res) => {
     if (!group) {
       return res.status(404).json({ error: "Group not found" });
     }
-    if (group.admin.toString() !== adminId) {
-      return res.status(403).json({ error: 'Only the admin can add expense' });
+    if (!isGroupAdmin(group, adminId)) {
+      return res.status(403).json({ error: "Only a group admin can add expense" });
     }
 
     const expense = new Expense({ 
@@ -561,8 +804,8 @@ const settleUp = async (req, res) => {
     if (!group) {
       return res.status(404).json({ error: 'Group not found' });
     }
-    if (group.admin.toString() !== adminId) {
-      return res.status(403).json({ error: 'Only the group admin can settle balances' });
+    if (!isGroupAdmin(group, adminId)) {
+      return res.status(403).json({ error: "Only a group admin can settle balances" });
     }
 
     // Recalculate summary
@@ -711,8 +954,8 @@ const editExpense = async (req, res) => {
     if (!group) {
       return res.status(404).json({ error: 'Group not found' });
     }
-    if (group.admin.toString() !== adminId) {
-      return res.status(403).json({ error: 'Only the admin can edit expense' });
+    if (!isGroupAdmin(group, adminId)) {
+      return res.status(403).json({ error: "Only a group admin can edit expense" });
     }
 
     const expense = await Expense.findById(expenseId);
@@ -793,8 +1036,8 @@ const deleteExpense = async (req, res) => {
     if (!group) {
       return res.status(404).json({ error: 'Group not found' });
     }
-    if (group.admin.toString() !== adminId) {
-      return res.status(403).json({ error: 'Only the admin can delete expense' });
+    if (!isGroupAdmin(group, adminId)) {
+      return res.status(403).json({ error: "Only a group admin can delete expense" });
     }
 
     const expense = await Expense.findById(expenseId);
@@ -833,19 +1076,155 @@ const deleteExpense = async (req, res) => {
   }
 };
 
+const approveJoinRequest = async (req, res) => {
+  try {
+    const { groupId, requesterId } = req.params;
+    const userId = req.user.userId;
+
+    const group = await Group.findById(groupId);
+    if (!group) {
+      return res.status(404).json({ error: "Group not found" });
+    }
+
+    if (!isGroupAdmin(group, userId)) {
+      return res.status(403).json({ error: "Only a group admin can approve join requests" });
+    }
+
+    // Find the join request
+    const requestIndex = group.joinRequests.findIndex(
+      (req) => req.requester.toString() === requesterId
+    );
+
+    if (requestIndex === -1) {
+      return res.status(404).json({ error: "Join request not found" });
+    }
+
+    // Get the requester's user info
+    const requester = await User.findById(requesterId);
+    if (!requester) {
+      return res.status(404).json({ error: "Requester not found" });
+    }
+
+    // Add the user as a member to the group
+    const isMemberExists = group.members.some(
+      (member) => member.userId && member.userId.toString() === requesterId
+    );
+
+    if (!isMemberExists) {
+      group.members.push({
+        userId: requester._id,
+        name: requester.name,
+        email: requester.email,
+      });
+
+      // Add balance entry for the new member
+      group.balances.push({
+        userId: requester._id,
+        name: requester.name,
+        email: requester.email,
+        balance: 0,
+      });
+
+      // Update user's groups
+      if (!requester.groups.includes(groupId)) {
+        requester.groups.push(groupId);
+        await requester.save();
+      }
+    }
+
+    // Remove the accepted request from joinRequests array
+    group.joinRequests.splice(requestIndex, 1);
+    await group.save();
+
+    // Populate the group to return fresh data
+    const populatedGroup = await Group.findById(groupId)
+      .populate('admins', 'name email')
+      .populate('members.userId', 'name email')
+      .populate('expenses')
+      .populate('joinRequests.requester', 'name email _id');
+
+    // Emit socket event for real-time update
+    const io = req.app.get('io');
+    io.to(`group-${groupId}`).emit('group-updated', { groupId, action: 'member-joined', userId: requesterId });
+
+    res.status(200).json({
+      message: `${requester.name} has been approved and added to the group`,
+      group: populatedGroup,
+    });
+  } catch (error) {
+    console.error("Error approving join request:", error);
+    res.status(500).json({ error: "Failed to approve join request" });
+  }
+};
+
+const rejectJoinRequest = async (req, res) => {
+  try {
+    const { groupId, requesterId } = req.params;
+    const userId = req.user.userId;
+
+    const group = await Group.findById(groupId);
+    if (!group) {
+      return res.status(404).json({ error: "Group not found" });
+    }
+
+    if (!isGroupAdmin(group, userId)) {
+      return res.status(403).json({ error: "Only a group admin can reject join requests" });
+    }
+
+    // Find the join request
+    const requestIndex = group.joinRequests.findIndex(
+      (req) => req.requester.toString() === requesterId
+    );
+
+    if (requestIndex === -1) {
+      return res.status(404).json({ error: "Join request not found" });
+    }
+
+    // Remove the rejected request from joinRequests array
+    group.joinRequests.splice(requestIndex, 1);
+    await group.save();
+
+    // Populate the group to return fresh data
+    const populatedGroup = await Group.findById(groupId)
+      .populate('admins', 'name email')
+      .populate('members.userId', 'name email')
+      .populate('expenses')
+      .populate('joinRequests.requester', 'name email _id');
+
+    // Emit socket event for real-time update
+    const io = req.app.get('io');
+    io.to(`group-${groupId}`).emit('group-updated', { groupId, action: 'request-rejected', userId: requesterId });
+
+    res.status(200).json({
+      message: "Join request has been rejected",
+      group: populatedGroup,
+    });
+  } catch (error) {
+    console.error("Error rejecting join request:", error);
+    res.status(500).json({ error: "Failed to reject join request" });
+  }
+};
+
 module.exports = {
   createGroup,
   addMember,
   removeMember,
+  addAdmin,
+  removeAdmin,
   leaveGroup,
   editGroup,
   addFriendstoGroup,
   getUserGroups,
   getGroupDetails,
   transferAdminRights,
+  getGroupInviteLink,
+  joinGroup,
   addExpense,
   settleUp,
   deleteGroup,
   editExpense,
-  deleteExpense
+  deleteExpense,
+  approveJoinRequest,
+  rejectJoinRequest
+
 };

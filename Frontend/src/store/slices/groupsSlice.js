@@ -55,13 +55,15 @@ export const createGroupsSlice = (set, get) => ({
   /**
    * Fetch detailed information for a specific group
    * Uses stale-while-revalidate pattern: shows cached data immediately and updates in background
+   * @param {string} groupId - The group ID to fetch
+   * @param {boolean} skipCache - If true, always fetch fresh data and skip cache (default: false)
    */
-  fetchGroupDetails: async (groupId) => {
+  fetchGroupDetails: async (groupId, skipCache = false) => {
     const state = get();
     const cachedData = state.groupDetails[groupId];
     
-    // If we have cached data, return it immediately and update in background
-    if (cachedData) {
+    // If we have cached data and not skipping cache, return it immediately and update in background
+    if (cachedData && !skipCache) {
       // Fetch fresh data in background without showing loading state
       groupsAPI.fetchGroupDetails(groupId)
         .then(details => {
@@ -77,7 +79,7 @@ export const createGroupsSlice = (set, get) => ({
       return cachedData; // Return cached data immediately
     }
     
-    // No cached data - show loading state and fetch
+    // No cached data or skipCache=true - show loading state and fetch fresh
     set(state => ({
       isLoadingGroupDetails: { ...state.isLoadingGroupDetails, [groupId]: true },
       groupErrors: { ...state.groupErrors, [groupId]: null }
@@ -325,6 +327,82 @@ export const createGroupsSlice = (set, get) => ({
     } catch (error) {
       const errorMsg = error.response?.data?.error || 'Failed to change admin';
       console.error('Error changing admin:', error);
+      throw new Error(errorMsg);
+    }
+  },
+
+  /**
+   * Add a member as admin
+   */
+  addAdmin: async (groupId, memberName) => {
+    try {
+      const response = await groupsAPI.addAdmin(groupId, memberName);
+      
+      // Refresh group details
+      await get().fetchGroupDetails(groupId);
+      await get().fetchGroups();
+      
+      return response;
+    } catch (error) {
+      const errorMsg = error.response?.data?.error || 'Failed to add admin';
+      console.error('Error adding admin:', error);
+      throw new Error(errorMsg);
+    }
+  },
+
+  /**
+   * Remove a member from admin
+   */
+  removeAdmin: async (groupId, memberName) => {
+    try {
+      const response = await groupsAPI.removeAdmin(groupId, memberName);
+      
+      // Refresh group details
+      await get().fetchGroupDetails(groupId);
+      await get().fetchGroups();
+      
+      return response;
+    } catch (error) {
+      const errorMsg = error.response?.data?.error || 'Failed to remove admin';
+      console.error('Error removing admin:', error);
+      throw new Error(errorMsg);
+    }
+  },
+
+  /**
+   * Approve a join request
+   */
+  approveJoinRequest: async (groupId, requesterId) => {
+    try {
+      const response = await groupsAPI.approveJoinRequest(groupId, requesterId);
+      
+      // Refresh group details with skipCache=true to get fresh data immediately
+      await get().fetchGroupDetails(groupId, true);
+      await get().fetchGroups();
+      
+      return response;
+    } catch (error) {
+      const errorMsg = error.response?.data?.error || 'Failed to approve join request';
+      console.error('Error approving join request:', error);
+      throw new Error(errorMsg);
+    }
+  },
+
+  /**
+   * Reject a join request
+   */
+  rejectJoinRequest: async (groupId, requesterId) => {
+    try {
+      const response = await groupsAPI.rejectJoinRequest(groupId, requesterId);
+      
+      // Refresh group details with skipCache=true to get fresh data immediately
+      await get().fetchGroupDetails(groupId, true);
+      await get().fetchGroups();
+      
+      return response;
+    } catch (error) {
+      const errorMsg = error.response?.data?.error || 'Failed to reject join request';
+      console.error('Error rejecting join request:', error);
       throw new Error(errorMsg);
     }
   },

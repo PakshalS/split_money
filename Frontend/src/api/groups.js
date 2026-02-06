@@ -33,15 +33,45 @@ export const createGroup = async (groupData) => {
 };
 
 /**
- * Update group information
+ * Update group settings
  * @param {string} groupId - The group ID
- * @param {object} updates - { name }
+ * @param {object} updates - { name, strictJoin }
  */
 export const updateGroup = async (groupId, updates) => {
   const response = await apiClient.put(`/groups/${groupId}/edit`, { 
     name: updates.name,
     ...updates 
   });
+  return response.data;
+};
+
+/**
+ * Update group strict join setting
+ * @param {string} groupId - The group ID
+ * @param {boolean} strictJoin - Enable/disable strict join
+ */
+export const updateStrictJoin = async (groupId, strictJoin) => {
+  const response = await apiClient.put(`/groups/${groupId}/edit`, { strictJoin });
+  return response.data;
+};
+
+/**
+ * Approve a join request
+ * @param {string} groupId - The group ID
+ * @param {string} requesterId - The requester's user ID
+ */
+export const approveJoinRequest = async (groupId, requesterId) => {
+  const response = await apiClient.put(`/groups/${groupId}/join-requests/${requesterId}/approve`, {});
+  return response.data;
+};
+
+/**
+ * Reject a join request
+ * @param {string} groupId - The group ID
+ * @param {string} requesterId - The requester's user ID
+ */
+export const rejectJoinRequest = async (groupId, requesterId) => {
+  const response = await apiClient.put(`/groups/${groupId}/join-requests/${requesterId}/reject`, {});
   return response.data;
 };
 
@@ -119,16 +149,55 @@ export const removeMember = async (groupId, memberName) => {
 };
 
 /**
- * Change group admin
+ * Change group admin (transfer admin - old admin becomes regular member)
  * @param {string} groupId - The group ID
  * @param {string} newAdminName - The new admin's name (not ID)
+ * @deprecated Use addAdmin/removeAdmin for multiple admin support
  */
 export const changeAdmin = async (groupId, newAdminName) => {
   const response = await apiClient.put(`/groups/${groupId}/transfer-admin`, { newAdminName });
   return response.data;
 };
 
-// ========== SETTLEMENTS ==========
+/**
+ * Add a member as admin
+ * @param {string} groupId - The group ID
+ * @param {string} memberName - The member's name
+ */
+export const addAdmin = async (groupId, memberName) => {
+  const response = await apiClient.put(`/groups/${groupId}/${memberName}/add-admin`, {});
+  return response.data;
+};
+
+/**
+ * Remove a member from admin
+ * @param {string} groupId - The group ID
+ * @param {string} memberName - The member's name
+ */
+export const removeAdmin = async (groupId, memberName) => {
+  const response = await apiClient.put(`/groups/${groupId}/${memberName}/remove-admin`, {});
+  return response.data;
+};
+
+/**
+ * Get group invite link
+ * @param {string} groupId - The group ID
+ */
+export const getGroupInviteLink = async (groupId) => {
+  const response = await apiClient.get(`/groups/${groupId}/invite-link`);
+  return response.data;
+};
+
+/**
+ * Join a group using join code
+ * @param {string} joinCode - The join code for the group
+ */
+export const joinGroup = async (joinCode) => {
+  const response = await apiClient.post(`/groups/join/${joinCode}`, {});
+  return response.data;
+};
+
+// ========== SETTLEMENTS =========="
 
 /**
  * Record a settlement/payment between members
@@ -153,5 +222,9 @@ export default {
   addMembers,
   removeMember,
   changeAdmin,
+  addAdmin,
+  removeAdmin,
+  getGroupInviteLink,
+  joinGroup,
   addSettlement,
 };

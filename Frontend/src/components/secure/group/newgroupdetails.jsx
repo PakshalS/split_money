@@ -31,6 +31,8 @@ const DeleteExpenseForm = lazy(() => import("../admin/deleteexpense"));
 const AddMemberForm = lazy(() => import("../admin/addmember"));
 const DeleteGroupForm = lazy(() => import("../admin/editgroup"));
 const ChangeAdminForm = lazy(() => import("../admin/changeadmin"));
+const AddAdminForm = lazy(() => import("../admin/addadmin"));
+const RemoveAdminForm = lazy(() => import("../admin/removeadmin"));
 
 const NewGroupDetails = () => {
   const { isDark } = useTheme();
@@ -54,6 +56,8 @@ const NewGroupDetails = () => {
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
   const [isDeleteGroupOpen, setIsDeleteGroupOpen] = useState(false);
   const [isChangeAdminOpen, setIsChangeAdminOpen] = useState(false);
+  const [isAddAdminOpen, setIsAddAdminOpen] = useState(false);
+  const [isRemoveAdminOpen, setIsRemoveAdminOpen] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState(null);
   const [settleUpData, setSettleUpData] = useState(null);
 
@@ -145,14 +149,16 @@ const NewGroupDetails = () => {
 
   // Check if current user is admin
   useEffect(() => {
-    if (groupDetails?.group?.admin) {
-      const adminValue = groupDetails.group.admin;
-      const adminId = typeof adminValue === 'object'
-        ? (adminValue._id || adminValue.userId?._id || adminValue.userId)
-        : adminValue;
-      const normalizedAdminId = adminId ? String(adminId) : null;
-      const normalizedCurrentId = currentUserId ? String(currentUserId) : null;
-      setIsAdmin(normalizedAdminId === normalizedCurrentId);
+    if (groupDetails?.group?.admins && Array.isArray(groupDetails.group.admins)) {
+      // Check if current user ID is in the admins array
+      const isUserAdmin = groupDetails.group.admins.some(adminId => {
+        const adminIdStr = String(adminId._id || adminId);
+        const currentUserIdStr = String(currentUserId);
+        return adminIdStr === currentUserIdStr;
+      });
+      setIsAdmin(isUserAdmin);
+    } else {
+      setIsAdmin(false);
     }
   }, [groupDetails, currentUserId]);
 
@@ -220,6 +226,16 @@ const NewGroupDetails = () => {
 
   const toggleChangeAdminForm = () => {
     setIsChangeAdminOpen(!isChangeAdminOpen);
+    setIsAdminSidebarOpen(false);
+  };
+
+  const toggleAddAdminForm = () => {
+    setIsAddAdminOpen(!isAddAdminOpen);
+    setIsAdminSidebarOpen(false);
+  };
+
+  const toggleRemoveAdminForm = () => {
+    setIsRemoveAdminOpen(!isRemoveAdminOpen);
     setIsAdminSidebarOpen(false);
   };
 
@@ -343,7 +359,7 @@ const NewGroupDetails = () => {
         members={groupDetails.group.members}
         onLeave={handleLeave}
         currentUserId={currentUserId}
-        admin={groupDetails.group.admin}
+        admins={groupDetails.group.admins}
         isAdmin={isAdmin}
         groupId={groupId}
         friends={friends || []}
@@ -355,7 +371,12 @@ const NewGroupDetails = () => {
         onSettleUp={handleSettleUpFromSummary}
         onAddMember={toggleAddMemberForm}
         onChangeAdmin={toggleChangeAdminForm}
+        onAddAdmin={toggleAddAdminForm}
+        onRemoveAdmin={toggleRemoveAdminForm}
         onDeleteGroup={toggleDeleteGroupForm}
+        joinCode={groupDetails.group.joinCode}
+        strictJoin={groupDetails.group.strictJoin}
+        joinRequests={groupDetails.group.joinRequests || []}
       />
 
       {/* Search Sidebar */}
@@ -449,6 +470,31 @@ const NewGroupDetails = () => {
           <ChangeAdminForm
             groupId={groupId}
             onClose={toggleChangeAdminForm}
+            isDark={isDark}
+          />
+        </Suspense>
+      )}
+
+      {/* Add Admin Form */}
+      {isAddAdminOpen && (
+        <Suspense fallback={<div className="text-center">Loading...</div>}>
+          <AddAdminForm
+            groupId={groupId}
+            members={groupDetails.group.members || []}
+            onClose={toggleAddAdminForm}
+            isDark={isDark}
+          />
+        </Suspense>
+      )}
+
+      {/* Remove Admin Form */}
+      {isRemoveAdminOpen && (
+        <Suspense fallback={<div className="text-center">Loading...</div>}>
+          <RemoveAdminForm
+            groupId={groupId}
+            admins={groupDetails.group.admins || []}
+            members={groupDetails.group.members || []}
+            onClose={toggleRemoveAdminForm}
             isDark={isDark}
           />
         </Suspense>

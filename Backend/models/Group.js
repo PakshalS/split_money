@@ -5,11 +5,12 @@ const groupSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  admin: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
+  admins: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
   members: [
     {
       userId: {
@@ -74,6 +75,32 @@ const groupSchema = new mongoose.Schema({
       date: {
         type: Date,
         default: Date.now,
+      },
+    },
+  ],
+   joinCode: {
+    type: String,
+    unique: true, // one code per group
+    required: true,
+  },
+  strictJoin: {
+    type: Boolean,
+    default: false, // false = easy join, true = needs approval
+  },
+  joinRequests: [
+    {
+      requester: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+      requestedAt: {
+        type: Date,
+        default: Date.now,
+      },
+      status: {
+        type: String,
+        enum: ["pending", "approved", "rejected"],
+        default: "pending",
       },
     },
   ],

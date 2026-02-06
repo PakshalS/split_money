@@ -34,8 +34,9 @@ const userSchema = new mongoose.Schema({
         ref: "User",
       },
       recipient: { 
-        type: mongoose.Schema.Types.ObjectId, ref: "User",
-         required: true 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: "User",
+        required: true 
         },
       status: {
         type: String,
@@ -44,6 +45,8 @@ const userSchema = new mongoose.Schema({
       },
     },
   ],
+  credits: { type: Number, default: 0 },
+  referralCode: { type: String, unique: true },
   createdAt: {
     type: Date,
     default: Date.now,

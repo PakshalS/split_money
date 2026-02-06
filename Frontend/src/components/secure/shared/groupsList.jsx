@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Search, Plus } from 'lucide-react';
+import { Search, Plus, LogIn } from 'lucide-react';
 import { useNavigate, useLocation } from "react-router-dom";
 import GroupListSkeleton from "./grouplistloader";
+import JoinGroupForm from "./JoinGroupForm";
 import useStore from "../../../store/useStore";
 
 const GroupList = ({ isDark, onFabClick }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [isJoinFormOpen, setIsJoinFormOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const currentGroupId = location.pathname.split('/groups/')[1] || null;
@@ -60,16 +62,36 @@ const GroupList = ({ isDark, onFabClick }) => {
       <div className="h-full relative">
         <GroupListSkeleton isDark={isDark} />
         <button
-          onClick={onFabClick}
-          className={`absolute bottom-6 right-6 p-4 rounded-full flex items-center justify-center font-medium transition-all duration-300 shadow-lg hover:shadow-xl active:scale-95 z-10 ${
+          onClick={() => setIsJoinFormOpen(true)}
+          className={`absolute bottom-20 right-6 p-2.5 rounded-full flex items-center justify-center font-medium transition-all duration-300 shadow-md active:scale-95 z-10 ${
             isDark
-                ? 'bg-green-600 hover:bg-green-700 text-white shadow-green-600/30 hover:shadow-green-600/50'
-                : 'bg-green-500 hover:bg-green-600 text-white shadow-green-500/30 hover:shadow-green-500/50'
+                ? 'bg-green-600 hover:bg-green-700 text-white'
+                : 'bg-green-500 hover:bg-green-600 text-white'
           }`}
         >
-          <Plus className="w-6 h-6" />
+          <LogIn className="w-5 h-5" />
+        </button>
+        <button
+          onClick={onFabClick}
+          className={`absolute bottom-6 right-6 p-2.5 rounded-full flex items-center justify-center font-medium transition-all duration-300 shadow-md active:scale-95 z-10 ${
+            isDark
+                ? 'bg-green-600 hover:bg-green-700 text-white'
+                : 'bg-green-500 hover:bg-green-600 text-white'
+          }`}
+        >
+          <Plus className="w-5 h-5" />
         </button>
       </div>
+    );
+  }
+
+  // If join form is open, render it instead
+  if (isJoinFormOpen) {
+    return (
+      <JoinGroupForm
+        isDark={isDark}
+        onBack={() => setIsJoinFormOpen(false)}
+      />
     );
   }
 
@@ -159,16 +181,28 @@ const GroupList = ({ isDark, onFabClick }) => {
         )}
       </div>
 
-      {/* Floating Action Button (FAB) */}
+      {/* Join Group FAB (Above Create FAB) */}
       <button
-        onClick={onFabClick}
-        className={`absolute bottom-6 right-6 p-4 rounded-full flex items-center justify-center font-medium transition-all duration-300 shadow-md active:scale-95 z-10 ${
+        onClick={() => setIsJoinFormOpen(true)}
+        className={`absolute bottom-20 right-6 p-2.5 rounded-full flex items-center justify-center font-medium transition-all duration-300 shadow-md active:scale-95 z-10 ${
           isDark
               ? 'bg-green-600 hover:bg-green-700 text-white'
               : 'bg-green-500 hover:bg-green-600 text-white'
         }`}
       >
-        <Plus className="w-6 h-6" />
+        <LogIn className="w-5 h-5" />
+      </button>
+
+      {/* Floating Action Button (FAB) */}
+      <button
+        onClick={onFabClick}
+        className={`absolute bottom-6 right-6 p-2.5 rounded-full flex items-center justify-center font-medium transition-all duration-300 shadow-md active:scale-95 z-10 ${
+          isDark
+              ? 'bg-green-600 hover:bg-green-700 text-white'
+              : 'bg-green-500 hover:bg-green-600 text-white'
+        }`}
+      >
+        <Plus className="w-5 h-5" />
       </button>
     </div>
   );
