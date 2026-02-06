@@ -115,7 +115,7 @@ const CreateGroupList = ({ isDark, onBack, onGroupCreated }) => {
   return (
     <div className={`h-full flex flex-col relative ${
       isDark 
-        ? 'bg-gray-800'
+        ? 'bg-dark-bg'
         : 'bg-gray-100'
     }`}>
       {/* Header with Close Button */}

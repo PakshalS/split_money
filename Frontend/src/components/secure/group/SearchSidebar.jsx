@@ -111,7 +111,7 @@ const SearchSidebar = ({
       {/* Sidebar */}
       <div
         className={`absolute top-0 right-0 h-full w-full md:w-[500px] ${
-          isDark ? "bg-gray-900" : "bg-white"
+          isDark ? "bg-dark-bg" : "bg-white"
         } md:border-l ${isDark ? "md:border-gray-700" : "md:border-gray-200"} shadow-2xl z-40 transform transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
         } overflow-hidden flex flex-col`}

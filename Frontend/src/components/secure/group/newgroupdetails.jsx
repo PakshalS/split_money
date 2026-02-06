@@ -243,7 +243,7 @@ const NewGroupDetails = () => {
   if (!groupDetails && !isLoading) {
     return (
       <div className={`h-full flex items-center justify-center ${
-        isDark ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
+        isDark ? "bg-dark-bg text-white" : "bg-gray-50 text-gray-900"
       }`}>
         <div className="text-center">
           <p className="text-xl">Group not found</p>
@@ -262,7 +262,7 @@ const NewGroupDetails = () => {
   return (
     <div
       className={`h-full flex flex-col relative overflow-hidden ${
-        isDark ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
+        isDark ? "bg-dark-bg text-white" : "bg-gray-50 text-gray-900"
       }`}
     >
       {/* Group Banner */}

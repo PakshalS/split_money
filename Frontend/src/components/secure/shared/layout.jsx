@@ -122,25 +122,14 @@ const MainLayout = () => {
 
   return (
     <BackgroundWrapper>
-      {isGroupPage ? (
-        <div className="hidden md:block">
-          <Header
-            isSidebarOpen={isSidebarOpen}
-            toggleSidebar={toggleSidebar}
-            isDark={isDark}
-            toggleTheme={toggleTheme}
-          />
-        </div>
-      ) : (
-        <Header
-          isSidebarOpen={isSidebarOpen}
-          toggleSidebar={toggleSidebar}
-          isDark={isDark}
-          toggleTheme={toggleTheme}
-        />
-      )}
+      <Header
+        isSidebarOpen={isSidebarOpen}
+        toggleSidebar={toggleSidebar}
+        isDark={isDark}
+        toggleTheme={toggleTheme}
+      />
 
-      <Sidebar isOpen={isSidebarOpen} isDark={isDark} />
+      <Sidebar isOpen={isSidebarOpen} isDark={isDark} toggleTheme={toggleTheme} toggleSidebar={toggleSidebar} />
 
       <BottomNavigation
         isDark={isDark}
@@ -152,8 +141,8 @@ const MainLayout = () => {
       <main
         className={`
         transition-all duration-300
-        ${isSidebarOpen ? "md:ml-64" : "md:ml-16"}
-        ${isGroupPage ? "pt-0 md:pt-16 pb-0" : "pt-16 pb-20"} md:pb-0
+        ${isSidebarOpen ? "md:ml-56" : "md:ml-16"}
+        ${isGroupPage ? "pt-0 md:pt-0 pb-2 md:pb-0" : "pt-16 md:pt-0 pb-20"} md:pb-0
         h-screen
       `}
       >
@@ -165,7 +154,7 @@ const MainLayout = () => {
             w-full md:w-96 h-full flex-shrink-0
             ${
               isDark
-                ? "bg-gray-800 border-gray-700"
+                ? "bg-dark-bg border-gray-700"
                 : "bg-white border-gray-200"
             } 
             md:border-r
@@ -226,7 +215,7 @@ const MainLayout = () => {
             className={`
             ${isGroupPage ? "flex" : "hidden md:flex"}
             flex-1 h-full min-w-0
-            ${isDark ? "bg-gray-900" : "bg-gray-50"}
+            ${isDark ? "bg-dark-bg" : "bg-gray-50"}
           `}
           >
             {isGroupPage ? (
@@ -243,6 +232,26 @@ const MainLayout = () => {
                     onRefreshAll: fetchAllFriendsData,
                   }}
                 />
+              </div>
+            ) : isHomePage ? (
+              <div className="h-full w-full flex items-center justify-center">
+                <div className="text-center">
+        
+                  <h3
+                    className={`text-lg font-medium mb-2 ${
+                      isDark ? "text-gray-400" : "text-gray-600"
+                    }`}
+                  >
+                    Create and Join Groups
+                  </h3>
+                  <p
+                    className={`text-sm ${
+                      isDark ? "text-gray-500" : "text-gray-500"
+                    }`}
+                  >
+                    Start splitting expenses with your groups
+                  </p>
+                </div>
               </div>
             ) : isFriendsPage ? (
               <div className="h-full w-full flex items-center justify-center">
@@ -271,13 +280,7 @@ const MainLayout = () => {
             ) : (
               <div className="h-full w-full flex items-center justify-center">
                 <div className="text-center">
-                  <div
-                    className={`text-4xl mb-4 ${
-                      isDark ? "text-gray-600" : "text-gray-400"
-                    }`}
-                  >
-                    ⚙️
-                  </div>
+    
                   <h3
                     className={`text-lg font-medium mb-2 ${
                       isDark ? "text-gray-400" : "text-gray-600"

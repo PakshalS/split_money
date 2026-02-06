@@ -57,7 +57,7 @@ const RequestPasswordResetComponent = ({ isDark }) => {
         {/* Icon & Title */}
         <div className="flex flex-col gap-4 mb-8">
           <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-            isDark ? 'bg-green-900/20 text-green-500' : 'bg-green-100 text-green-600'
+            isDark ? 'bg-[#1f2329] text-white' : 'bg-gray-300 text-black'
           }`}>
             <Mail className="w-6 h-6" />
           </div>
@@ -135,8 +135,8 @@ const RequestPasswordResetComponent = ({ isDark }) => {
               disabled={loading || !userEmail}
               className={`w-full sm:w-auto py-3 px-6 rounded-xl font-medium transition-all duration-300 shadow-lg flex items-center justify-center gap-2 text-sm active:scale-[0.98] ${
                 isDark 
-                  ? 'bg-green-600 text-white hover:bg-green-500 shadow-green-900/20' 
-                  : 'bg-green-600 text-white hover:bg-green-700 shadow-green-500/20'
+                  ? 'bg-[#1f2329] text-white hover:bg-gray-800' 
+                  : 'bg-gray-400 text-white hover:bg-gray-500'
               }`}
             >
               <Send className="w-4 h-4" />

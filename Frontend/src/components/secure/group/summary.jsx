@@ -10,7 +10,7 @@ const SummaryComponent = ({ summary = [], isDark, isAdmin, onSettleUp, compact =
   return (
     <div className={`rounded-xl sm:rounded-2xl ${containerPadding} border transition-all duration-300 ${
       isDark 
-        ? 'bg-gray-900 border-gray-800' 
+        ? 'bg-dark-bg border-gray-800' 
         :'bg-gray-50 border-gray-200'
     }`}>
       {/* Header */}
@@ -48,7 +48,7 @@ const SummaryComponent = ({ summary = [], isDark, isAdmin, onSettleUp, compact =
               key={`${item.from}-${item.to}-${index}`}
               className={`border-2 ${itemPadding} rounded-lg sm:rounded-xl transition-all duration-300 ${
                 isDark 
-                  ? 'bg-gray-900/50 border-gray-800 hover:border-gray-700' 
+                  ? 'bg-dark-bg/50 border-gray-800 hover:border-gray-700' 
                   : 'bg-gray-50 border-gray-200 hover:border-gray-300'
               }`}
             >

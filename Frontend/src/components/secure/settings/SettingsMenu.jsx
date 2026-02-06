@@ -56,7 +56,7 @@ const SettingsMenu = ({ isDark, selectedSetting, onSelectSetting, showContentInl
     return (
       <div
         className={`h-full flex flex-col ${
-          isDark ? "bg-gray-800" : "bg-white"
+          isDark ? "bg-dark-bg" : "bg-white"
         }`}
       >
         {/* Header with back button */}
@@ -113,7 +113,7 @@ const SettingsMenu = ({ isDark, selectedSetting, onSelectSetting, showContentInl
   return (
     <div
       className={`h-full flex flex-col ${
-        isDark ? "bg-gray-800" : "bg-white"
+        isDark ? "bg-dark-bg" : "bg-white"
       }`}
     >
       {/* Search Bar */}

@@ -5,6 +5,11 @@ export default {
     extend: {
       backgroundImage: {
         'auth-back': "url('/back.jpg')",
+      },
+      colors: {
+        'dark-bg': '#2d323b',
+        'dark-hover': '#3a4049',
+        'dark-border': '#404852',
       }
     },
     screens: {

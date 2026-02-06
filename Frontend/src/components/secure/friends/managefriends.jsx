@@ -77,7 +77,7 @@ const FriendListComponent = ({ friends = [], onFriendRemoved, isDark }) => {
                 key={friend._id}
                 className={`flex items-center gap-3 p-3 rounded-lg transition-colors group ${
                   isDark 
-                    ? 'hover:bg-gray-800' 
+                    ? 'hover:bg-[#1f2329]' 
                     : 'hover:bg-gray-50'
                 }`}
               >
@@ -122,7 +122,7 @@ const FriendListComponent = ({ friends = [], onFriendRemoved, isDark }) => {
       {friendToDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className={`w-full max-w-xs p-6 rounded-2xl shadow-2xl transform transition-all scale-100 ${
-            isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white'
+            isDark ? 'bg-[#1f2329] border border-gray-700' : 'bg-white'
           }`}>
             <div className="flex flex-col items-center text-center">
               <div className={`p-3 rounded-full mb-4 ${

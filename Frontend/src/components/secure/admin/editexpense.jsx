@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import Cookies from 'js-cookie';
-import { Edit, X, Users, IndianRupee, CheckCircle } from 'lucide-react';
+import { Edit, X, Users, IndianRupee, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import useStore from '../../../store/useStore';
 
 const EditExpenseForm = ({ groupId, expense, onClose, isDark }) => {
+  const [currentStep, setCurrentStep] = useState(1);
   const [expenseName, setExpenseName] = useState(expense.name || "");
   const [amount, setAmount] = useState(expense.amount || 0);
   const [members, setMembers] = useState([]);
@@ -103,121 +104,195 @@ const EditExpenseForm = ({ groupId, expense, onClose, isDark }) => {
     setSplitAmongst(members);
   };
 
+  const handleNextStep = () => {
+    if (currentStep === 1) {
+      if (!expenseName.trim()) {
+        setError('Please enter an expense name');
+        return;
+      }
+      if (!amount || parseFloat(amount) <= 0) {
+        setError('Please enter a valid amount');
+        return;
+      }
+      setError('');
+      setCurrentStep(2);
+    } else if (currentStep === 2) {
+      const totalPaid = paidBy.reduce((sum, member) => sum + parseFloat(member.amount || 0), 0);
+      const totalAmount = parseFloat(amount);
+      
+      if (paidBy.length === 0) {
+        setError('Please select at least one person who paid');
+        return;
+      }
+      
+      if (Math.abs(totalPaid - totalAmount) > 0.01) {
+        setError('Total amount paid by members must equal the specified amount.');
+        return;
+      }
+      
+      setError('');
+      setCurrentStep(3);
+    }
+  };
+
+  const handleBack = () => {
+    setError('');
+    setCurrentStep(currentStep - 1);
+  };
+
+  const getStepTitle = () => {
+    switch (currentStep) {
+      case 1:
+        return 'Expense Details';
+      case 2:
+        return 'Who Paid?';
+      case 3:
+        return 'Split Between';
+      default:
+        return 'Edit Expense';
+    }
+  };
+
   return (
-    <div className="absolute inset-0 bg-black/80 backdrop-blur-0 flex items-center justify-center z-50 p-3 sm:p-4 md:p-6">
-      <div className={`rounded-xl sm:rounded-2xl shadow-2xl border w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto scrollbar-hide ${
+    <div className={`absolute inset-0 z-50 flex flex-col ${isDark ? 'bg-dark-bg' : 'bg-gray-50'}`}>
+      <style>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
+      
+      {/* Header */}
+      <div className={`flex-shrink-0 border-b p-4 flex items-center justify-between ${
         isDark 
-          ? 'bg-gradient-to-br from-gray-900 to-gray-950 border-gray-800' 
-          : 'bg-gradient-to-br from-white to-gray-50 border-gray-200'
+          ? 'bg-[#1f2329] border-gray-700' 
+          : 'bg-white border-gray-200'
       }`}>
-        {/* Header */}
-        <div className={`sticky top-0 border-b p-4 sm:p-5 md:p-6 flex items-center justify-between rounded-t-xl sm:rounded-t-2xl z-50 shadow-xl ${
-          isDark 
-            ? 'bg-gray-900 border-gray-800' 
-            : 'bg-white border-gray-200'
-        }`}>
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-            <div className={`p-1.5 sm:p-2 rounded-lg flex-shrink-0 ${
-              isDark ? 'bg-yellow-500/10' : 'bg-yellow-100'
-            }`}>
-              <Edit className={`w-5 h-5 sm:w-6 sm:h-6 ${
-                isDark ? 'text-yellow-500' : 'text-yellow-600'
-              }`} />
-            </div>
-            <h2 className={`text-xl sm:text-2xl font-bold truncate ${
-              isDark ? 'text-white' : 'text-gray-900'
-            }`}>Edit Expense</h2>
-          </div>
-          <button
-            onClick={onClose}
-            className={`p-1.5 sm:p-2 rounded-lg transition-colors duration-300 flex-shrink-0 ${
-              isDark 
-                ? 'hover:bg-gray-800 text-gray-400 hover:text-white' 
-                : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            <X className="w-5 h-5 sm:w-6 sm:h-6" />
-          </button>
-        </div>
-
-        <div className="p-4 sm:p-5 md:p-6 space-y-4 sm:space-y-5 md:space-y-6">
-          {/* Expense Name */}
-          <div>
-            <label className={`text-xs sm:text-sm mb-2 block ${
-              isDark ? 'text-gray-400' : 'text-gray-600'
-            }`}>Expense Name</label>
-            <input
-              type="text"
-              placeholder="Enter expense name"
-              value={expenseName}
-              onChange={(e) => setExpenseName(e.target.value)}
-              className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl border-2 text-sm sm:text-base focus:outline-none transition-all duration-300 focus:shadow-lg ${
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          {currentStep > 1 && (
+            <button
+              onClick={handleBack}
+              className={`p-2 rounded-lg transition-colors ${
                 isDark 
-                  ? 'border-gray-700 bg-gray-900/50 text-white placeholder-gray-500 focus:border-yellow-500 focus:shadow-yellow-500/20' 
-                  : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:border-yellow-500 focus:shadow-yellow-500/20'
+                  ? 'hover:bg-[#1f2329] text-gray-400 hover:text-white' 
+                  : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
               }`}
-            />
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+          )}
+          <div className="flex-1 min-w-0">
+            <h2 className={`text-xl font-bold truncate ${
+              isDark ? 'text-white' : 'text-gray-900'
+            }`}>{getStepTitle()}</h2>
+            <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+              Step {currentStep} of 3
+            </p>
           </div>
+        </div>
+        <button
+          onClick={onClose}
+          className={`p-2 rounded-lg transition-colors ${
+            isDark 
+              ? 'hover:bg-[#1f2329] text-gray-400 hover:text-white' 
+              : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          <X className="w-6 h-6" />
+        </button>
+      </div>
 
-          {/* Total Amount */}
-          <div>
-            <label className={`text-xs sm:text-sm mb-2 block ${
-              isDark ? 'text-gray-400' : 'text-gray-600'
-            }`}>Total Amount</label>
-            <div className="relative">
-              <IndianRupee className={`absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 ${
-                isDark ? 'text-gray-500' : 'text-gray-400'
-              }`} />
+      {/* Step Progress Indicator */}
+      <div className={`flex-shrink-0 flex gap-2 px-4 py-3 border-b ${
+        isDark ? 'border-gray-700' : 'border-gray-200'
+      }`}>
+        {[1, 2, 3].map((step) => (
+          <div
+            key={step}
+            className={`h-1 flex-1 rounded-full transition-all ${
+              step <= currentStep
+                ? isDark
+                  ? 'bg-yellow-600'
+                  : 'bg-yellow-500'
+                : isDark
+                ? 'bg-[#1f2329]'
+                : 'bg-gray-200'
+            }`}
+          />
+        ))}
+      </div>
+
+      {/* Content Area */}
+      <div className="flex-1 overflow-y-auto p-4">
+        {/* Step 1: Expense Details */}
+        {currentStep === 1 && (
+          <div className="space-y-6 max-w-md">
+            <div>
+              <label className={`text-sm mb-2 block font-medium ${
+                isDark ? 'text-gray-300' : 'text-gray-700'
+              }`}>Expense Name</label>
               <input
-                type="number"
-                placeholder="0.00"
-                value={amount}
-                onChange={(e) => {
-                  setAmount(e.target.value >= 0 ? e.target.value : '');
-                  setIsPaidEqually(false);
-                }}
-                className={`w-full pl-10 sm:pl-12 pr-3 sm:pr-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl border-2 text-sm sm:text-base focus:outline-none transition-all duration-300 focus:shadow-lg ${
+                type="text"
+                placeholder="Enter expense name"
+                value={expenseName}
+                onChange={(e) => setExpenseName(e.target.value)}
+                className={`w-full px-4 py-3 rounded-xl border-2 text-base focus:outline-none transition-all ${
                   isDark 
-                    ? 'border-gray-700 bg-gray-900/50 text-white placeholder-gray-500 focus:border-yellow-500 focus:shadow-yellow-500/20' 
-                    : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:border-yellow-500 focus:shadow-yellow-500/20'
+                    ? 'border-gray-700 bg-[#1f2329] text-white placeholder-gray-500 focus:border-yellow-600' 
+                    : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:border-yellow-500'
                 }`}
               />
             </div>
-          </div>
 
-          {/* Paid Equally Button */}
-          <button
-            onClick={handlePaidEqually}
-            disabled={!amount || parseFloat(amount) <= 0}
-            className={`w-full font-semibold py-2.5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg flex items-center justify-center gap-2 text-sm sm:text-base active:scale-[0.98] ${
-              isDark 
-                ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white hover:shadow-blue-500/50' 
-                : 'bg-gradient-to-r from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white hover:shadow-blue-400/50'
-            }`}
-          >
-            <Users className="w-4 h-4 sm:w-5 sm:h-5" />
-            Paid Equally (Auto-fill)
-          </button>
-
-          {/* Paid By Section */}
-          <div>
-            <div className="flex items-center gap-2 mb-2 sm:mb-3">
-              <IndianRupee className={`w-4 h-4 sm:w-5 sm:h-5 ${
-                isDark ? 'text-yellow-500' : 'text-yellow-600'
-              }`} />
-              <h3 className={`font-semibold text-base sm:text-lg ${
-                isDark ? 'text-white' : 'text-gray-900'
-              }`}>Paid By</h3>
+            <div>
+              <label className={`text-sm mb-2 block font-medium ${
+                isDark ? 'text-gray-300' : 'text-gray-700'
+              }`}>Total Amount</label>
+              <div className="relative">
+                <IndianRupee className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 ${
+                  isDark ? 'text-gray-500' : 'text-gray-400'
+                }`} />
+                <input
+                  type="number"
+                  placeholder="0.00"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value >= 0 ? e.target.value : '')}
+                  className={`w-full pl-12 pr-4 py-3 rounded-xl border-2 text-base focus:outline-none transition-all ${
+                    isDark 
+                      ? 'border-gray-700 bg-[#1f2329] text-white placeholder-gray-500 focus:border-yellow-600' 
+                      : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:border-yellow-500'
+                  }`}
+                />
+              </div>
             </div>
-            <div className={`space-y-2 ${members.length > 3 ? 'max-h-[180px] sm:max-h-[200px] overflow-y-auto scrollbar-hide' : ''} rounded-lg sm:rounded-xl p-2 sm:p-3 ${
-              isDark ? 'bg-gray-900/30' : 'bg-gray-100/50'
-            }`}>
+          </div>
+        )}
+
+        {/* Step 2: Paid By */}
+        {currentStep === 2 && (
+          <div className="space-y-4 max-w-md">
+            <button
+              onClick={handlePaidEqually}
+              className={`px-4 py-2.5 rounded-lg transition-all flex items-center gap-2 text-sm font-medium ${
+                isDark 
+                  ? 'bg-[#1f2329] hover:bg-gray-700 text-gray-300 border border-gray-700' 
+                  : 'bg-white hover:bg-gray-50 text-gray-700 border border-gray-200'
+              }`}
+            >
+              <Users className="w-4 h-4" />
+              Paid Equally (Auto-fill)
+            </button>
+
+            <div className="space-y-2 max-h-[400px] overflow-y-auto scrollbar-hide">
               {members.map((member, index) => (
                 <div
                   key={index}
-                  className={`flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg border ${
+                  className={`flex items-center gap-3 p-3 rounded-lg border ${
                     isDark 
-                      ? 'bg-gray-800/50 border-gray-700' 
+                      ? 'bg-[#1f2329] border-gray-700' 
                       : 'bg-white border-gray-200'
                   }`}
                 >
@@ -233,13 +308,9 @@ const EditExpenseForm = ({ groupId, expense, onClose, isDark }) => {
                       }
                     }}
                     disabled={isPaidEqually}
-                    className={`w-4 h-4 sm:w-5 sm:h-5 rounded text-yellow-500 focus:ring-yellow-500 disabled:opacity-50 flex-shrink-0 ${
-                      isDark 
-                        ? 'border-gray-600 focus:ring-offset-gray-800' 
-                        : 'border-gray-300 focus:ring-offset-white'
-                    }`}
+                    className="w-5 h-5 rounded text-yellow-600 focus:ring-yellow-600"
                   />
-                  <span className={`text-sm sm:text-base flex-1 min-w-0 truncate ${
+                  <span className={`text-base flex-1 ${
                     isDark ? 'text-white' : 'text-gray-900'
                   }`}>{member.name}</span>
                   {paidBy.find(p => p.name === member.name) && (
@@ -249,9 +320,9 @@ const EditExpenseForm = ({ groupId, expense, onClose, isDark }) => {
                       value={paidBy.find(p => p.name === member.name)?.amount || ''}
                       onChange={(e) => handleAmountChange(e, member)}
                       disabled={isPaidEqually}
-                      className={`w-20 sm:w-24 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border-2 text-sm sm:text-base text-right focus:outline-none transition-all duration-300 disabled:opacity-50 flex-shrink-0 ${
+                      className={`w-24 px-3 py-2 rounded-lg border-2 text-base text-right focus:outline-none ${
                         isDark 
-                          ? 'border-gray-600 bg-gray-900 text-white focus:border-yellow-500' 
+                          ? 'border-gray-600 bg-gray-900 text-white focus:border-yellow-600' 
                           : 'border-gray-300 bg-white text-gray-900 focus:border-yellow-500'
                       }`}
                     />
@@ -259,50 +330,43 @@ const EditExpenseForm = ({ groupId, expense, onClose, isDark }) => {
                 </div>
               ))}
             </div>
+
             {isPaidEqually && (
-              <div className={`mt-2 p-2 sm:p-3 border rounded-lg text-xs sm:text-sm flex items-center gap-2 ${
+              <div className={`p-3 border rounded-xl text-sm flex items-center gap-2 ${
                 isDark 
                   ? 'bg-blue-500/10 border-blue-500/50 text-blue-400' 
                   : 'bg-blue-50 border-blue-300 text-blue-600'
               }`}>
-                <CheckCircle className="w-4 h-4 flex-shrink-0" />
-                <span>Paid equally mode active - amounts are locked</span>
+                <CheckCircle className="w-4 h-4" />
+                <span>Paid equally mode active</span>
               </div>
             )}
           </div>
+        )}
 
-          {/* Split Amongst Section */}
-          <div>
-            <div className="flex items-center justify-between mb-2 sm:mb-3">
-              <div className="flex items-center gap-2">
-                <Users className={`w-4 h-4 sm:w-5 sm:h-5 ${
-                  isDark ? 'text-yellow-500' : 'text-yellow-600'
-                }`} />
-                <h3 className={`font-semibold text-base sm:text-lg ${
-                  isDark ? 'text-white' : 'text-gray-900'
-                }`}>Split Amongst</h3>
-              </div>
-              <button
-                onClick={handleSplitEqually}
-                disabled={isPaidEqually}
-                className={`text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all duration-300 disabled:opacity-50 active:scale-[0.98] ${
-                  isDark 
-                    ? 'bg-gray-800 hover:bg-gray-700 text-yellow-500' 
-                    : 'bg-gray-200 hover:bg-gray-300 text-yellow-600'
-                }`}
-              >
-                Split Equally
-              </button>
-            </div>
-            <div className={`space-y-2 ${members.length > 3 ? 'max-h-[180px] sm:max-h-[200px] overflow-y-auto scrollbar-hide' : ''} rounded-lg sm:rounded-xl p-2 sm:p-3 ${
-              isDark ? 'bg-gray-900/30' : 'bg-gray-100/50'
-            }`}>
+        {/* Step 3: Split Amongst */}
+        {currentStep === 3 && (
+          <div className="space-y-4 max-w-md">
+            <button
+              onClick={handleSplitEqually}
+              disabled={isPaidEqually}
+              className={`px-4 py-2.5 rounded-lg transition-all flex items-center gap-2 text-sm font-medium disabled:opacity-50 ${
+                isDark 
+                  ? 'bg-[#1f2329] hover:bg-gray-700 text-gray-300 border border-gray-700' 
+                  : 'bg-white hover:bg-gray-50 text-gray-700 border border-gray-200'
+              }`}
+            >
+              <Users className="w-4 h-4" />
+              Split Equally
+            </button>
+
+            <div className="space-y-2 max-h-[400px] overflow-y-auto scrollbar-hide">
               {members.map((member, index) => (
                 <div
                   key={index}
-                  className={`flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg border ${
+                  className={`flex items-center gap-3 p-3 rounded-lg border ${
                     isDark 
-                      ? 'bg-gray-800/50 border-gray-700' 
+                      ? 'bg-[#1f2329] border-gray-700' 
                       : 'bg-white border-gray-200'
                   }`}
                 >
@@ -318,69 +382,73 @@ const EditExpenseForm = ({ groupId, expense, onClose, isDark }) => {
                       }
                     }}
                     disabled={isPaidEqually}
-                    className={`w-4 h-4 sm:w-5 sm:h-5 rounded text-yellow-500 focus:ring-yellow-500 disabled:opacity-50 flex-shrink-0 ${
-                      isDark 
-                        ? 'border-gray-600 focus:ring-offset-gray-800' 
-                        : 'border-gray-300 focus:ring-offset-white'
-                    }`}
+                    className="w-5 h-5 rounded text-yellow-600 focus:ring-yellow-600"
                   />
-                  <span className={`text-sm sm:text-base ${
+                  <span className={`text-base ${
                     isDark ? 'text-white' : 'text-gray-900'
                   }`}>{member.name}</span>
                 </div>
               ))}
             </div>
           </div>
+        )}
 
-          {/* Error Message */}
-          {error && (
-            <div className={`p-3 sm:p-4 border rounded-lg sm:rounded-xl text-center text-sm sm:text-base ${
-              isDark 
-                ? 'bg-red-500/10 border-red-500/50 text-red-500' 
-                : 'bg-red-50 border-red-300 text-red-600'
-            }`}>
-              {error}
-            </div>
-          )}
-
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-2 sm:pt-4">
-            <button
-              onClick={onClose}
-              className={`w-full sm:flex-1 font-semibold py-2.5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-300 text-sm sm:text-base active:scale-[0.98] ${
-                isDark 
-                  ? 'bg-gray-800 hover:bg-gray-700 text-white' 
-                  : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
-              }`}
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleUpdateExpense}
-              disabled={loading}
-              className={`w-full sm:flex-1 bg-gradient-to-r font-semibold py-2.5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg flex items-center justify-center gap-2 text-sm sm:text-base active:scale-[0.98] ${
-                isDark 
-                  ? 'from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white hover:shadow-yellow-500/50' 
-                  : 'from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-white hover:shadow-yellow-400/50'
-              }`}
-            >
-              <Edit className="w-4 h-4 sm:w-5 sm:h-5" />
-              {loading ? 'Updating...' : 'Update Expense'}
-            </button>
+        {/* Error Message */}
+        {error && (
+          <div className={`mt-4 p-4 border rounded-xl ${
+            isDark 
+              ? 'bg-red-500/10 border-red-500/50 text-red-500' 
+              : 'bg-red-50 border-red-300 text-red-600'
+          }`}>
+            {error}
           </div>
-        </div>
+        )}
       </div>
 
-      <style>{`
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-        
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
+      {/* Bottom Action Bar */}
+      <div className={`flex-shrink-0 p-4 border-t flex items-center justify-between ${
+        isDark ? 'bg-[#1f2329] border-gray-700' : 'bg-white border-gray-200'
+      }`}>
+        {currentStep > 1 ? (
+          <button
+            onClick={handleBack}
+            className={`p-3 rounded-full transition-colors ${
+              isDark 
+                ? 'bg-[#1f2329] hover:bg-gray-700 text-white' 
+                : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
+            }`}
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+        ) : (
+          <div className="w-12" />
+        )}
+
+        {currentStep < 3 ? (
+          <button
+            onClick={handleNextStep}
+            className={`p-3 rounded-full transition-colors shadow-lg ${
+              isDark 
+                ? 'bg-yellow-600 hover:bg-yellow-700 text-white' 
+                : 'bg-yellow-500 hover:bg-yellow-600 text-white'
+            }`}
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+        ) : (
+          <button
+            onClick={handleUpdateExpense}
+            disabled={loading}
+            className={`px-6 py-3 rounded-full transition-colors shadow-lg disabled:opacity-50 font-semibold ${
+              isDark 
+                ? 'bg-yellow-600 hover:bg-yellow-700 text-white' 
+                : 'bg-yellow-500 hover:bg-yellow-600 text-white'
+            }`}
+          >
+            {loading ? 'Updating...' : 'Update Expense'}
+          </button>
+        )}
+      </div>
     </div>
   );
 };

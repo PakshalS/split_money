@@ -319,7 +319,7 @@ const GroupInfoSidebar = ({
       {/* Sidebar */}
       <div
         className={`absolute top-0 right-0 h-full w-full md:w-[500px] ${
-          isDark ? "bg-gray-900" : "bg-white"
+          isDark ? "bg-dark-bg" : "bg-white"
         } md:border-l ${
           isDark ? "md:border-gray-700" : "md:border-gray-200"
         } shadow-2xl z-40 transform transition-transform duration-300 ease-in-out ${
@@ -329,13 +329,13 @@ const GroupInfoSidebar = ({
         {/* Header */}
         <div
           className={`p-4 border-b ${
-            isDark ? "border-gray-700" : "border-gray-200"
+            isDark ? "border-gray-700 bg-[#1f2329]" : "border-gray-200"
           } flex-shrink-0`}
         >
           <div className="flex items-center justify-between">
             <h2
               className={`text-lg font-medium truncate ${
-                isDark ? "text-white" : "text-gray-900"
+                isDark ? "text-white " : "text-gray-900"
               }`}
             >
               Group info
@@ -366,8 +366,8 @@ const GroupInfoSidebar = ({
             <div
               className={`flex items-center justify-center w-28 h-28 md:w-32 md:h-32 rounded-full font-bold text-4xl md:text-5xl ${
                 isDark
-                  ? "bg-gradient-to-br from-green-600 to-green-500 text-white"
-                  : "bg-gradient-to-br from-green-500 to-green-400 text-white"
+                  ? "bg-[#1f2329] text-white"
+                  : "bg-[#1f2329] text-white"
               } shadow-lg mb-4`}
             >
               {getInitial(groupName)}
@@ -467,7 +467,7 @@ const GroupInfoSidebar = ({
                     onClick={onAddMember}
                     className={`flex flex-col items-center justify-center gap-2 py-3 rounded-lg transition-colors ${
                       isDark
-                        ? "bg-gray-800 hover:bg-gray-700 text-white"
+                        ? "bg-[#1f2329] hover:bg-gray-700 text-white"
                         : "bg-gray-100 hover:bg-gray-200 text-black"
                     }`}
                   >
@@ -480,7 +480,7 @@ const GroupInfoSidebar = ({
                     onClick={handleCopyInviteLink}
                     className={`flex flex-col items-center justify-center gap-2 py-3 rounded-lg transition-colors ${
                       isDark
-                        ? "bg-gray-800 hover:bg-gray-700 text-white"
+                        ? "bg-[#1f2329] hover:bg-gray-700 text-white"
                         : "bg-gray-100 hover:bg-gray-200 text-black"
                     }`}
                   >
@@ -493,7 +493,7 @@ const GroupInfoSidebar = ({
           </div>
 
           {/* 1. Summary Section */}
-          <div className={`${isDark ? "bg-gray-900" : "bg-white"} py-2`}>
+          <div className={`${isDark ? "bg-dark-bg" : "bg-white"} py-2`}>
             {/* Section Header */}
             <div className={`px-5 md:px-6 py-3 text-sm font-medium ${
                isDark ? "text-green-500" : "text-green-600"
@@ -565,12 +565,9 @@ const GroupInfoSidebar = ({
                </div>
             )}
           </div>
-          
-          {/* Divider */}
-          <div className={`h-2 ${isDark ? "bg-black/20" : "bg-gray-50"}`}></div>
 
           {/* 2. Participants Section */}
-          <div className={`${isDark ? "bg-gray-900" : "bg-white"} py-2`}>
+          <div className={`${isDark ? "bg-dark-bg" : "bg-white"} py-2`}>
             {/* Section Header */}
             <div className={`px-5 md:px-6 py-3 text-sm font-medium ${
                isDark ? "text-green-500" : "text-green-600"
@@ -598,7 +595,8 @@ const GroupInfoSidebar = ({
                 return (
                   <div
                     key={index}
-                    className={`flex items-center gap-3 justify-between px-5 md:px-6 py-3 transition-colors ${
+                    onClick={() => handleMemberClick(member)}
+                    className={`flex items-center gap-3 justify-between px-5 md:px-6 py-3 transition-colors cursor-pointer ${
                       isDark ? "hover:bg-gray-800/30" : "hover:bg-gray-50"
                     }`}
                   >
@@ -641,7 +639,10 @@ const GroupInfoSidebar = ({
                     {isAdmin && !isCurrentUser && (
                       <div className="relative flex-shrink-0" ref={openMenuFor === member.name ? menuRef : null}>
                         <button
-                          onClick={() => setOpenMenuFor(openMenuFor === member.name ? null : member.name)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenMenuFor(openMenuFor === member.name ? null : member.name);
+                          }}
                           className={`p-2 rounded-full transition-colors ${
                             isDark ? "hover:bg-gray-800 text-gray-600" : "hover:bg-gray-200 text-gray-600"
                           }`}
@@ -656,7 +657,10 @@ const GroupInfoSidebar = ({
                           }`}>
                             {isThisUserAdmin ? (
                               <button
-                                onClick={() => handleRemoveAdmin(member.name)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleRemoveAdmin(member.name);
+                                }}
                                 className={`w-full text-left px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                                   isDark ? "text-red-400 hover:bg-gray-700" : "text-red-600 hover:bg-gray-100"
                                 }`}
@@ -665,7 +669,10 @@ const GroupInfoSidebar = ({
                               </button>
                             ) : (
                               <button
-                                onClick={() => handleMakeAdmin(member.name)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleMakeAdmin(member.name);
+                                }}
                                 className={`w-full text-left px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                                   isDark ? "text-green-400 hover:bg-gray-700" : "text-green-600 hover:bg-gray-100"
                                 }`}
@@ -696,9 +703,6 @@ const GroupInfoSidebar = ({
               )}
             </div>
           </div>
-          
-          {/* Divider */}
-          <div className={`h-2 ${isDark ? "bg-black/20" : "bg-gray-50"}`}></div>
 
           {/* Strict Join Toggle (Admin Only) */}
           {isAdmin && (
@@ -831,9 +835,7 @@ const GroupInfoSidebar = ({
             </div>
           )}
 
-          {/* Divider */}
-          <div className={`h-2 ${isDark ? "bg-black/20" : "bg-gray-50"}`}></div>
-          <div className={`px-5 md:px-6 py-4 ${isDark ? "bg-gray-900" : "bg-white"}`}>
+          <div className={`px-5 md:px-6 py-4 ${isDark ? "bg-dark-bg" : "bg-white"}`}>
             <button
               onClick={() => {
                 if (window.confirm("Are you sure you want to leave this group?")) {

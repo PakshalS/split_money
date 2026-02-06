@@ -13,7 +13,7 @@ const BottomActionBar = ({
 
   return (
     <div className={`absolute bottom-16 md:bottom-0 left-0 right-0 z-20 ${
-      isDark ? "bg-gray-900/95 border-gray-800" : "bg-white/95 border-gray-200"
+      isDark ? "bg-dark-bg border-gray-800" : "bg-white/95 border-gray-200"
     } border-t backdrop-blur-md`}>
       <div className="flex items-center gap-3 px-4 py-3 sm:px-6 sm:py-4">
         {/* Filter Button (icon only) */}
@@ -22,7 +22,7 @@ const BottomActionBar = ({
           aria-label="Filter"
           className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors ${
             isDark
-              ? "bg-gray-800 hover:bg-gray-700 text-gray-200"
+              ? "bg-[#1f2329] hover:bg-gray-700 text-gray-200"
               : "bg-gray-100 hover:bg-gray-200 text-gray-700"
           }`}
         >
@@ -31,7 +31,7 @@ const BottomActionBar = ({
 
         {/* Active filter tag */}
         <div className={`flex-1 h-11 rounded-full px-4 flex items-center ${
-          isDark ? "bg-gray-800 text-gray-200" : "bg-gray-100 text-gray-800"
+          isDark ? "bg-[#1f2329] text-gray-200" : "bg-gray-100 text-gray-800"
         }`}>
           <span className="text-sm sm:text-base font-medium truncate">
             {filterLabel}

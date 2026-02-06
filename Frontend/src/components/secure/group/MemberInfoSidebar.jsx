@@ -179,9 +179,9 @@ const MemberInfoSidebar = ({
     <>
       {/* Sidebar */}
       <div
-        className={`absolute top-0 right-0 h-full w-full md:w-[500px] ${
-          isDark ? "bg-gray-900" : "bg-white"
-        } md:border-l md:border-t ${
+        className={`absolute top-0 right-0 h-[calc(100%-65px)] md:h-full w-full md:w-[500px] ${
+          isDark ? "bg-dark-bg" : "bg-white"
+        } md:border-l ${
           isDark ? "md:border-gray-700" : "md:border-gray-200"
         } shadow-2xl z-50 transform transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
@@ -190,7 +190,7 @@ const MemberInfoSidebar = ({
         {/* Header */}
         <div
           className={`p-4 border-b ${
-            isDark ? "border-gray-700" : "border-gray-200"
+            isDark ? "border-gray-700 bg-[#1f2329]" : "border-gray-200"
           } flex-shrink-0`}
         >
           <div className="flex items-center justify-between mb-3">
@@ -220,24 +220,24 @@ const MemberInfoSidebar = ({
         <div className="flex-1 overflow-y-auto scrollbar-hide">
           {/* Member Info Section */}
           <div
-            className={`flex flex-col items-center py-10 md:py-12 border-b ${
-              isDark ? "border-gray-700 bg-gray-950" : "border-gray-200 bg-gray-50"
+            className={`flex flex-col items-center py-8 border-b ${
+              isDark ? "border-gray-700 bg-gray-850" : "border-gray-200 bg-gray-50"
             }`}
           >
             {/* Member Avatar */}
             <div
-              className={`flex items-center justify-center w-36 h-36 md:w-40 md:h-40 rounded-full font-bold text-6xl md:text-7xl ${
+              className={`flex items-center justify-center w-28 h-28 md:w-32 md:h-32 rounded-full font-bold text-4xl md:text-5xl ${
                 isDark
-                  ? "bg-gray-700 text-gray-300"
-                  : "bg-gray-300 text-gray-700"
-              } shadow-xl mb-5`}
+                  ? "bg-[#1f2329] text-white"
+                  : "bg-[#1f2329] text-white"
+              } shadow-lg mb-4`}
             >
               {getInitial(member.name)}
             </div>
 
             {/* Member Name */}
             <h1
-              className={`text-2xl md:text-3xl font-bold mb-2 px-4 text-center ${
+              className={`text-xl md:text-2xl font-bold mb-1 px-4 text-center ${
                 isDark ? "text-white" : "text-gray-900"
               }`}
             >
@@ -259,7 +259,7 @@ const MemberInfoSidebar = ({
           {/* Action Buttons Section - Only show if not viewing self */}
           {!isSelf && (
             <div className={`p-6 border-b ${
-              isDark ? "bg-gray-900 border-gray-700" : "bg-white border-gray-200"
+              isDark ? "bg-dark-bg border-gray-700" : "bg-white border-gray-200"
             }`}>
               <div className={`${
                 buttonCount === 1 ? 'flex justify-center' : 'grid grid-cols-2 gap-4'
@@ -271,7 +271,7 @@ const MemberInfoSidebar = ({
                     disabled={sendingRequest}
                     className={`flex flex-col items-center gap-2 p-4 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                       isDark
-                        ? "hover:bg-gray-800 text-gray-400 hover:text-white"
+                        ? "hover:bg-dark-bg text-gray-400 hover:text-white"
                         : "hover:bg-gray-100 text-gray-600 hover:text-gray-900"
                     }`}
                   >
@@ -295,7 +295,7 @@ const MemberInfoSidebar = ({
                   }`}>
                     <div
                       className={`p-3 rounded-full ${
-                        isDark ? "bg-gray-800" : "bg-gray-200"
+                        isDark ? "bg-[#1f2329]" : "bg-gray-200"
                       }`}
                     >
                       <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
@@ -315,7 +315,7 @@ const MemberInfoSidebar = ({
                   }`}>
                     <div
                       className={`p-3 rounded-full ${
-                        isDark ? "bg-gray-800" : "bg-gray-200"
+                        isDark ? "bg-[#1f2329]" : "bg-gray-200"
                       }`}
                     >
                       <Clock className="w-6 h-6" />
@@ -332,12 +332,12 @@ const MemberInfoSidebar = ({
                     onClick={toggleRemoveMemberForm}
                     className={`flex flex-col items-center gap-2 p-4 rounded-xl transition-colors ${
                       isDark
-                        ? "hover:bg-gray-800 text-gray-400 hover:text-white"
+                        ? "hover:bg-dark-bg text-gray-400 hover:text-white"
                         : "hover:bg-gray-100 text-gray-600 hover:text-gray-900"
                     }`}
                   >
                     <div className={`p-3 rounded-full ${
-                      isDark ? "bg-gray-800" : "bg-gray-200"
+                      isDark ? "bg-[#1f2329]" : "bg-gray-200"
                     }`}>
                       <UserMinus className="w-6 h-6" />
                     </div>
@@ -365,24 +365,24 @@ const MemberInfoSidebar = ({
 
           {/* Balance Section */}
           <div className={`px-6 py-5 ${
-            isDark ? "bg-gray-900" : "bg-white"
+            isDark ? "bg-dark-bg" : "bg-white"
           }`}>
             <h3 className={`text-sm font-medium mb-4 ${
-              isDark ? "text-gray-400" : "text-gray-600"
+              isDark ? "text-gray-500" : "text-gray-600"
             }`}>
               Balance
             </h3>
             
             <div className={`p-4 rounded-xl border ${
               isDark 
-                ? 'bg-gray-900/50 border-gray-800' 
+                ? 'bg-dark-bg/50 border-gray-600' 
                 : 'bg-gray-50 border-gray-200'
             }`}>
               <div className="space-y-3">
                 {/* Balance */}
                 <div className="flex justify-between items-center">
                   <span className={`text-sm ${
-                    isDark ? 'text-gray-400' : 'text-gray-600'
+                    isDark ? 'text-gray-400' : 'text-gray-500'
                   }`}>
                     Balance
                   </span>
@@ -397,7 +397,7 @@ const MemberInfoSidebar = ({
 
                 {/* Divider */}
                 <div className={`h-px ${
-                  isDark ? 'bg-gray-800' : 'bg-gray-200'
+                  isDark ? 'bg-gray-600' : 'bg-gray-200'
                 }`} />
 
                 {/* Total Spend */}

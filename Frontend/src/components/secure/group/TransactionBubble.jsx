@@ -80,7 +80,7 @@ const TransactionBubble = ({
         {/* Sender Name (Outside Bubble) */}
         {!isMine && (
           <span
-            className={`text-[12px] font-semibold mb-1 ml-1 ${isDark ? "text-blue-400" : "text-blue-600"}`}
+            className={`text-[12px] font-semibold mb-1 ml-1 ${isDark ? "text-white" : "text-blue-600"}`}
           >
             {senderName}
           </span>
@@ -93,7 +93,7 @@ const TransactionBubble = ({
             ${
               isMine
                 ? `rounded-xl rounded-tr-none ${isDark ? "bg-[#005c4b] text-white" : "bg-[#d9fdd3] text-gray-900"}`
-                : `rounded-xl rounded-tl-none ${isDark ? "bg-[#1e293b] text-gray-100" : "bg-white text-gray-900"}`
+                : `rounded-xl rounded-tl-none ${isDark ? "bg-dark-bg text-gray-100" : "bg-white text-gray-900"}`
             }
           `}
         >
@@ -178,7 +178,7 @@ const TransactionBubble = ({
                 <div
                   className={`flex items-center gap-2 px-3 py-2 rounded-lg mb-1 border-l-4 ${
                     isDark
-                      ? "bg-[#0f172a]/50 border-green-500"
+                      ? "bg-[#1f2329] border-green-500"
                       : "bg-gray-100 border-green-500"
                   }`}
                 >

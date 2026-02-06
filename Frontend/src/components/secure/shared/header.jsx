@@ -1,13 +1,16 @@
 // Header.jsx
 import React, { useState } from 'react';
 import { Menu, Sun, Moon, Diamond, User, Sidebar, LogOut, X } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import logo from '../../../assets/cropped_image.png';
 
 const Header = ({ isSidebarOpen, toggleSidebar, isDark, toggleTheme }) => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  const isGroupPage = location.pathname.startsWith("/groups/");
 
   const handleLogout = () => {
     Cookies.remove("authToken");
@@ -20,7 +23,7 @@ const Header = ({ isSidebarOpen, toggleSidebar, isDark, toggleTheme }) => {
 
   return (
     <>
-      <header className={`fixed top-0 left-0 right-0 z-50 ${isDark ? 'bg-gray-900 border-gray-700' : 'bg-white border-gray-200'} border-b`}>
+      <header className={`fixed top-0 left-0 right-0 z-50 ${isGroupPage ? 'hidden' : 'md:hidden'} ${isDark ? 'bg-[#1f2329] border-dark-border' : 'bg-white border-gray-200'} border-b`}>
         <div className="flex items-center justify-between h-16 px-4">
           {/* Left side - Logo and sidebar toggle (Desktop/Tablet) */}
           <div className="hidden md:flex items-center space-x-4">

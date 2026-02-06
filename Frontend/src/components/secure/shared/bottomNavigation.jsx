@@ -26,7 +26,7 @@ const BottomNavigation = ({ isDark, activeTab, onTabChange }) => {
     <nav
       className={`
       md:hidden fixed bottom-0 left-0 right-0 z-50
-      ${isDark ? "bg-gray-900 border-gray-700" : "bg-white border-gray-200"}
+      ${isDark ? "bg-[#1f2329] border-dark-border" : "bg-white border-gray-200"}
       border-t px-4 py-2
     `}
     >
@@ -40,7 +40,7 @@ const BottomNavigation = ({ isDark, activeTab, onTabChange }) => {
               ${
                 activeTab === item.id
                   ? isDark
-                    ? "text-green-400 bg-gray-800"
+                    ? "text-white bg-dark-bg"
                     : "text-green-600 bg-green-50"
                   : isDark
                   ? "text-gray-400 hover:text-white"

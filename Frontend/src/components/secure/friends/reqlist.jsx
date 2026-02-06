@@ -31,7 +31,7 @@ const RequestListComponent = ({ requests = [], onRequestResponded, isDark }) => 
       {/* Header / Info Bar (Matches Search Bar area style) */}
       <div className={`p-4 border-b ${isDark ? 'border-gray-800' : 'border-gray-100'}`}>
         <div className="flex items-center gap-2">
-           <div className={`p-2 rounded-lg ${isDark ? 'bg-green-900/20 text-green-500' : 'bg-green-100 text-green-600'}`}>
+           <div className={`p-2 rounded-lg ${isDark ? 'bg-[#1f2329] text-white' : 'bg-gray-300 text-black'}`}>
               <Clock className="w-4 h-4" />
            </div>
            <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
@@ -44,8 +44,8 @@ const RequestListComponent = ({ requests = [], onRequestResponded, isDark }) => 
       <div className="flex-1 overflow-y-auto -mx-2 px-2 scrollbar-hide">
         {requests.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-40 sm:h-60 text-center">
-            <div className={`p-3 rounded-full mb-3 ${isDark ? 'bg-gray-800' : 'bg-gray-100'}`}>
-              <Clock className={`w-6 h-6 ${isDark ? 'text-gray-600' : 'text-gray-400'}`} />
+            <div className={`p-3 rounded-full mb-3 ${isDark ? 'bg-[#1f2329]' : 'bg-gray-300'}`}>
+              <Clock className={`w-6 h-6 ${isDark ? 'text-white' : 'text-black'}`} />
             </div>
             <p className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
               No pending requests
@@ -61,7 +61,7 @@ const RequestListComponent = ({ requests = [], onRequestResponded, isDark }) => 
                   key={request._id}
                   className={`flex items-center gap-3 p-3 rounded-lg transition-colors group ${
                     isDark 
-                      ? 'hover:bg-gray-800' 
+                      ? 'hover:bg-[#1f2329]' 
                       : 'hover:bg-gray-50'
                   }`}
                 >

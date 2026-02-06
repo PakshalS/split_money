@@ -20,7 +20,7 @@ const GroupBanner = ({
     <div
       className={`flex-shrink-0 ${
         isDark
-          ? "bg-gradient-to-r from-gray-900 via-gray-950 to-gray-900 border-gray-800"
+          ? "bg-dark-bg border-gray-800"
           : "bg-white border-gray-200"
       } border-b shadow-lg`}
     >
@@ -35,8 +35,8 @@ const GroupBanner = ({
             <div
               className={`flex items-center justify-center w-10 h-10 rounded-full font-bold text-lg ${
                 isDark
-                  ? "bg-gradient-to-br from-green-600 to-green-500 text-white"
-                  : "bg-gradient-to-br from-green-500 to-green-400 text-white"
+                  ? "bg-[#1f2329] text-white"
+                  : "bg-[#1f2329] text-white"
               } shadow-md`}
             >
               {getInitial(groupName)}

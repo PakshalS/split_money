@@ -72,7 +72,7 @@ const ChangePasswordComponent = ({ isDark }) => {
         {/* Header Section */}
         <div className="flex flex-col gap-4 mb-8">
           <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-            isDark ? 'bg-green-900/20 text-green-500' : 'bg-green-100 text-green-600'
+            isDark ? 'bg-[#1f2329] text-white' : 'bg-gray-300 text-black'
           }`}>
             <Key className="w-6 h-6" />
           </div>
@@ -103,7 +103,7 @@ const ChangePasswordComponent = ({ isDark }) => {
                 type={showOldPassword ? "text" : "password"}
                 className={`w-full pl-12 pr-12 py-3.5 rounded-xl border text-sm transition-all outline-none ${
                   isDark
-                    ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500 focus:border-green-600 focus:ring-1 focus:ring-green-600'
+                    ? 'bg-[#1f2329] border-gray-700 text-white placeholder-gray-500 focus:border-green-600 focus:ring-1 focus:ring-green-600'
                     : 'bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500'
                 }`}
                 placeholder="Enter current password"
@@ -138,7 +138,7 @@ const ChangePasswordComponent = ({ isDark }) => {
                 type={showNewPassword ? "text" : "password"}
                 className={`w-full pl-12 pr-12 py-3.5 rounded-xl border text-sm transition-all outline-none ${
                   isDark
-                    ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500 focus:border-green-600 focus:ring-1 focus:ring-green-600'
+                    ? 'bg-[#1f2329] border-gray-700 text-white placeholder-gray-500 focus:border-green-600 focus:ring-1 focus:ring-green-600'
                     : 'bg-white border-gray-200 text-gray-900 placeholder-gray-400 focus:border-green-500 focus:ring-1 focus:ring-green-500'
                 }`}
                 placeholder="Min. 6 characters"
@@ -166,8 +166,8 @@ const ChangePasswordComponent = ({ isDark }) => {
             disabled={loading}
             className={`w-full sm:w-auto mt-4 py-3 px-6 rounded-xl font-medium transition-all duration-300 shadow-lg flex items-center justify-center gap-2 text-sm active:scale-[0.98] ${
               isDark
-                ? 'bg-green-600 text-white hover:bg-green-500 shadow-green-900/20 disabled:bg-gray-800 disabled:text-gray-500'
-                : 'bg-green-600 text-white hover:bg-green-700 shadow-green-500/20 disabled:bg-gray-200 disabled:text-gray-400'
+                ? 'bg-[#1f2329] text-white hover:bg-gray-800 disabled:bg-gray-800 disabled:text-gray-500'
+                : 'bg-gray-400 text-white hover:bg-gray-500 disabled:bg-gray-200 disabled:text-gray-400'
             }`}
           >
             {loading ? "Updating..." : (

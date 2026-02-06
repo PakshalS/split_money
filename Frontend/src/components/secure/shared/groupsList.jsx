@@ -98,7 +98,7 @@ const GroupList = ({ isDark, onFabClick }) => {
   return (
     <div className={`h-full flex flex-col relative ${
               isDark
-                ? 'bg-gray-800'
+                ? 'bg-dark-bg'
                 : 'bg-gray-100'
             }`}>
       {/* Search Bar */}
@@ -153,7 +153,7 @@ const GroupList = ({ isDark, onFabClick }) => {
               className={`p-4 border-b cursor-pointer transition-colors ${
                 currentGroupId === group._id
                   ? (isDark ? 'bg-gray-700 border-gray-600' : 'bg-green-50 border-green-100')
-                  : (isDark ? 'hover:bg-gray-700 border-gray-700' : 'hover:bg-gray-50 border-gray-100')
+                  : (isDark ? 'hover:bg-[#1f2329] border-gray-700' : 'hover:bg-gray-50 border-gray-100')
               }`}
             >
               <div className="flex items-center space-x-3">
@@ -186,8 +186,8 @@ const GroupList = ({ isDark, onFabClick }) => {
         onClick={() => setIsJoinFormOpen(true)}
         className={`absolute bottom-20 right-6 p-2.5 rounded-full flex items-center justify-center font-medium transition-all duration-300 shadow-md active:scale-95 z-10 ${
           isDark
-              ? 'bg-green-600 hover:bg-green-700 text-white'
-              : 'bg-green-500 hover:bg-green-600 text-white'
+              ? 'bg-[#1f2329] hover:bg-dark-bg text-white'
+              : 'bg-dark-bg hover:bg-[#1f2329] text-white'
         }`}
       >
         <LogIn className="w-5 h-5" />
@@ -198,8 +198,8 @@ const GroupList = ({ isDark, onFabClick }) => {
         onClick={onFabClick}
         className={`absolute bottom-6 right-6 p-2.5 rounded-full flex items-center justify-center font-medium transition-all duration-300 shadow-md active:scale-95 z-10 ${
           isDark
-              ? 'bg-green-600 hover:bg-green-700 text-white'
-              : 'bg-green-500 hover:bg-green-600 text-white'
+              ? 'bg-[#1f2329] hover:bg-dark-bg text-white'
+              : 'bg-dark-bg hover:bg-[#1f2329] text-white'
         }`}
       >
         <Plus className="w-5 h-5" />

@@ -166,7 +166,7 @@ const TransactionChatView = forwardRef(({
       ref={chatContainerRef}
       onScroll={handleScroll}
       className={`flex-1 overflow-y-auto w-full relative no-scrollbar ${
-        isDark ? "bg-gray-900" : "bg-[#efe7dd]"
+        isDark ? "bg-[#1f2329]" : "bg-[#efe7dd]"
       }`}
     >
       <div className="pb-32 pt-4 px-2 sm:px-6 min-h-full">

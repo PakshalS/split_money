@@ -5,7 +5,7 @@ import "react-loading-skeleton/dist/skeleton.css";
 const GroupDetailsSkeleton = ({ isDark }) => {
   return (
     <div className={`h-full flex flex-col relative overflow-hidden ${
-      isDark ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'
+      isDark ? 'bg-dark-bg text-white' : 'bg-gray-50 text-gray-900'
     }`}>
       {/* Group Banner Skeleton */}
       <div className={`flex-shrink-0 ${
@@ -66,7 +66,7 @@ const GroupDetailsSkeleton = ({ isDark }) => {
 
       {/* Chat View - Transaction Bubbles Skeleton */}
       <div className={`flex-1 overflow-y-auto scrollbar-hide p-4 ${
-        isDark ? 'bg-gray-900' : 'bg-gray-50'
+        isDark ? 'bg-dark-bg' : 'bg-gray-50'
       }`}>
         <div className="max-w-4xl mx-auto space-y-3">
           {/* Transaction Bubble Skeletons - Mix of left and right aligned */}
