@@ -36,15 +36,22 @@ const TransactionChatView = forwardRef(({
     const allTransactions = [];
     expenses.forEach((expense) => {
       const dateField = expense.createdAt || expense.date || new Date().toISOString();
-      const createdById = expense.createdBy || expense.createdBy?._id;
+      // Handle createdBy being either an ID string or a populated object
+      const createdById = typeof expense.createdBy === 'string' 
+        ? expense.createdBy 
+        : expense.createdBy?._id;
       const isMine = createdById ? createdById === currentUserId : false;
-      const paidByPrimary = Array.isArray(expense.paidBy) ? expense.paidBy[0] : expense.paidBy;
+      
+      // Use createdBy if available and populated with name, otherwise fall back to first payer
+      const creator = (expense.createdBy && typeof expense.createdBy === 'object' && expense.createdBy.name)
+        ? expense.createdBy 
+        : (Array.isArray(expense.paidBy) ? expense.paidBy[0] : expense.paidBy);
 
       allTransactions.push({
         type: "expense",
         id: expense._id,
         timestamp: parseDate(dateField),
-        creator: paidByPrimary,
+        creator: creator,
         isMine: isMine,
         data: {
           ...expense,
@@ -58,14 +65,15 @@ const TransactionChatView = forwardRef(({
 
     transactions.forEach((transaction) => {
       const dateField = transaction.createdAt || transaction.date || new Date().toISOString();
-      const payerName = transaction.payer?.name;
-      const isMine = payerName === currentUserName;
+      // Use createdBy for settle-up transactions if available, otherwise use payer
+      const creatorName = transaction.createdBy?.name || transaction.payer?.name;
+      const isMine = creatorName === currentUserName;
 
       allTransactions.push({
         type: "settle-up",
         id: transaction._id,
         timestamp: parseDate(dateField),
-        creator: transaction.payer,
+        creator: transaction.createdBy || transaction.payer,
         isMine: isMine,
         data: transaction,
       });

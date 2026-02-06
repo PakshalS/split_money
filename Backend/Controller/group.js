@@ -445,8 +445,9 @@ const getGroupDetails = async (req, res) => {
       .populate('admin', 'name email')
       .populate('members.userId', 'name email')
       .populate('expenses')
+      .populate('expenses.createdBy', 'name email')
       .populate('balances.userId', 'name email')
-      .populate('transactionHistory.type', 'payer receiver amount');
+      .populate('transactionHistory.createdBy', 'name email');
 
       if (!group) {
         return res.status(404).json({ error: 'Group not found' });
@@ -612,6 +613,7 @@ const settleUp = async (req, res) => {
       payer: { name: payer.name},
       receiver: { name: receiver.name},
       amount: settlementAmount,
+      createdBy: adminId,
       date: new Date(),
     });
 

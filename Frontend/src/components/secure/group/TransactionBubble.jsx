@@ -48,7 +48,11 @@ const TransactionBubble = ({
     groupMembers &&
     transaction.data.splitBetween?.length === groupMembers.length;
 
-  const senderName = transaction.creator?.name || "Unknown";
+  // Extract creator name from various possible structures
+  const senderName = 
+    transaction.creator?.name || 
+    (typeof transaction.creator === 'string' ? transaction.creator : null) ||
+    "Unknown";
 
   return (
     // Outer Container: Aligns Avatar + Content Block
@@ -289,6 +293,25 @@ const TransactionBubble = ({
                 >
                   ₹{Number(transaction.data.amount || 0).toFixed(2)}
                 </div>
+                
+                {/* Show createdBy user if available, otherwise fallback */}
+                {transaction.data.createdBy && (
+                  <div className={`text-[10px] mt-2 pt-2 border-t border-dashed ${isDark ? "border-gray-700 text-gray-400" : "border-gray-200 text-gray-500"}`}>
+                    <span>Recorded by: </span>
+                    <span className={`font-semibold ${isDark ? "text-gray-300" : "text-gray-600"}`}>
+                      {typeof transaction.data.createdBy === 'string' 
+                        ? transaction.data.createdBy 
+                        : transaction.data.createdBy.name || 'Unknown'}
+                    </span>
+                  </div>
+                ) || transaction.creator ? (
+                  <div className={`text-[10px] mt-2 pt-2 border-t border-dashed ${isDark ? "border-gray-700 text-gray-400" : "border-gray-200 text-gray-500"}`}>
+                    <span>Recorded by: </span>
+                    <span className={`font-semibold ${isDark ? "text-gray-300" : "text-gray-600"}`}>
+                      {transaction.creator?.name || 'Unknown'}
+                    </span>
+                  </div>
+                ) : null}
               </div>
             )}
 

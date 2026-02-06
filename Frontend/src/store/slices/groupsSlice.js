@@ -102,38 +102,21 @@ export const createGroupsSlice = (set, get) => ({
   },
 
   /**
-   * Create a new group with optimistic update
+   * Create a new group
+   * Waits for server response before updating store to avoid using temporary IDs
    */
   createGroup: async (groupData) => {
-    const tempId = `temp-${Date.now()}`;
-    const optimisticGroup = {
-      _id: tempId,
-      name: groupData.name,
-      members: groupData.members,
-      createdAt: new Date().toISOString(),
-      isOptimistic: true
-    };
-
-    // Optimistic update
-    set(state => ({
-      groups: [optimisticGroup, ...state.groups]
-    }));
-
     try {
       const response = await groupsAPI.createGroup(groupData);
       const newGroup = response.group;
 
-      // Replace optimistic group with real data
+      // Add the real group to store only after server confirms creation
       set(state => ({
-        groups: state.groups.map(g => g._id === tempId ? newGroup : g)
+        groups: [newGroup, ...state.groups]
       }));
 
       return newGroup;
     } catch (error) {
-      // Rollback optimistic update
-      set(state => ({
-        groups: state.groups.filter(g => g._id !== tempId)
-      }));
       const errorMsg = error.response?.data?.error || 'Failed to create group';
       console.error('Error creating group:', error);
       throw new Error(errorMsg);
