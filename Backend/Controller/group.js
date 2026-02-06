@@ -302,12 +302,25 @@ const addAdmin = async (req, res) => {
       return res.status(400).json({ error: "User is already an admin" });
     }
 
-    group.admins.push(member.userId);
-    await group.save();
+    // Ensure group has a joinCode (for backwards compatibility)
+    if (!group.joinCode) {
+      group.joinCode = await generateUniqueCode();
+    }
+
+    // Use findByIdAndUpdate to avoid full validation issues
+    const updatedGroup = await Group.findByIdAndUpdate(
+      groupId,
+      { $push: { admins: member.userId }, joinCode: group.joinCode },
+      { new: true }
+    ).populate('admins', 'name email')
+     .populate('members.userId', 'name email')
+     .populate('expenses')
+     .populate('balances.userId', 'name email')
+     .populate('joinRequests.requester', 'name email _id');
 
     res.status(200).json({
       message: `${member.name} promoted to admin successfully`,
-      group,
+      group: updatedGroup,
     });
   } catch (error) {
     console.error("Error promoting to admin:", error);
@@ -348,14 +361,25 @@ const removeAdmin = async (req, res) => {
       return res.status(400).json({ error: "Group must have at least one admin" });
     }
 
-    group.admins = group.admins.filter(
-      (adminId) => adminId.toString() !== member.userId.toString()
-    );
-    await group.save();
+    // Ensure group has a joinCode (for backwards compatibility)
+    if (!group.joinCode) {
+      group.joinCode = await generateUniqueCode();
+    }
+
+    // Use findByIdAndUpdate to avoid full validation issues
+    const updatedGroup = await Group.findByIdAndUpdate(
+      groupId,
+      { $pull: { admins: member.userId }, joinCode: group.joinCode },
+      { new: true }
+    ).populate('admins', 'name email')
+     .populate('members.userId', 'name email')
+     .populate('expenses')
+     .populate('balances.userId', 'name email')
+     .populate('joinRequests.requester', 'name email _id');
 
     res.status(200).json({
       message: `${member.name} removed from admin successfully`,
-      group,
+      group: updatedGroup,
     });
   } catch (error) {
     console.error("Error removing admin:", error);
@@ -683,7 +707,7 @@ const getUserGroups = async (req, res) => {
 const getGroupDetails = async (req, res) => {
   try {
     const groupId = req.params.groupId;
-    const group = await Group.findById(groupId)
+    let group = await Group.findById(groupId)
       .populate('admins', 'name email')
       .populate('members.userId', 'name email')
       .populate('expenses')
@@ -694,6 +718,12 @@ const getGroupDetails = async (req, res) => {
 
       if (!group) {
         return res.status(404).json({ error: 'Group not found' });
+      }
+
+      // Ensure group has a joinCode (for backwards compatibility with existing groups)
+      if (!group.joinCode) {
+        group.joinCode = await generateUniqueCode();
+        await group.save();
       }
 
       const balances = group.balances.map(balance => ({

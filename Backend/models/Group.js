@@ -80,8 +80,8 @@ const groupSchema = new mongoose.Schema({
   ],
    joinCode: {
     type: String,
-    unique: true, // one code per group
-    required: true,
+    unique: true,
+    sparse: true, // Allow multiple null values for backwards compatibility
   },
   strictJoin: {
     type: Boolean,
