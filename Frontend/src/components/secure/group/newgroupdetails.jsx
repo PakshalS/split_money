@@ -30,9 +30,6 @@ const EditExpenseForm = lazy(() => import("../admin/editexpense"));
 const DeleteExpenseForm = lazy(() => import("../admin/deleteexpense"));
 const AddMemberForm = lazy(() => import("../admin/addmember"));
 const DeleteGroupForm = lazy(() => import("../admin/editgroup"));
-const ChangeAdminForm = lazy(() => import("../admin/changeadmin"));
-const AddAdminForm = lazy(() => import("../admin/addadmin"));
-const RemoveAdminForm = lazy(() => import("../admin/removeadmin"));
 
 const NewGroupDetails = () => {
   const { isDark } = useTheme();
@@ -41,7 +38,6 @@ const NewGroupDetails = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
   const [isGroupInfoOpen, setIsGroupInfoOpen] = useState(false);
-  const [isAdminSidebarOpen, setIsAdminSidebarOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { friends, requests, onRefreshFriends } = useOutletContext();
 
@@ -55,9 +51,6 @@ const NewGroupDetails = () => {
   const [isDeleteExpenseOpen, setIsDeleteExpenseOpen] = useState(false);
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
   const [isDeleteGroupOpen, setIsDeleteGroupOpen] = useState(false);
-  const [isChangeAdminOpen, setIsChangeAdminOpen] = useState(false);
-  const [isAddAdminOpen, setIsAddAdminOpen] = useState(false);
-  const [isRemoveAdminOpen, setIsRemoveAdminOpen] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState(null);
   const [settleUpData, setSettleUpData] = useState(null);
 
@@ -171,11 +164,7 @@ const NewGroupDetails = () => {
     setIsSearchOpen(true);
   };
 
-  const handleMenuClick = () => {
-    if (isAdmin) {
-      setIsAdminSidebarOpen(true);
-    }
-  };
+  const handleMenuClick = () => {};
 
   const handleAddClick = () => {
     setIsActionMenuOpen(true);
@@ -204,40 +193,22 @@ const NewGroupDetails = () => {
   const toggleAddExpenseForm = () => {
     setIsAddExpenseOpen(!isAddExpenseOpen);
     setIsActionMenuOpen(false);
-    setIsAdminSidebarOpen(false);
   };
 
   const toggleSettleUpForm = () => {
     setSettleUpData(null);
     setIsSettleUpOpen(!isSettleUpOpen);
     setIsActionMenuOpen(false);
-    setIsAdminSidebarOpen(false);
   };
 
   const toggleAddMemberForm = () => {
     setIsAddMemberOpen(!isAddMemberOpen);
-    setIsAdminSidebarOpen(false);
   };
 
   const toggleDeleteGroupForm = () => {
     setIsDeleteGroupOpen(!isDeleteGroupOpen);
-    setIsAdminSidebarOpen(false);
   };
 
-  const toggleChangeAdminForm = () => {
-    setIsChangeAdminOpen(!isChangeAdminOpen);
-    setIsAdminSidebarOpen(false);
-  };
-
-  const toggleAddAdminForm = () => {
-    setIsAddAdminOpen(!isAddAdminOpen);
-    setIsAdminSidebarOpen(false);
-  };
-
-  const toggleRemoveAdminForm = () => {
-    setIsRemoveAdminOpen(!isRemoveAdminOpen);
-    setIsAdminSidebarOpen(false);
-  };
 
   const handleEditExpense = (expense) => {
     setSelectedExpense(expense);
@@ -370,9 +341,6 @@ const NewGroupDetails = () => {
         summary={groupDetails.summary || []}
         onSettleUp={handleSettleUpFromSummary}
         onAddMember={toggleAddMemberForm}
-        onChangeAdmin={toggleChangeAdminForm}
-        onAddAdmin={toggleAddAdminForm}
-        onRemoveAdmin={toggleRemoveAdminForm}
         onDeleteGroup={toggleDeleteGroupForm}
         joinCode={groupDetails.group.joinCode}
         strictJoin={groupDetails.group.strictJoin}
@@ -464,41 +432,6 @@ const NewGroupDetails = () => {
         </Suspense>
       )}
 
-      {/* Change Admin Form */}
-      {isChangeAdminOpen && (
-        <Suspense fallback={<div className="text-center">Loading...</div>}>
-          <ChangeAdminForm
-            groupId={groupId}
-            onClose={toggleChangeAdminForm}
-            isDark={isDark}
-          />
-        </Suspense>
-      )}
-
-      {/* Add Admin Form */}
-      {isAddAdminOpen && (
-        <Suspense fallback={<div className="text-center">Loading...</div>}>
-          <AddAdminForm
-            groupId={groupId}
-            members={groupDetails.group.members || []}
-            onClose={toggleAddAdminForm}
-            isDark={isDark}
-          />
-        </Suspense>
-      )}
-
-      {/* Remove Admin Form */}
-      {isRemoveAdminOpen && (
-        <Suspense fallback={<div className="text-center">Loading...</div>}>
-          <RemoveAdminForm
-            groupId={groupId}
-            admins={groupDetails.group.admins || []}
-            members={groupDetails.group.members || []}
-            onClose={toggleRemoveAdminForm}
-            isDark={isDark}
-          />
-        </Suspense>
-      )}
     </div>
   );
 };
