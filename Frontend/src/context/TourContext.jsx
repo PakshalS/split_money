@@ -152,6 +152,14 @@ export const TourProvider = ({ children }) => {
           if (index === lastStepIndex) {
             completedTourRef.current = true;
           }
+
+          // Handle delay before showing this step (gives API time to complete)
+          if (stepConfig.delay && element && element !== 'body') {
+            // Disable interaction during delay
+            return setTimeout(() => {
+              handleInteractiveStep(element, stepConfig, driverInstance);
+            }, stepConfig.delay);
+          }
           
           // Auto-populate inputs if placeholder is provided
           if (stepConfig.action === 'input' && stepConfig.placeholder && element) {

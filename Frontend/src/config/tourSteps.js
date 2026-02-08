@@ -138,6 +138,7 @@ export const tourSteps = [
     requireInteraction: true,
     action: "click",
     waitForNavigation: true,
+    delay: 3000,  // Wait 3 seconds for group creation API to complete
   },
 
   // ========================================
