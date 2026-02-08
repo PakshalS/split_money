@@ -18,7 +18,7 @@ const GroupBanner = ({
 
   return (
     <div
-      className={`flex-shrink-0 ${
+      className={`group-info-banner flex-shrink-0 ${
         isDark
           ? "bg-dark-bg border-gray-800"
           : "bg-white border-gray-200"

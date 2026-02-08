@@ -28,7 +28,7 @@ const ActionMenu = ({ isOpen, onClose, isDark, onAddExpense, onSettleUp, buttonR
       }`}>
         <button
           onClick={handleAddExpense}
-          className={`flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-black/10 transition-colors ${
+          className={`action-menu-add-expense flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-black/10 transition-colors ${
             isDark ? "text-gray-300" : "text-gray-700"
           }`}
         >
@@ -37,7 +37,7 @@ const ActionMenu = ({ isOpen, onClose, isDark, onAddExpense, onSettleUp, buttonR
         </button>
         <button
           onClick={handleSettleUp}
-          className={`flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-black/10 transition-colors ${
+          className={`settle-up-action-button flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-black/10 transition-colors ${
             isDark ? "text-gray-300" : "text-gray-700"
           }`}
         >

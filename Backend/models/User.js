@@ -47,6 +47,11 @@ const userSchema = new mongoose.Schema({
   ],
   credits: { type: Number, default: 0 },
   referralCode: { type: String, unique: true },
+  tourStatus: {
+    type: String,
+    enum: ["not-prompted", "later", "done"],
+    default: "not-prompted",
+  },
   createdAt: {
     type: Date,
     default: Date.now,

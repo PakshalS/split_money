@@ -90,7 +90,7 @@ const AddGuestModal = ({ isOpen, onClose, onAddGuests, isDark }) => {
                     placeholder="Name *"
                     value={guest.name}
                     onChange={(e) => updateGuest(index, 'name', e.target.value)}
-                    className={`w-full px-3 py-2 mb-2 rounded-lg border ${
+                    className={`guest-name-input-${index} w-full px-3 py-2 mb-2 rounded-lg border ${
                       isDark 
                         ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-green-500' 
                         : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-green-500'
@@ -131,7 +131,7 @@ const AddGuestModal = ({ isOpen, onClose, onAddGuests, isDark }) => {
           {/* Add more guest button */}
           <button
             onClick={addGuestField}
-            className={`w-full p-3 border-2 border-dashed rounded-lg transition-colors ${
+            className={`add-another-guest-button w-full p-3 border-2 border-dashed rounded-lg transition-colors ${
               isDark
                 ? 'border-gray-600 hover:border-green-500 text-gray-400 hover:text-green-400'
                 : 'border-gray-300 hover:border-green-500 text-gray-600 hover:text-green-500'
@@ -161,7 +161,7 @@ const AddGuestModal = ({ isOpen, onClose, onAddGuests, isDark }) => {
             </button>
             <button
               onClick={handleSubmit}
-              className="flex-1 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
+              className="guest-modal-done-button flex-1 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
             >
               Add Guests
             </button>

@@ -148,7 +148,7 @@ const CreateGroupList = ({ isDark, onBack, onGroupCreated }) => {
           placeholder="Group Name"
           value={groupName}
           onChange={(e) => setGroupName(e.target.value)}
-          className={`w-full px-4 py-3 rounded-lg border ${
+          className={`group-name-input w-full px-4 py-3 rounded-lg border ${
             isDark 
               ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-green-500' 
               : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-green-500'
@@ -178,7 +178,7 @@ const CreateGroupList = ({ isDark, onBack, onGroupCreated }) => {
           <div className="relative">
             <button
               onClick={() => setShowMenu(!showMenu)}
-              className={`p-3 rounded-lg border transition-colors ${
+              className={`add-guest-button p-3 rounded-lg border transition-colors ${
                 isDark 
                   ? 'bg-gray-700 border-gray-600 text-gray-400 hover:bg-gray-600' 
                   : 'bg-white border-gray-300 text-gray-600 hover:bg-gray-50'
@@ -198,7 +198,7 @@ const CreateGroupList = ({ isDark, onBack, onGroupCreated }) => {
                       setShowGuestModal(true);
                       setShowMenu(false);
                     }}
-                    className={`w-full text-left px-4 py-2 text-sm transition-colors ${
+                    className={`dropdown-add-guest-option w-full text-left px-4 py-2 text-sm transition-colors ${
                       isDark 
                         ? 'text-gray-200 hover:bg-gray-600' 
                         : 'text-gray-700 hover:bg-gray-50'
@@ -351,7 +351,7 @@ const CreateGroupList = ({ isDark, onBack, onGroupCreated }) => {
       <button
         onClick={createGroup}
         disabled={isCreating || !groupName.trim() || selectedFriends.length === 0}
-        className={`absolute bottom-6 right-6 p-4 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl active:scale-95 z-10 ${
+        className={`create-group-send-button absolute bottom-6 right-6 p-4 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl active:scale-95 z-10 ${
           isCreating || !groupName.trim() || selectedFriends.length === 0
             ? (isDark 
                 ? 'bg-gray-600 text-gray-400 cursor-not-allowed' 

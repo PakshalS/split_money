@@ -364,7 +364,7 @@ const MemberInfoSidebar = ({
           )}
 
           {/* Balance Section */}
-          <div className={`px-6 py-5 ${
+          <div className={`member-info-balance px-6 py-5 ${
             isDark ? "bg-dark-bg" : "bg-white"
           }`}>
             <h3 className={`text-sm font-medium mb-4 ${

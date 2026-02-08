@@ -1,0 +1,133 @@
+/* Driver.js styling to match Split Money UI */
+
+.driver-popover.driver-popover--split {
+  background: #ffffff;
+  color: #1f2937;
+  border-radius: 10px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.2);
+  padding: 14px 16px;
+  max-width: 360px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.driver-popover--split .driver-popover-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.driver-popover--split .driver-popover-description {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #4b5563;
+}
+
+.driver-popover--split .driver-popover-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.driver-popover--split .driver-popover-progress-text {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.driver-popover--split .driver-popover-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.driver-popover--split .driver-popover-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.driver-popover--split .driver-popover-btn-prev {
+  background: #e5e7eb;
+  color: #1f2937;
+}
+
+.driver-popover--split .driver-popover-btn-next,
+.driver-popover--split .driver-popover-btn-done {
+  background: #16a34a;
+  color: #ffffff;
+}
+
+.driver-popover--split .driver-popover-btn-close {
+  background: transparent;
+  color: #6b7280;
+}
+
+.driver-popover--split .driver-popover-btn-close:hover {
+  color: #1f2937;
+}
+
+/* Interactive element pulse animation */
+.tour-interactive-element {
+  position: relative;
+  animation: tour-pulse 2s ease-in-out infinite;
+}
+
+@keyframes tour-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(22, 163, 74, 0);
+  }
+}
+
+/* Highlight interactive elements */
+.tour-interactive-element::after {
+  content: '👆';
+  position: absolute;
+  top: -30px;
+  right: -10px;
+  font-size: 24px;
+  animation: tour-point 1s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+@keyframes tour-point {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@media (max-width: 768px) {
+  .driver-popover.driver-popover--split {
+    max-width: calc(100vw - 32px);
+    padding: 12px 14px;
+  }
+
+  .driver-popover--split .driver-popover-title {
+    font-size: 14px;
+  }
+
+  .driver-popover--split .driver-popover-description {
+    font-size: 12px;
+  }
+
+  .driver-popover--split .driver-popover-btn {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  .tour-interactive-element::after {
+    font-size: 20px;
+    top: -25px;
+    right: -5px;
+  }
+}

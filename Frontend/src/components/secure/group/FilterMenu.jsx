@@ -24,7 +24,7 @@ const FilterMenu = ({ isOpen, onClose, isDark, currentFilter, onFilterChange }) 
       />
 
       {/* Dropdown Menu - positioned above the button */}
-      <div className={`absolute bottom-[70px] left-4 w-48 rounded-lg shadow-lg border z-40 ${
+      <div className={`filter-menu fixed bottom-[90px] left-4 w-48 rounded-lg shadow-lg border z-40 ${
         isDark ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
       }`}>
         {filters.map((filter) => {

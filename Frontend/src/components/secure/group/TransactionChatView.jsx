@@ -165,7 +165,7 @@ const TransactionChatView = forwardRef(({
     <div
       ref={chatContainerRef}
       onScroll={handleScroll}
-      className={`flex-1 overflow-y-auto w-full relative no-scrollbar ${
+      className={`expense-timeline flex-1 overflow-y-auto w-full relative no-scrollbar ${
         isDark ? "bg-[#1f2329]" : "bg-[#efe7dd]"
       }`}
     >
@@ -198,6 +198,7 @@ const TransactionChatView = forwardRef(({
             return (
               <div
                 key={item.id}
+                className={`${item.type === 'expense' ? 'expense-item' : 'settle-up-item'}`}
                 ref={(el) => {
                   if (el) {
                     transactionElementsRef.current[item.id] = el;

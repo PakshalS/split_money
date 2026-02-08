@@ -110,7 +110,7 @@ const SettleUpForm = ({ groupId, onClose, isDark, initialData }) => {
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="settle-up-form flex-1 overflow-y-auto p-4">
         <div className="space-y-6 max-w-md">
           {/* Payer Selection */}
           <div>
@@ -124,7 +124,7 @@ const SettleUpForm = ({ groupId, onClose, isDark, initialData }) => {
                   setPayer(e.target.value);
                   setError('');
                 }}
-                className={`w-full px-4 py-3 rounded-xl border-2 text-base appearance-none focus:outline-none transition-all cursor-pointer ${
+                className={`settle-up-payer w-full px-4 py-3 rounded-xl border-2 text-base appearance-none focus:outline-none transition-all cursor-pointer ${
                   isDark 
                     ? 'border-gray-700 bg-[#1f2329] text-white focus:border-green-600' 
                     : 'border-gray-300 bg-white text-gray-900 focus:border-green-500'
@@ -170,7 +170,7 @@ const SettleUpForm = ({ groupId, onClose, isDark, initialData }) => {
                   setReceiver(e.target.value);
                   setError('');
                 }}
-                className={`w-full px-4 py-3 rounded-xl border-2 text-base appearance-none focus:outline-none transition-all cursor-pointer ${
+                className={`settle-up-receiver w-full px-4 py-3 rounded-xl border-2 text-base appearance-none focus:outline-none transition-all cursor-pointer ${
                   isDark 
                     ? 'border-gray-700 bg-[#1f2329] text-white focus:border-green-600' 
                     : 'border-gray-300 bg-white text-gray-900 focus:border-green-500'
@@ -210,7 +210,7 @@ const SettleUpForm = ({ groupId, onClose, isDark, initialData }) => {
                   setAmount(e.target.value >= 0 ? e.target.value : '');
                   setError('');
                 }}
-                className={`w-full pl-12 pr-4 py-3 rounded-xl border-2 text-base focus:outline-none transition-all ${
+                className={`settle-up-amount w-full pl-12 pr-4 py-3 rounded-xl border-2 text-base focus:outline-none transition-all ${
                   isDark 
                     ? 'border-gray-700 bg-[#1f2329] text-white placeholder-gray-500 focus:border-green-600' 
                     : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:border-green-500'
@@ -263,7 +263,7 @@ const SettleUpForm = ({ groupId, onClose, isDark, initialData }) => {
         <button
           onClick={handleSettleUp}
           disabled={loading}
-          className={`px-6 py-3 rounded-full transition-colors shadow-lg disabled:opacity-50 font-semibold ${
+          className={`add-settle-up-button px-6 py-3 rounded-full transition-colors shadow-lg disabled:opacity-50 font-semibold ${
             isDark 
               ? 'bg-green-600 hover:bg-green-700 text-white' 
               : 'bg-green-500 hover:bg-green-600 text-white'

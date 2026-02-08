@@ -11,8 +11,10 @@ import { Users, Heart } from "lucide-react";
 import CreateGroupList from "./groupCreate";
 import FriendManagement from "../friends/friends";
 import RequestPasswordReset from "../settings/settings";
+import WelcomeTourModal from "./WelcomeTourModal";
 import Cookies from "js-cookie";
 import useStore from "../../../store/useStore";
+import apiClient from "../../../api/client";
 
 const MainLayout = () => {
   const { isDark, toggleTheme } = useTheme();
@@ -21,6 +23,7 @@ const MainLayout = () => {
   const [showNewComponent, setShowNewComponent] = useState(false);
   const [selectedSetting, setSelectedSetting] = useState("list");
   const [selectedFriendOption, setSelectedFriendOption] = useState("list");
+  const [showWelcomeTour, setShowWelcomeTour] = useState(false);
 
   // ===== ZUSTAND STORE =====
   // Groups from store
@@ -50,6 +53,27 @@ const MainLayout = () => {
     if (token) {
       fetchGroups();
       fetchAllFriendsData();
+      
+      // Fetch user profile to check tour status
+      const fetchUserProfile = async () => {
+        try {
+          const response = await apiClient.get('/auth/profile');
+          if (response.data?.user) {
+            const status = response.data.user.tourStatus || "not-prompted";
+            
+            // Show welcome modal if tour not taken (with a small delay)
+            if (status === "not-prompted") {
+              setTimeout(() => {
+                setShowWelcomeTour(true);
+              }, 1000); // Wait 1 second after page load
+            }
+          }
+        } catch (error) {
+          console.error('Failed to fetch user profile:', error);
+        }
+      };
+      
+      fetchUserProfile();
     }
   }, []);
 
@@ -301,6 +325,14 @@ const MainLayout = () => {
           </div>
         </div>
       </main>
+
+      {/* Welcome Tour Modal */}
+      <WelcomeTourModal 
+        isOpen={showWelcomeTour} 
+        onClose={() => setShowWelcomeTour(false)}
+        isDark={isDark}
+      />
+
     </BackgroundWrapper>
   );
 };

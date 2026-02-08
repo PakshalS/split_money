@@ -20,7 +20,7 @@ const BottomActionBar = ({
         <button
           onClick={onFilterClick}
           aria-label="Filter"
-          className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors ${
+          className={`bottom-filter-button flex h-10 w-10 items-center justify-center rounded-full transition-colors ${
             isDark
               ? "bg-[#1f2329] hover:bg-gray-700 text-gray-200"
               : "bg-gray-100 hover:bg-gray-200 text-gray-700"
@@ -43,7 +43,7 @@ const BottomActionBar = ({
           <button
             onClick={onAddClick}
             aria-label="Add"
-            className={`flex h-11 w-11 items-center justify-center rounded-full shadow-lg transition-transform duration-300 hover:scale-105 ${
+            className={`plus-button-action flex h-11 w-11 items-center justify-center rounded-full shadow-lg transition-transform duration-300 hover:scale-105 ${
               isDark ? "bg-green-600 hover:bg-green-700 text-white" : "bg-green-600 hover:bg-green-700 text-white"
             }`}
           >

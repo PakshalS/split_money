@@ -354,7 +354,7 @@ const GroupInfoSidebar = ({
         </div>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto scrollbar-hide pb-4">
+        <div className="flex-1 overflow-y-auto scrollbar-hide pb-6 md:pb-4">
           
           {/* Group Info (Banner) */}
           <div
@@ -493,7 +493,7 @@ const GroupInfoSidebar = ({
           </div>
 
           {/* 1. Summary Section */}
-          <div className={`${isDark ? "bg-dark-bg" : "bg-white"} py-2`}>
+          <div className={`summary-section ${isDark ? "bg-dark-bg" : "bg-white"} py-2`}>
             {/* Section Header */}
             <div className={`px-5 md:px-6 py-3 text-sm font-medium ${
                isDark ? "text-green-500" : "text-green-600"
@@ -510,7 +510,7 @@ const GroupInfoSidebar = ({
                   {displayedSummary.map((item, index) => (
                       <div 
                          key={`${item.from}-${item.to}-${index}`}
-                         className={`px-5 md:px-6 py-3 flex items-center justify-between group ${
+                         className={`summary-item px-5 md:px-6 py-3 flex items-center justify-between group ${
                             isDark ? "hover:bg-gray-800/30" : "hover:bg-gray-50"
                          }`}
                       >
@@ -528,7 +528,7 @@ const GroupInfoSidebar = ({
                          {isAdmin && onSettleUp && (
                             <button
                                onClick={() => onSettleUp(item.from, item.to, item.amount)}
-                               className={`p-2 rounded-full transition-colors ${
+                               className={`settle-up-action-button p-2 rounded-full transition-colors ${
                                   isDark 
                                      ? "text-green-500 hover:bg-gray-800" 
                                      : "text-green-600 hover:bg-gray-100"
@@ -596,7 +596,7 @@ const GroupInfoSidebar = ({
                   <div
                     key={index}
                     onClick={() => handleMemberClick(member)}
-                    className={`flex items-center gap-3 justify-between px-5 md:px-6 py-3 transition-colors cursor-pointer ${
+                    className={`member-item flex items-center gap-3 justify-between px-5 md:px-6 py-3 transition-colors cursor-pointer ${
                       isDark ? "hover:bg-gray-800/30" : "hover:bg-gray-50"
                     }`}
                   >
@@ -835,7 +835,7 @@ const GroupInfoSidebar = ({
             </div>
           )}
 
-          <div className={`px-5 md:px-6 py-4 ${isDark ? "bg-dark-bg" : "bg-white"}`}>
+          <div className={`px-5 md:px-6 py-4 pb-12 md:pb-4 ${isDark ? "bg-dark-bg" : "bg-white"}`}>
             <button
               onClick={() => {
                 if (window.confirm("Are you sure you want to leave this group?")) {

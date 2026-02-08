@@ -233,6 +233,7 @@ const NewGroupDetails = () => {
   const handleSettleUpFromSummary = (from, to, amount) => {
     setSettleUpData({ payer: from, receiver: to, amount });
     setIsSettleUpOpen(true);
+    setIsGroupInfoOpen(false); // Close the sidebar to show chat view
   };
 
   // Show skeleton loader ONLY when loading and no cached data

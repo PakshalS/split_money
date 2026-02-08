@@ -238,7 +238,7 @@ const AddExpenseForm = ({ groupId, onClose, isDark }) => {
                 placeholder="Enter expense name"
                 value={expenseName}
                 onChange={(e) => setExpenseName(e.target.value)}
-                className={`w-full px-4 py-3 rounded-xl border-2 text-base focus:outline-none transition-all ${
+                className={`expense-name-input w-full px-4 py-3 rounded-xl border-2 text-base focus:outline-none transition-all ${
                   isDark 
                     ? 'border-gray-700 bg-[#1f2329] text-white placeholder-gray-500 focus:border-green-600' 
                     : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:border-green-500'
@@ -259,7 +259,7 @@ const AddExpenseForm = ({ groupId, onClose, isDark }) => {
                   placeholder="0.00"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value >= 0 ? e.target.value : '')}
-                  className={`w-full pl-12 pr-4 py-3 rounded-xl border-2 text-base focus:outline-none transition-all ${
+                  className={`expense-amount-input w-full pl-12 pr-4 py-3 rounded-xl border-2 text-base focus:outline-none transition-all ${
                     isDark 
                       ? 'border-gray-700 bg-[#1f2329] text-white placeholder-gray-500 focus:border-green-600' 
                       : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:border-green-500'
@@ -272,7 +272,7 @@ const AddExpenseForm = ({ groupId, onClose, isDark }) => {
 
         {/* Step 2: Paid By */}
         {currentStep === 2 && (
-          <div className="space-y-4 max-w-md">
+          <div className="paid-by-section space-y-4 max-w-md">
             <button
               onClick={handlePaidEqually}
               className={`px-4 py-2.5 rounded-lg transition-all flex items-center gap-2 text-sm font-medium ${
@@ -345,11 +345,11 @@ const AddExpenseForm = ({ groupId, onClose, isDark }) => {
 
         {/* Step 3: Split Amongst */}
         {currentStep === 3 && (
-          <div className="space-y-4 max-w-md">
+          <div className="split-amongst-section space-y-4 max-w-md">
             <button
               onClick={handleSplitEqually}
               disabled={isPaidEqually}
-              className={`px-4 py-2.5 rounded-lg transition-all flex items-center gap-2 text-sm font-medium disabled:opacity-50 ${
+              className={`split-equally-button px-4 py-2.5 rounded-lg transition-all flex items-center gap-2 text-sm font-medium disabled:opacity-50 ${
                 isDark 
                   ? 'bg-[#1f2329] hover:bg-gray-700 text-gray-300 border border-gray-700' 
                   : 'bg-white hover:bg-gray-50 text-gray-700 border border-gray-200'
@@ -426,7 +426,7 @@ const AddExpenseForm = ({ groupId, onClose, isDark }) => {
         {currentStep < 3 ? (
           <button
             onClick={handleNextStep}
-            className={`p-3 rounded-full transition-colors shadow-lg ${
+            className={`expense-next-button p-3 rounded-full transition-colors shadow-lg ${
               isDark 
                 ? 'bg-green-600 hover:bg-green-700 text-white' 
                 : 'bg-green-500 hover:bg-green-600 text-white'
@@ -438,7 +438,7 @@ const AddExpenseForm = ({ groupId, onClose, isDark }) => {
           <button
             onClick={handleAddExpense}
             disabled={loading}
-            className={`px-6 py-3 rounded-full transition-colors shadow-lg disabled:opacity-50 font-semibold ${
+            className={`add-expense-submit-button px-6 py-3 rounded-full transition-colors shadow-lg disabled:opacity-50 font-semibold ${
               isDark 
                 ? 'bg-green-600 hover:bg-green-700 text-white' 
                 : 'bg-green-500 hover:bg-green-600 text-white'

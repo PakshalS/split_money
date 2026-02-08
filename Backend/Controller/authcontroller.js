@@ -159,6 +159,59 @@ const changePassword = async (req, res) => {
   }
 };
 
+const getUserProfile = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const user = await User.findById(userId).select('-password');
+    
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const userData = user.toObject();
+    if (!userData.tourStatus) {
+      userData.tourStatus = "not-prompted";
+    }
+
+    res.json({ user: userData });
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    res.status(500).json({ error: "Error fetching user profile" });
+  }
+};
+
+const updateTourStatus = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { tourStatus, tourTaken } = req.body;
+    const allowedStatuses = new Set(["not-prompted", "later", "done"]);
+
+    let nextStatus = tourStatus;
+    if (!nextStatus && typeof tourTaken === "boolean") {
+      nextStatus = tourTaken ? "done" : "later";
+    }
+
+    if (!allowedStatuses.has(nextStatus)) {
+      return res.status(400).json({ error: "Invalid tour status" });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { tourStatus: nextStatus },
+      { new: true }
+    ).select('-password');
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json({ message: "Tour status updated successfully", tourStatus: user.tourStatus });
+  } catch (error) {
+    console.error("Error updating tour status:", error);
+    res.status(500).json({ error: "Error updating tour status" });
+  }
+};
 
 
-module.exports = { register, login, changePassword, requestPasswordReset };
+
+module.exports = { register, login, changePassword, requestPasswordReset, getUserProfile, updateTourStatus };

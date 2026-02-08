@@ -1,9 +1,12 @@
 import React, { useState } from "react";
-import { Search, Lock, KeyRound, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Lock, KeyRound, ChevronLeft, ChevronRight, HelpCircle, Map } from "lucide-react";
 import RequestPasswordResetComponent from "./reqreset";
 import ChangePasswordComponent from "./changepass";
+import { useTour } from "../../../context/TourContext";
 
 const SettingsMenu = ({ isDark, selectedSetting, onSelectSetting, showContentInline = true }) => {
+  const { startTour } = useTour();
+
   // Define settings first to use the ID for initialization
   const mainSettings = [
     {
@@ -22,6 +25,22 @@ const SettingsMenu = ({ isDark, selectedSetting, onSelectSetting, showContentInl
           label: "Change Password",
           description: "Update your password",
           icon: Lock,
+        },
+      ],
+    },
+    {
+      id: "help",
+      label: "Help & Support",
+      icon: HelpCircle,
+      subsettings: [
+        {
+          id: "app-tour",
+          label: "How to Use the App",
+          description: "Take a guided tour of the app",
+          icon: Map,
+          action: () => {
+            startTour();
+          },
         },
       ],
     },
@@ -206,7 +225,13 @@ const SettingsMenu = ({ isDark, selectedSetting, onSelectSetting, showContentInl
               {expandedCategory === category.id && category.subsettings.map((subsetting) => (
                 <button
                   key={subsetting.id}
-                  onClick={() => onSelectSetting(subsetting.id)}
+                  onClick={() => {
+                    if (subsetting.action) {
+                      subsetting.action();
+                    } else {
+                      onSelectSetting(subsetting.id);
+                    }
+                  }}
                   className={`w-full p-4 border-b text-left cursor-pointer transition-colors pl-12 ${
                     isDark
                       ? "hover:bg-gray-700 border-gray-700"

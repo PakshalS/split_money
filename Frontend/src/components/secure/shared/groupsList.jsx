@@ -146,11 +146,11 @@ const GroupList = ({ isDark, onFabClick }) => {
             </p>
           </div>
         ) : (
-          filteredGroups.map((group) => (
+          filteredGroups.map((group, index) => (
             <div
               key={group._id}
               onClick={() => onGroupSelect(group)}
-              className={`p-4 border-b cursor-pointer transition-colors ${
+              className={`p-4 border-b cursor-pointer transition-colors ${index === 0 ? 'newly-created-group-item' : ''} ${
                 currentGroupId === group._id
                   ? (isDark ? 'bg-gray-700 border-gray-600' : 'bg-green-50 border-green-100')
                   : (isDark ? 'hover:bg-[#1f2329] border-gray-700' : 'hover:bg-gray-50 border-gray-100')
@@ -196,7 +196,7 @@ const GroupList = ({ isDark, onFabClick }) => {
       {/* Floating Action Button (FAB) */}
       <button
         onClick={onFabClick}
-        className={`absolute bottom-6 right-6 p-2.5 rounded-full flex items-center justify-center font-medium transition-all duration-300 shadow-md active:scale-95 z-10 ${
+        className={`create-group-fab absolute bottom-6 right-6 p-2.5 rounded-full flex items-center justify-center font-medium transition-all duration-300 shadow-md active:scale-95 z-10 ${
           isDark
               ? 'bg-[#1f2329] hover:bg-dark-bg text-white'
               : 'bg-dark-bg hover:bg-[#1f2329] text-white'
