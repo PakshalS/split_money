@@ -169,7 +169,7 @@ const TransactionChatView = forwardRef(({
         isDark ? "bg-[#1f2329]" : "bg-[#efe7dd]"
       }`}
     >
-      <div className="pb-32 pt-4 px-2 sm:px-6 min-h-full">
+      <div className="pb-28 pt-4 px-2 sm:px-6 min-h-full">
         {groupedByDate.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-[60vh] text-center px-4">
             <div className={`p-6 rounded-full mb-4 ${isDark ? "bg-gray-800" : "bg-white/50"}`}>
@@ -226,8 +226,7 @@ const TransactionChatView = forwardRef(({
       {showScrollButton && (
         <button
           onClick={scrollToBottom}
-          // Changed bottom-24 to bottom-40 for mobile to clear FAB/Input
-          className={`fixed bottom-40 md:bottom-24 right-4 z-50 p-2 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 ${
+          className={`fixed bottom-32 md:bottom-24 right-4 md:right-8 z-40 p-2 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 ${
             isDark 
               ? "bg-gray-700 text-white hover:bg-gray-600 border border-gray-600" 
               : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-200"

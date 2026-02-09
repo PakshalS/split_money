@@ -155,11 +155,13 @@ const MainLayout = () => {
 
       <Sidebar isOpen={isSidebarOpen} isDark={isDark} toggleTheme={toggleTheme} toggleSidebar={toggleSidebar} />
 
-      <BottomNavigation
-        isDark={isDark}
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-      />
+      {!isGroupPage && (
+        <BottomNavigation
+          isDark={isDark}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+        />
+      )}
 
       {/* Main Content Area - WhatsApp Web Style */}
       <main

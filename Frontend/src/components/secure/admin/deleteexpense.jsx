@@ -33,6 +33,7 @@ const DeleteExpenseForm = ({ groupId, expense, onClose, isDark }) => {
       confirmText="Delete"
       cancelText="Cancel"
       type="danger"
+      isDark={isDark}
       loading={loading}
     />
   );

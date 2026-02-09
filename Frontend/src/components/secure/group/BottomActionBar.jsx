@@ -12,9 +12,9 @@ const BottomActionBar = ({
     filterType === "all" ? "All" : filterType === "expense" ? "Expenses" : "Settle-Ups";
 
   return (
-    <div className={`absolute bottom-16 md:bottom-0 left-0 right-0 z-20 ${
-      isDark ? "bg-dark-bg border-gray-800" : "bg-white/95 border-gray-200"
-    } border-t backdrop-blur-md`}>
+    <div className={`fixed md:absolute bottom-0 left-0 right-0 z-20 ${
+      isDark ? "bg-dark-bg border-gray-800" : "bg-white border-gray-200"
+    } border-t`}>
       <div className="flex items-center gap-3 px-4 py-3 sm:px-6 sm:py-4">
         {/* Filter Button (icon only) */}
         <button

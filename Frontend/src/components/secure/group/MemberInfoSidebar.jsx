@@ -179,7 +179,7 @@ const MemberInfoSidebar = ({
     <>
       {/* Sidebar */}
       <div
-        className={`absolute top-0 right-0 h-[calc(100%-65px)] md:h-full w-full md:w-[500px] ${
+        className={`absolute top-0 right-0 h-full md:h-full w-full md:w-[500px] ${
           isDark ? "bg-dark-bg" : "bg-white"
         } md:border-l ${
           isDark ? "md:border-gray-700" : "md:border-gray-200"

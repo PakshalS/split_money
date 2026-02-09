@@ -37,6 +37,7 @@ const RemoveMemberForm = ({ groupId, member, onClose, onSuccess, isDark }) => {
       confirmText="Remove"
       cancelText="Cancel"
       type="warning"
+      isDark={isDark}
       loading={loading}
     />
   );

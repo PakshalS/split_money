@@ -34,6 +34,7 @@ const DeleteGroupForm = ({ groupId, onClose, setIsDeleted, isDark }) => {
       confirmText="Delete Group"
       cancelText="Cancel"
       type="danger"
+      isDark={isDark}
       loading={loading}
     />
   );
