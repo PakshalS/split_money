@@ -11,6 +11,7 @@ const EditExpenseForm = ({ groupId, expense, onClose, isDark }) => {
   const [paidBy, setPaidBy] = useState(expense.paidBy || []);
   const [splitAmongst, setSplitAmongst] = useState(expense.splitAmongst || []);
   const [isPaidEqually, setIsPaidEqually] = useState(false);
+  const [isSplitEqually, setIsSplitEqually] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -26,22 +27,53 @@ const EditExpenseForm = ({ groupId, expense, onClose, isDark }) => {
   }, [groupId, allGroupDetails]);
 
   const handlePaidEqually = () => {
+    if (isPaidEqually) {
+      // Undo paid equally
+      setPaidBy([]);
+      setIsPaidEqually(false);
+      return;
+    }
+
     if (!amount || parseFloat(amount) <= 0) {
       alert('Please enter a valid amount first.');
       return;
     }
 
+    // Get current user ID
+    const currentUserId = Cookies.get("authToken") 
+      ? JSON.parse(atob(Cookies.get("authToken").split(".")[1])).userId 
+      : null;
+
     const totalAmount = parseFloat(amount);
-    const equalShare = (totalAmount / members.length).toFixed(2);
     
-    const equalPaidBy = members.map(member => ({
-      ...member,
-      amount: parseFloat(equalShare)
-    }));
+    // Calculate base amount in cents to avoid floating point issues
+    const totalInCents = Math.round(totalAmount * 100);
+    const baseAmountInCents = Math.floor(totalInCents / members.length);
+    const remainderInCents = totalInCents - (baseAmountInCents * members.length);
+    
+    const equalPaidBy = members.map(member => {
+      const isCurrentUser = member.userId?._id === currentUserId || member.userId === currentUserId;
+      // Add remainder to current user to balance out to exactly the total amount
+      const memberAmountInCents = isCurrentUser 
+        ? baseAmountInCents + remainderInCents 
+        : baseAmountInCents;
+      
+      return {
+        ...member,
+        amount: parseFloat((memberAmountInCents / 100).toFixed(2))
+      };
+    });
     
     setPaidBy(equalPaidBy);
     setSplitAmongst(members);
     setIsPaidEqually(true);
+    setIsSplitEqually(true);
+  };
+
+  const calculateRemainingAmount = () => {
+    const totalAmount = parseFloat(amount) || 0;
+    const paidAmount = paidBy.reduce((sum, member) => sum + parseFloat(member.amount || 0), 0);
+    return (totalAmount - paidAmount).toFixed(2);
   };
 
   const handleUpdateExpense = async () => {
@@ -101,7 +133,14 @@ const EditExpenseForm = ({ groupId, expense, onClose, isDark }) => {
   };
 
   const handleSplitEqually = () => {
+    if (isSplitEqually) {
+      // Undo split equally
+      setSplitAmongst([]);
+      setIsSplitEqually(false);
+      return;
+    }
     setSplitAmongst(members);
+    setIsSplitEqually(true);
   };
 
   const handleNextStep = () => {
@@ -274,17 +313,26 @@ const EditExpenseForm = ({ groupId, expense, onClose, isDark }) => {
         {/* Step 2: Paid By */}
         {currentStep === 2 && (
           <div className="space-y-4 max-w-md">
-            <button
-              onClick={handlePaidEqually}
-              className={`px-4 py-2.5 rounded-lg transition-all flex items-center gap-2 text-sm font-medium ${
-                isDark 
-                  ? 'bg-[#1f2329] hover:bg-gray-700 text-gray-300 border border-gray-700' 
-                  : 'bg-white hover:bg-gray-50 text-gray-700 border border-gray-200'
-              }`}
-            >
-              <Users className="w-4 h-4" />
-              Paid Equally (Auto-fill)
-            </button>
+            <div className="flex items-center gap-3 mb-4">
+              <button
+                onClick={handlePaidEqually}
+                className={`px-4 py-2.5 rounded-lg transition-all flex items-center gap-2 text-sm font-medium ${
+                  isDark 
+                    ? 'bg-[#1f2329] hover:bg-gray-700 text-gray-300 border border-gray-700' 
+                    : 'bg-white hover:bg-gray-50 text-gray-700 border border-gray-200'
+                }`}
+              >
+                <Users className="w-4 h-4" />
+                {isPaidEqually ? 'Undo Paid Equally' : 'Paid Equally (Auto-fill)'}
+              </button>
+              
+              <div className={`ml-auto text-right ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                <div className="text-xs mb-1">Total: ₹{parseFloat(amount || 0).toFixed(2)}</div>
+                <div className={`text-sm font-semibold ${parseFloat(calculateRemainingAmount()) === 0 ? (isDark ? 'text-green-400' : 'text-green-600') : (isDark ? 'text-orange-400' : 'text-orange-600')}`}>
+                  Remaining: ₹{calculateRemainingAmount()}
+                </div>
+              </div>
+            </div>
 
             <div className="space-y-2 max-h-[400px] overflow-y-auto scrollbar-hide">
               {members.map((member, index) => (
@@ -357,7 +405,7 @@ const EditExpenseForm = ({ groupId, expense, onClose, isDark }) => {
               }`}
             >
               <Users className="w-4 h-4" />
-              Split Equally
+              {isSplitEqually ? 'Undo Split Equally' : 'Split Equally'}
             </button>
 
             <div className="space-y-2 max-h-[400px] overflow-y-auto scrollbar-hide">
@@ -378,7 +426,7 @@ const EditExpenseForm = ({ groupId, expense, onClose, isDark }) => {
                         setSplitAmongst([...splitAmongst, member]);
                       } else {
                         setSplitAmongst(splitAmongst.filter(p => p.name !== member.name));
-                        setIsPaidEqually(false);
+                        setIsSplitEqually(false);
                       }
                     }}
                     disabled={isPaidEqually}
